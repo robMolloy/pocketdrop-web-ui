@@ -3,6 +3,7 @@ import { FileDetails } from "@/components/FileDetails";
 import { FileIcon, getFileExtension } from "@/components/FileIcon";
 import { ModalContent } from "@/components/Modal";
 import { RightSidebarContent } from "@/components/RightSidebar";
+import { ToggleableStar } from "@/components/ToggleableStar";
 import { Button } from "@/components/ui/button";
 import { FileUploader } from "@/modules/files/FileUploader";
 import { useFilesStore } from "@/modules/files/filesStore";
@@ -129,8 +130,11 @@ export const BrowseScreen = (p: { browsePath: string }) => {
                     </RightSidebarContent>,
                   );
                 }}
-                className="flex cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
+                className="relative flex cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
               >
+                <div className="absolute left-2 top-2">
+                  <ToggleableStar file={file} size="sm" />
+                </div>
                 <FileIcon extension={getFileExtension(file)} />
                 <span className="break-all text-center text-sm">{fileName}</span>
               </div>

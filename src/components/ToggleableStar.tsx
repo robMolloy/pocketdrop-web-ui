@@ -29,7 +29,9 @@ export function ToggleableStar(p: { file: TFileRecord; size?: "sm" | "md" | "lg"
       variant="ghost"
       size="icon"
       className={sizeClasses[size]}
-      onClick={async () => {
+      onClick={async (e) => {
+        e.stopPropagation();
+
         const newIsStarred = !isStarred;
         setIsStarred(newIsStarred);
         await updateFile({ pb, data: { ...p.file, isStarred: newIsStarred } });
