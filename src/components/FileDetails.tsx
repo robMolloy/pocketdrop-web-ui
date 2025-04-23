@@ -4,6 +4,7 @@ import { pb } from "@/config/pocketbaseConfig";
 import { TFileRecord, deleteFile, downloadFile, getFile } from "@/modules/files/dbFilesUtils";
 import { Calendar, Download, FileText, Folder, Hash, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ToggleableStar } from "./ToggleableStar";
 import { Button } from "./ui/button";
 
 const DetailsLine = (p: { Icon: typeof Hash; label: string; value: string }) => {
@@ -59,7 +60,10 @@ export function FileDetails(p: { file: TFileRecord; onDelete: () => void }) {
             ) : (
               <FileIcon extension={getFileExtension(p.file)} size={120} />
             )}
-            <div className="flex text-center text-xl">{fileName}</div>
+            <div className="flex items-center gap-2 text-center text-xl">
+              {fileName}
+              <ToggleableStar file={p.file} />
+            </div>
 
             <div className="mt-2 flex gap-2">
               <Button
