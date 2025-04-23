@@ -38,14 +38,22 @@ export const subscribeToUsers = async (p: {
   return { success: true } as const;
 };
 
+export const geUser = async (p: { pb: PocketBase; id: string }) => {
+  try {
+    const userResp = await p.pb.collection("users").getOne(p.id);
+    return userSchema.safeParse(userResp);
+  } catch (e) {
+    const error = e as { message: string };
+    return { success: false, error } as const;
+  }
+};
 export const subscribeToUser = async (p: {
   pb: PocketBase;
   id: string;
   onChange: (e: TUser | null) => void;
 }) => {
-  const userResp = await p.pb.collection("users").getOne(p.id);
-  const parseResp = userSchema.safeParse(userResp);
-  p.onChange(parseResp.success ? parseResp.data : null);
+  const userResp = await geUser(p);
+  p.onChange(userResp.success ? userResp.data : null);
 
   const unsub = p.pb.collection("users").subscribe(p.id, (e) => {
     const parseResp = userSchema.safeParse(e.record);

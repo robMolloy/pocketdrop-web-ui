@@ -1,5 +1,5 @@
 import { userSchema } from "@/modules/users/dbUsersUtils";
-import PocketBase, { BaseAuthStore } from "pocketbase";
+import PocketBase from "pocketbase";
 import { useEffect } from "react";
 import { z } from "zod";
 import { create } from "zustand";
@@ -9,10 +9,9 @@ export const pocketbaseAuthStoreSchema = z.object({
   record: userSchema,
 });
 
-type TPocketbaseAuthStore = z.infer<typeof pocketbaseAuthStoreSchema>;
-type TState = TPocketbaseAuthStore | null | undefined;
+type TState = boolean | undefined;
 
-export const useAuthDataStore = create<{
+export const useIsLoggedInStore = create<{
   data: TState;
   setData: (x: TState) => void;
   clear: () => void;
@@ -22,28 +21,23 @@ export const useAuthDataStore = create<{
   clear: () => set(() => ({ data: undefined })),
 }));
 
-const extractAuthData = (authStore: BaseAuthStore) => {
-  return pocketbaseAuthStoreSchema.safeParse(authStore);
-};
-
 export const useAuthDataSync = (p: { pb: PocketBase }) => {
-  const authDataStore = useAuthDataStore();
+  const isLoggedInStore = useIsLoggedInStore();
   useEffect(() => {
-    if (!p.pb.authStore.isValid) return authDataStore.setData(null);
+    if (!p.pb.authStore.isValid) return isLoggedInStore.setData(false);
 
-    const resp = extractAuthData(p.pb.authStore);
-    authDataStore.setData(resp.success ? resp.data : null);
+    const resp = pocketbaseAuthStoreSchema.safeParse(p.pb.authStore);
+    isLoggedInStore.setData(resp.success);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     p.pb.authStore.onChange(() => {
-      if (p.pb.authStore.isValid) {
-        const resp = extractAuthData(p.pb.authStore);
-        authDataStore.setData(resp.success ? resp.data : null);
-      } else {
-        authDataStore.setData(null);
-      }
+      if (!p.pb.authStore.isValid) return isLoggedInStore.setData(false);
+
+      const resp = pocketbaseAuthStoreSchema.safeParse(p.pb.authStore);
+      isLoggedInStore.setData(resp.success);
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
