@@ -14,17 +14,59 @@ import {
 import { useFilesStore } from "@/modules/files/filesStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import Link from "next/link";
+import { TFileRecord } from "@/modules/files/dbFilesUtils";
 
-const StarredPage = () => {
-  const filesStore = useFilesStore();
+const StarredPageTableRow = ({ file }: { file: TFileRecord }) => {
   const rightSidebarStore = useRightSidebarStore();
-
-  const starredFiles = filesStore.data?.filter((file) => file.isStarred) ?? [];
+  const fileName = file.filePath.split("/").pop() || "";
+  const directoryPath = file.filePath.substring(0, file.filePath.lastIndexOf("/"));
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString();
   };
+
+  return (
+    <TableRow
+      className="cursor-pointer"
+      onClick={() => {
+        rightSidebarStore.setData(
+          <RightSidebarContent title="File Details">
+            <FileDetails file={file} onDelete={() => rightSidebarStore.close()} />
+          </RightSidebarContent>,
+        );
+      }}
+    >
+      <TableCell className="flex items-center gap-2">
+        <FileIcon extension={getFileExtension(file)} size={24} />
+        <span>{fileName}</span>
+      </TableCell>
+      <TableCell>
+        <Link
+          href={`/browse${directoryPath}`}
+          onClick={(e) => e.stopPropagation()}
+          className="hover:underline"
+        >
+          {directoryPath}
+        </Link>
+      </TableCell>
+      <TableCell>{getFileExtension(file) || "Unknown"}</TableCell>
+      <TableCell>{formatDate(file.created)}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <ToggleableStar file={file} size="sm" />
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+};
+
+const StarredPage = () => {
+  const filesStore = useFilesStore();
+  const starredFiles = filesStore.data
+    ?.filter((file) => file.isStarred)
+    ?.filter((file) => !file.filePath.endsWith("/"))
+    ?? [];
 
   return (
     <div>
@@ -41,45 +83,9 @@ const StarredPage = () => {
           </TableHeaderRow>
         </TableHeader>
         <TableBody>
-          {starredFiles.map((file) => {
-            const fileName = file.filePath.split("/").pop() || "";
-            const directoryPath = file.filePath.substring(0, file.filePath.lastIndexOf("/"));
-
-            return (
-              <TableRow
-                key={file.id}
-                className="c cursor-pointer"
-                onClick={() => {
-                  rightSidebarStore.setData(
-                    <RightSidebarContent title="File Details">
-                      <FileDetails file={file} onDelete={() => rightSidebarStore.close()} />
-                    </RightSidebarContent>,
-                  );
-                }}
-              >
-                <TableCell className="flex items-center gap-2">
-                  <FileIcon extension={getFileExtension(file)} size={24} />
-                  <span>{fileName}</span>
-                </TableCell>
-                <TableCell>
-                  <Link
-                    href={`/browse${directoryPath}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="hover:underline"
-                  >
-                    {directoryPath}
-                  </Link>
-                </TableCell>
-                <TableCell>{getFileExtension(file) || "Unknown"}</TableCell>
-                <TableCell>{formatDate(file.created)}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <ToggleableStar file={file} size="sm" />
-                  </div>
-                </TableCell>
-              </TableRow>
-            );
-          })}
+          {starredFiles.map((file) => (
+            <StarredPageTableRow key={file.id} file={file} />
+          ))}
         </TableBody>
       </Table>
     </div>
