@@ -35,7 +35,7 @@ const convertFilesToDirectoryTree = (p: { data: TFile[] }): DirectoryNode[] => {
   p.data.forEach((file) => {
     const pathParts = splitAfterSlash(file.filePath);
     let currentLevel = root;
-    let currentPath = '';
+    let currentPath = "";
 
     // Process each part of the path
     pathParts.forEach((part) => {
@@ -94,7 +94,7 @@ function DirectoryItem({
   return (
     <div className="w-full">
       <div
-        className={`flex items-center rounded-md p-1 ${isActive ? "bg-white text-black" : "hover:bg-accent hover:text-accent-foreground"}`}
+        className={`flex items-center rounded-md p-1 ${isActive ? "bg-secondary text-secondary-foreground hover:bg-secondary/80" : "hover:bg-accent hover:text-accent-foreground"}`}
       >
         <div
           className="flex cursor-pointer items-center"
@@ -149,7 +149,9 @@ export const useBrowsePath = () => {
 export function DirectoryTree({ data }: { data: TFile[] }) {
   const { browsePath } = useBrowsePath();
 
-  const directoryStructure = convertFilesToDirectoryTree({ data: data.sort((a, b) => a > b ? 1 : -1) });
+  const directoryStructure = convertFilesToDirectoryTree({
+    data: data.sort((a, b) => (a > b ? 1 : -1)),
+  });
 
   return (
     <div className="flex flex-col">
