@@ -1,0 +1,128 @@
+import { ConfirmationModalContent } from "@/components/Modal";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { pb } from "@/config/pocketbaseConfig";
+import { deleteUser, TUser, updateUserStatus } from "@/modules/users/dbUsersUtils";
+import { useUsersStore } from "@/modules/users/usersStore";
+import { useCurrentUserStore } from "@/modules/users/currentUserStore";
+import { useModalStore } from "@/stores/modalStore";
+import { Trash2 } from "lucide-react";
+
+type TUserStatus = TUser["status"];
+const statusColorClassMap: { [k in TUserStatus]: string } = {
+  pending: "bg-muted",
+  admin: "bg-purple-600",
+  approved: "bg-green-500",
+  denied: "bg-destructive",
+} as const;
+
+const UserStateSelect = (p: {
+  user: TUser;
+  onStatusChange: (x: TUser) => void;
+  disabled?: boolean;
+}) => {
+  return (
+    <>
+      <Select
+        value={p.user.status}
+        onValueChange={(status: TUserStatus) => p.onStatusChange({ ...p.user, status })}
+        disabled={p.disabled}
+      >
+        <SelectTrigger className={`w-[180px] ${statusColorClassMap[p.user.status]}`}>
+          <SelectValue placeholder="Select status" />
+        </SelectTrigger>
+        <SelectContent>
+          {p.user.status === "pending" && <SelectItem value="pending">Pending</SelectItem>}
+          <SelectItem value="admin">Admin</SelectItem>
+          <SelectItem value="approved">Approved</SelectItem>
+          <SelectItem value="denied">Denied</SelectItem>
+        </SelectContent>
+      </Select>
+    </>
+  );
+};
+
+const UsersPage = () => {
+  const usersStore = useUsersStore();
+  const modalStore = useModalStore();
+  const userStore = useCurrentUserStore();
+
+  return (
+    <div>
+      <h1 className="m-0 text-3xl font-bold">Users</h1>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {usersStore.data.map((user) => {
+            const userOwnsRecord = user.id === userStore.data?.id;
+            return (
+              <TableRow key={user.id} className={userOwnsRecord ? "bg-muted" : ""}>
+                <TableCell>{user.name}</TableCell>
+                <TableCell>{user.email}</TableCell>
+                <TableCell>
+                  <UserStateSelect
+                    user={user}
+                    disabled={userOwnsRecord}
+                    onStatusChange={async (user: TUser) => {
+                      modalStore.setData(
+                        <ConfirmationModalContent
+                          title="Update status"
+                          description={`Are you sure you want to change the status of ${user.name} to ${user.status}?`}
+                          onConfirm={() =>
+                            updateUserStatus({ pb, id: user.id, status: user.status })
+                          }
+                        />,
+                      );
+                    }}
+                  />
+                </TableCell>
+                <TableCell>
+                  {!userOwnsRecord && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        modalStore.setData(
+                          <ConfirmationModalContent
+                            title="Delete user"
+                            description={`Are you sure you want to delete ${user.name}? This action cannot be undone.`}
+                            onConfirm={() => deleteUser({ pb, id: user.id })}
+                          />,
+                        );
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
+
+export default UsersPage;
