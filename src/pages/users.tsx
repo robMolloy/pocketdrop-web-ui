@@ -13,6 +13,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
+  TableHeaderRow,
   TableRow,
 } from "@/components/ui/table";
 import { pb } from "@/config/pocketbaseConfig";
@@ -66,12 +67,12 @@ const UsersPage = () => {
       <h1 className="m-0 text-3xl font-bold">Users</h1>
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableHeaderRow>
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Actions</TableHead>
-          </TableRow>
+          </TableHeaderRow>
         </TableHeader>
         <TableBody>
           {usersStore.data.map((user) => {

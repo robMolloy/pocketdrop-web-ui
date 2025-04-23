@@ -8,10 +8,12 @@ import {
   TableCell,
   TableHead,
   TableHeader,
+  TableHeaderRow,
   TableRow,
 } from "@/components/ui/table";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
+import Link from "next/link";
 
 const StarredPage = () => {
   const filesStore = useFilesStore();
@@ -30,13 +32,13 @@ const StarredPage = () => {
 
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableHeaderRow>
             <TableHead>Name</TableHead>
             <TableHead>Path</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Created</TableHead>
             <TableHead></TableHead>
-          </TableRow>
+          </TableHeaderRow>
         </TableHeader>
         <TableBody>
           {starredFiles.map((file) => {
@@ -46,6 +48,7 @@ const StarredPage = () => {
             return (
               <TableRow
                 key={file.id}
+                className="c cursor-pointer"
                 onClick={() => {
                   rightSidebarStore.setData(
                     <RightSidebarContent title="File Details">
@@ -58,7 +61,15 @@ const StarredPage = () => {
                   <FileIcon extension={getFileExtension(file)} size={24} />
                   <span>{fileName}</span>
                 </TableCell>
-                <TableCell>{directoryPath}</TableCell>
+                <TableCell>
+                  <Link
+                    href={`/browse${directoryPath}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="hover:underline"
+                  >
+                    {directoryPath}
+                  </Link>
+                </TableCell>
                 <TableCell>{getFileExtension(file) || "Unknown"}</TableCell>
                 <TableCell>{formatDate(file.created)}</TableCell>
                 <TableCell>
