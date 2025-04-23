@@ -24,13 +24,14 @@ export default function App({ Component, pageProps }: AppProps) {
   useAuthDataSync({ pb: pb });
 
   useEffect(() => {
-    const isLoggedIn = isLoggedInStore.data;
-    const id = pb.authStore.record?.id;
-
-    if (isLoggedIn && id) {
+    if (isLoggedInStore.data.status === "loggedIn") {
       smartSubscribeToFiles({ pb, onChange: (x) => filesStore.setData(x) });
       smartSubscribeToUsers({ pb, onChange: (x) => usersStore.setData(x) });
-      subscribeToUser({ pb, id, onChange: (x) => currentUserStore.setData(x) });
+      subscribeToUser({
+        pb,
+        id: isLoggedInStore.data.auth.record.id,
+        onChange: (x) => currentUserStore.setData(x),
+      });
     } else {
       filesStore.clear();
       usersStore.clear();
@@ -38,23 +39,16 @@ export default function App({ Component, pageProps }: AppProps) {
     }
   }, [isLoggedInStore.data]);
 
-  const authState = (() => {
-    if (isLoggedInStore.data === undefined) return "loading" as const;
-    if (isLoggedInStore.data === false) return "loggedOut" as const;
-    return "loggedIn" as const;
-  })();
-  console.log(`_app.tsx:${/*LL*/ 46}`, { authState });
-
   return (
     <>
-      <Layout showLeftSidebar={authState === "loggedIn"}>
-        {authState === "loggedIn" && <Component {...pageProps} />}
-        {authState === "loggedOut" && (
+      <Layout showLeftSidebar={isLoggedInStore.data.status === "loggedIn"}>
+        {isLoggedInStore.data.status === "loggedIn" && <Component {...pageProps} />}
+        {isLoggedInStore.data.status === "loggedOut" && (
           <div className="flex justify-center">
             <AuthForm />
           </div>
         )}
-        {authState === "loading" && <PageLoading />}
+        {isLoggedInStore.data.status === "loading" && <PageLoading />}
       </Layout>
     </>
   );

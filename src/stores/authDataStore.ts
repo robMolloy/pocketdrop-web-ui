@@ -8,36 +8,39 @@ export const pocketbaseAuthStoreSchema = z.object({
   token: z.string(),
   record: userSchema,
 });
+type TAuth = z.infer<typeof pocketbaseAuthStoreSchema>;
 
-type TState = boolean | undefined;
+type TState = { status: "loading" | "loggedOut" } | { status: "loggedIn"; auth: TAuth };
 
 export const useIsLoggedInStore = create<{
   data: TState;
   setData: (x: TState) => void;
-  clear: () => void;
 }>()((set) => ({
-  data: undefined,
+  data: { status: "loading" },
   setData: (data) => set(() => ({ data })),
-  clear: () => set(() => ({ data: undefined })),
 }));
 
 export const useAuthDataSync = (p: { pb: PocketBase }) => {
   const isLoggedInStore = useIsLoggedInStore();
   useEffect(() => {
-    if (!p.pb.authStore.isValid) return isLoggedInStore.setData(false);
+    if (!p.pb.authStore.isValid) return isLoggedInStore.setData({ status: "loggedOut" });
 
     const resp = pocketbaseAuthStoreSchema.safeParse(p.pb.authStore);
-    isLoggedInStore.setData(resp.success);
+    isLoggedInStore.setData(
+      resp.success ? { status: "loggedIn", auth: resp.data } : { status: "loggedOut" },
+    );
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     p.pb.authStore.onChange(() => {
-      if (!p.pb.authStore.isValid) return isLoggedInStore.setData(false);
+      if (!p.pb.authStore.isValid) return isLoggedInStore.setData({ status: "loggedOut" });
 
       const resp = pocketbaseAuthStoreSchema.safeParse(p.pb.authStore);
-      isLoggedInStore.setData(resp.success);
+      isLoggedInStore.setData(
+        resp.success ? { status: "loggedIn", auth: resp.data } : { status: "loggedOut" },
+      );
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
