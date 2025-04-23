@@ -46,3 +46,14 @@ export const useAuthDataSync = (p: { pb: PocketBase }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 };
+
+export const useCurrentUserStore = () => {
+  const isLoggedInStore = useIsLoggedInStore();
+  return {
+    data: (() => {
+      if (isLoggedInStore.data.status === "loading") return undefined;
+      if (isLoggedInStore.data.status === "loggedIn") return isLoggedInStore.data.auth.record;
+      return null;
+    })(),
+  };
+};

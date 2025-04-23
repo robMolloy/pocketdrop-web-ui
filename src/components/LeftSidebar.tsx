@@ -3,7 +3,7 @@ import { pb } from "@/config/pocketbaseConfig";
 import { logout } from "@/modules/auth/dbAuthUtils";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { useUsersStore } from "@/modules/users/usersStore";
-import { useCurrentUserStore } from "@/modules/users/currentUserStore";
+import { useCurrentUserStore } from "@/stores/authDataStore";
 import { Home, LogOut, Settings, Star, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";

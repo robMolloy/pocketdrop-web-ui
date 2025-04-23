@@ -18,7 +18,7 @@ import {
 import { pb } from "@/config/pocketbaseConfig";
 import { deleteUser, TUser, updateUserStatus } from "@/modules/users/dbUsersUtils";
 import { useUsersStore } from "@/modules/users/usersStore";
-import { useCurrentUserStore } from "@/modules/users/currentUserStore";
+import { useCurrentUserStore } from "@/stores/authDataStore";
 import { useModalStore } from "@/stores/modalStore";
 import { Trash2 } from "lucide-react";
 
