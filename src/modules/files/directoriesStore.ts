@@ -16,52 +16,46 @@ export const useDirectoriesStore = create<{
 type TDirectoryTree = TDirectory & { children: TDirectoryTree[]; fullPath: string };
 
 const convertDirectoriesIntoDirectoryTree = (directories: TDirectory[]): TDirectoryTree[] => {
-  // Create a map of all directories by their ID
-  const directoryMap = new Map<string, TDirectory>();
-  directories.forEach((dir) => directoryMap.set(dir.id, dir));
-
-  // Create a map to store the tree structure
-  const treeMap = new Map<string, TDirectoryTree>();
-
-  // Helper function to build full path recursively
-  const buildFullPath = (dir: TDirectory, path: string = ""): string => {
-    if (!dir.directoryRelationId) {
-      return dir.name;
-    }
-    const parent = directoryMap.get(dir.directoryRelationId);
-    if (!parent) {
-      return dir.name;
-    }
-    return `${buildFullPath(parent)}/${dir.name}`;
+  // Create root node
+  const rootNode: TDirectoryTree = {
+    id: "root",
+    name: "/",
+    collectionId: "",
+    collectionName: "directories",
+    created: new Date().toISOString(),
+    updated: new Date().toISOString(),
+    directoryRelationId: "",
+    fullPath: "/",
+    children: [],
   };
 
-  // Initialize the tree structure
-  directories.forEach((dir) => {
-    treeMap.set(dir.id, {
-      ...dir,
-      fullPath: buildFullPath(dir),
-      children: [],
+  // Helper function to recursively build tree
+  const buildTree = (parentNode: TDirectoryTree, parentId: string) => {
+    // Find all directories that have this parent's ID as their directoryRelationId
+    const children = directories.filter((dir) => dir.directoryRelationId === parentId);
+
+    // For each child directory
+    children.forEach((child) => {
+      // Create child node with full path
+      const childNode: TDirectoryTree = {
+        ...child,
+        fullPath: `${parentNode.fullPath}${child.name}/`,
+        children: [],
+      };
+
+      // Add child to parent's children array
+      parentNode.children.push(childNode);
+
+      // Recursively build tree for this child
+      buildTree(childNode, child.id);
     });
-  });
+  };
 
-  // Build the tree by linking children to their parents
-  directories.forEach((dir) => {
-    if (dir.directoryRelationId) {
-      const parent = treeMap.get(dir.directoryRelationId);
-      if (parent) {
-        const child = treeMap.get(dir.id);
-        if (child) {
-          parent.children.push(child);
-        }
-      }
-    }
-  });
+  // Start building tree from root
+  buildTree(rootNode, "");
 
-  // Find root nodes (directories without parents)
-  return directories
-    .filter((dir) => !dir.directoryRelationId)
-    .map((dir) => treeMap.get(dir.id))
-    .filter((node): node is NonNullable<typeof node> => node !== undefined);
+  // Return array with just the root node
+  return [rootNode];
 };
 
 export const useDirectoryTreeStore = () => {

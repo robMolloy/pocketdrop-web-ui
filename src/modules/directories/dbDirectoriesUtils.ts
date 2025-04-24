@@ -6,7 +6,7 @@ const directorySchema = z.object({
   collectionName: z.string(),
   id: z.string(),
   name: z.string(),
-  directoryRelationId: z.string().optional(),
+  directoryRelationId: z.string(),
   created: z.string(),
   updated: z.string(),
 });
