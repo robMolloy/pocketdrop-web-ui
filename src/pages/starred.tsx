@@ -42,7 +42,7 @@ const StarredPageTableRow = (p: { file: TFileRecord }) => {
         return () => URL.revokeObjectURL(url);
       }
     })();
-  }, [p.file.id]);
+  }, [p.file.file]);
 
   return (
     <TableRow

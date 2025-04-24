@@ -12,6 +12,18 @@ import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import { ChevronRight, Folder, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { ReactNode } from "react";
+
+const BreadcrumbLink = (p: { isLast: boolean; href: string; children: ReactNode }) => {
+  return (
+    <Link
+      href={p.href}
+      className={`ml-1 text-lg ${p.isLast ? "text-muted-foreground" : "hover:underline"}`}
+    >
+      {p.children}
+    </Link>
+  );
+};
 
 export const BrowseScreen = (p: { browsePath: string }) => {
   const router = useRouter();
@@ -22,16 +34,16 @@ export const BrowseScreen = (p: { browsePath: string }) => {
   const currentPathDirs = !filesStore.data
     ? []
     : filesStore.data
-      .filter((x) => x.filePath.startsWith(p.browsePath))
-      .filter((x) => x.filePath.endsWith("/"))
-      .filter((x) => x.filePath.split("/").length === p.browsePath.split("/").length + 1);
+        .filter((x) => x.filePath.startsWith(p.browsePath))
+        .filter((x) => x.filePath.endsWith("/"))
+        .filter((x) => x.filePath.split("/").length === p.browsePath.split("/").length + 1);
 
   const currentPathFiles = !filesStore.data
     ? []
     : filesStore.data
-      .filter((x) => x.filePath.startsWith(p.browsePath))
-      .filter((x) => !x.filePath.endsWith("/"))
-      .filter((x) => x.filePath.split("/").length === p.browsePath.split("/").length);
+        .filter((x) => x.filePath.startsWith(p.browsePath))
+        .filter((x) => !x.filePath.endsWith("/"))
+        .filter((x) => x.filePath.split("/").length === p.browsePath.split("/").length);
 
   // Create breadcrumb segments
   const pathSegments = p.browsePath
@@ -52,19 +64,15 @@ export const BrowseScreen = (p: { browsePath: string }) => {
         <div className="flex items-end gap-2">
           <h1 className="mb-0 text-2xl font-bold">Current Path:</h1>
           <div className="flex items-center gap-1">
-            <Link href="/browse/" className="text-lg text-muted-foreground hover:text-foreground">
+            <BreadcrumbLink isLast={pathSegments.length === 0} href="/browse/">
               /
-            </Link>
+            </BreadcrumbLink>
             {pathSegments.map((segment) => (
               <div key={segment.path} className="flex items-center">
                 <ChevronRight className="text-muted-foreground" size={15} />
-                <Link
-                  href={`/browse${segment.path}`}
-                  className={`ml-1 text-lg ${segment.isLast ? "text-muted-foreground" : "hover:underline"
-                    }`}
-                >
+                <BreadcrumbLink href={`/browse${segment.path}`} isLast={segment.isLast}>
                   {segment.name}
-                </Link>
+                </BreadcrumbLink>
               </div>
             ))}
           </div>
@@ -93,7 +101,7 @@ export const BrowseScreen = (p: { browsePath: string }) => {
       <br />
 
       <div>
-        <FileUploader currentPath={p.browsePath} onUploadComplete={() => { }} />
+        <FileUploader currentPath={p.browsePath} onUploadComplete={() => {}} />
       </div>
 
       <br />
