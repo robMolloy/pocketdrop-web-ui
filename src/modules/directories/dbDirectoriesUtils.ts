@@ -6,7 +6,7 @@ const directorySchema = z.object({
   collectionName: z.string(),
   id: z.string(),
   name: z.string(),
-  directoryRelationId: z.string(),
+  directoryRelationId: z.string().optional(),
   created: z.string(),
   updated: z.string(),
 });
@@ -63,7 +63,8 @@ export const smartSubscribeToDirectories = async (p: {
 
 export const createDirectory = async (p: {
   pb: PocketBase;
-  data: { name: string; path: string };
+  // data: Omit<TDirectory, "created" | "updated" | "collectionId" | "collectionName" | "id">;
+  data: Pick<TDirectory, "name" | "directoryRelationId">;
 }) => {
   try {
     const resp = await p.pb.collection("directories").create(p.data);

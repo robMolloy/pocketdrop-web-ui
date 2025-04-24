@@ -87,7 +87,11 @@ export const BrowseScreen = (p: { browsePath: string }) => {
                   title="New directory"
                   description={`Create a new directory at ${p.browsePath}`}
                   content={
-                    <CreateDirectoryForm onSuccess={modalStore.close} currentPath={p.browsePath} />
+                    <CreateDirectoryForm
+                      onSuccess={modalStore.close}
+                      currentPath={p.browsePath}
+                      currentPathId=""
+                    />
                   }
                 />,
               )

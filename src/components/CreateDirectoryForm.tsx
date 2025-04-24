@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { createFile } from "@/modules/files/dbFilesUtils";
 import { pb } from "@/config/pocketbaseConfig";
+import { createDirectory } from "@/modules/directories/dbDirectoriesUtils";
 
-export function CreateDirectoryForm(p: { onSuccess: () => void; currentPath: string }) {
+export function CreateDirectoryForm(p: { onSuccess: () => void; currentPath: string, currentPathId:string }) {
   const [directoryName, setDirectoryName] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -44,7 +45,13 @@ export function CreateDirectoryForm(p: { onSuccess: () => void; currentPath: str
                 },
               });
 
+              const createDirResp = await createDirectory({pb,data:{
+                name: directoryName,
+                directoryRelationId: p.currentPathId
+              }})
+
               if (!createResp.success) return setError("Error creating directory");
+              if (!createDirResp.success) return setError("Error creating directory");
               p.onSuccess();
             }}
             className="rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground hover:bg-primary/90"
