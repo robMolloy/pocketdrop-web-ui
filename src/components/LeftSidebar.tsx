@@ -8,7 +8,8 @@ import { Home, LogOut, Settings, Star, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import { DirectoryTree } from "./FileTree";
+import { DirectoryTree, DirectoryTree2 } from "./FileTree";
+import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 
 const SidebarButtonWrapper = (p: { children: ReactNode; href?: string }) =>
   p.href ? <Link href={p.href}>{p.children}</Link> : p.children;
@@ -43,6 +44,7 @@ const SidebarButton = (p: {
 export function LeftSidebar() {
   const router = useRouter();
   const filesStore = useFilesStore();
+  const directoryTreeStore = useDirectoryTreeStore();
   const userStore = useCurrentUserStore();
   const usersStore = useUsersStore();
   const pendingUsersCount = usersStore.data.filter((user) => user.status === "pending").length;
@@ -58,6 +60,9 @@ export function LeftSidebar() {
             Starred
           </SidebarButton>
           {filesStore.data !== undefined && <DirectoryTree data={filesStore.data} />}
+          {directoryTreeStore.data !== undefined && (
+            <DirectoryTree2 data={directoryTreeStore.data} />
+          )}
         </div>
       </div>
 

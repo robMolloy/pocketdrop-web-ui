@@ -13,7 +13,7 @@ export const useDirectoriesStore = create<{
   clear: () => set(() => ({ data: undefined })),
 }));
 
-type TDirectoryTree = TDirectory & { children: TDirectoryTree[]; fullPath: string };
+export type TDirectoryTree = TDirectory & { children: TDirectoryTree[]; fullPath: string };
 
 const buildTree = (p: {
   parentNode: TDirectoryTree;

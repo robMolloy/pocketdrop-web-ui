@@ -1,3 +1,4 @@
+import { TDirectoryTree } from "@/modules/files/directoriesStore";
 import { ChevronDown, ChevronRight, Folder } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -169,3 +170,24 @@ export function DirectoryTree({ data }: { data: TFile[] }) {
     </div>
   );
 }
+
+const convertDirectoryTreeToDirectoryNode = (tree: TDirectoryTree): DirectoryNode => {
+  return {
+    name: tree.name,
+    path: tree.fullPath,
+    isDirectory: true,
+    children: tree.children.map(convertDirectoryTreeToDirectoryNode),
+  };
+};
+
+export const DirectoryTree2 = ({ data }: { data: TDirectoryTree }) => {
+  const { browsePath } = useBrowsePath();
+
+  const rootNode = convertDirectoryTreeToDirectoryNode(data);
+
+  return (
+    <div className="flex flex-col">
+      <DirectoryItem node={rootNode} initIsOpen={true} activePath={browsePath} />
+    </div>
+  );
+};
