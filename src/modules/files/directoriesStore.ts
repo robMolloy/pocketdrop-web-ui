@@ -86,32 +86,23 @@ function buildDirectoriesWithFullPaths(directories: TDirectory[]): TDirectoryWit
   });
 }
 
+function traverseDirectoryTree(
+  dirTree: TDirectoryTree,
+  onEachDirTree: (x: TDirectoryTree) => void,
+): void {
+  onEachDirTree(dirTree);
+
+  for (const child of dirTree.children) traverseDirectoryTree(child, onEachDirTree);
+}
 function buildDirectoriesWithFullPathsFromDirectoryTree(
   tree: TDirectoryTree,
 ): TDirectoryWithFullPath[] {
-  // Create a result array to hold flattened directories with full paths
   const result: TDirectoryWithFullPath[] = [];
 
-  // Helper function to traverse the tree
-  function traverseTree(node: TDirectoryTree): void {
-    const directoryWithPath: TDirectoryWithFullPath = {
-      id: node.id,
-      name: node.name,
-      directoryRelationId: node.directoryRelationId,
-      collectionId: node.collectionId,
-      collectionName: node.collectionName,
-      created: node.created,
-      updated: node.updated,
-      fullPath: node.fullPath,
-    };
-
-    result.push(directoryWithPath);
-
-    for (const child of node.children) traverseTree(child);
-  }
-
-  // Start traversal from the root
-  traverseTree(tree);
+  traverseDirectoryTree(tree, (x) => {
+    const { children: _, ...rest } = x;
+    result.push(rest);
+  });
 
   return result;
 }
