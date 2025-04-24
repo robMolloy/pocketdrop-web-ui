@@ -58,9 +58,9 @@ const convertDirectoriesIntoDirectoryTree = (directories: TDirectory[]): TDirect
   return rootNode;
 };
 
-function buildDirectoriesWithFullPaths(
-  directories: TDirectory[],
-): (TDirectory & { fullPath: string })[] {
+type TDirectoryWithFullPath = TDirectory & { fullPath: string };
+
+function buildDirectoriesWithFullPaths(directories: TDirectory[]): TDirectoryWithFullPath[] {
   // Create a map for quick lookups
   const dirMap = new Map<string, TDirectory>();
   directories.forEach((dir) => dirMap.set(dir.id, dir));
@@ -86,6 +86,36 @@ function buildDirectoriesWithFullPaths(
   });
 }
 
+function buildDirectoriesWithFullPathsFromDirectoryTree(
+  tree: TDirectoryTree,
+): TDirectoryWithFullPath[] {
+  // Create a result array to hold flattened directories with full paths
+  const result: TDirectoryWithFullPath[] = [];
+
+  // Helper function to traverse the tree
+  function traverseTree(node: TDirectoryTree): void {
+    const directoryWithPath: TDirectoryWithFullPath = {
+      id: node.id,
+      name: node.name,
+      directoryRelationId: node.directoryRelationId,
+      collectionId: node.collectionId,
+      collectionName: node.collectionName,
+      created: node.created,
+      updated: node.updated,
+      fullPath: node.fullPath,
+    };
+
+    result.push(directoryWithPath);
+
+    for (const child of node.children) traverseTree(child);
+  }
+
+  // Start traversal from the root
+  traverseTree(tree);
+
+  return result;
+}
+
 export const useDirectoryTreeStore = () => {
   const directoriesStore = useDirectoriesStore();
 
@@ -93,6 +123,7 @@ export const useDirectoryTreeStore = () => {
 
   const tree = convertDirectoriesIntoDirectoryTree(directoriesStore.data);
   const data = buildDirectoriesWithFullPaths(directoriesStore.data);
+  const data2 = buildDirectoriesWithFullPathsFromDirectoryTree(tree);
 
-  return { tree, data };
+  return { tree, data, data2 };
 };
