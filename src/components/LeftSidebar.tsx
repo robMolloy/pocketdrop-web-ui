@@ -60,8 +60,8 @@ export function LeftSidebar() {
             Starred
           </SidebarButton>
           {filesStore.data !== undefined && <DirectoryTree data={filesStore.data} />}
-          {directoryTreeStore.data !== undefined && (
-            <DirectoryTree2 data={directoryTreeStore.data} />
+          {directoryTreeStore.tree !== undefined && (
+            <DirectoryTree2 data={directoryTreeStore.tree} />
           )}
         </div>
       </div>

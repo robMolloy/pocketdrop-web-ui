@@ -58,10 +58,41 @@ const convertDirectoriesIntoDirectoryTree = (directories: TDirectory[]): TDirect
   return rootNode;
 };
 
+function buildDirectoriesWithFullPaths(
+  directories: TDirectory[],
+): (TDirectory & { fullPath: string })[] {
+  // Create a map for quick lookups
+  const dirMap = new Map<string, TDirectory>();
+  directories.forEach((dir) => dirMap.set(dir.id, dir));
+
+  return directories.map((dir) => {
+    // If there's no relation, fullPath is just the directory name
+    if (!dir.directoryRelationId) {
+      return { ...dir, fullPath: "/" + dir.name };
+    }
+
+    // Build the full path by traversing the directory relations
+    const pathParts: string[] = [dir.name];
+    let currentDir = dir;
+
+    // Follow the relation chain until we reach a directory with no relation
+    while (currentDir.directoryRelationId && dirMap.has(currentDir.directoryRelationId)) {
+      const parent = dirMap.get(currentDir.directoryRelationId)!;
+      pathParts.unshift(parent.name);
+      currentDir = parent;
+    }
+
+    return { ...dir, fullPath: "/" + pathParts.join("/") };
+  });
+}
+
 export const useDirectoryTreeStore = () => {
   const directoriesStore = useDirectoriesStore();
 
-  if (!directoriesStore.data) return { data: undefined } as const;
+  if (!directoriesStore.data) return { tree: undefined, data: undefined } as const;
 
-  return { data: convertDirectoriesIntoDirectoryTree(directoriesStore.data) };
+  const tree = convertDirectoriesIntoDirectoryTree(directoriesStore.data);
+  const data = buildDirectoriesWithFullPaths(directoriesStore.data);
+
+  return { tree, data };
 };

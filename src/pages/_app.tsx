@@ -39,8 +39,8 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
-      {/* <pre>{JSON.stringify(directoriesStore, undefined, 2)}</pre>
-      <pre>{JSON.stringify(directoryTreeStore, undefined, 2)}</pre> */}
+      <pre>{JSON.stringify(directoriesStore, undefined, 2)}</pre>
+      <pre>{JSON.stringify(directoryTreeStore, undefined, 2)}</pre>
       <Layout showLeftSidebar={isLoggedInStore.data.status === "loggedIn"}>
         {isLoggedInStore.data.status === "loggedIn" && <Component {...pageProps} />}
         {isLoggedInStore.data.status === "loggedOut" && (
