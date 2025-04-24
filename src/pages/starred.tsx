@@ -21,7 +21,7 @@ import { useEffect, useState } from "react";
 
 const StarredPageTableRow = (p: { file: TFileRecord }) => {
   const rightSidebarStore = useRightSidebarStore();
-  const fileName = p.file.filePath.split("/").pop() || "";
+  const fileName = p.file.filePath.split("/").pop();
   const directoryPath = p.file.filePath.substring(0, p.file.filePath.lastIndexOf("/"));
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
 
@@ -32,7 +32,7 @@ const StarredPageTableRow = (p: { file: TFileRecord }) => {
 
   useEffect(() => {
     const extension = getFileExtension(p.file);
-    if (!imageExtensions.includes(extension ?? "")) return;
+    if (!imageExtensions.includes(extension)) return;
 
     (async () => {
       const resp = await getFile({ pb, id: p.file.id, isThumb: true });
