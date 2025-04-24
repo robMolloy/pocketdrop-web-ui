@@ -19,10 +19,10 @@ import { pb } from "@/config/pocketbaseConfig";
 import { getFile } from "@/modules/files/dbFilesUtils";
 import { useEffect, useState } from "react";
 
-const StarredPageTableRow = ({ file }: { file: TFileRecord }) => {
+const StarredPageTableRow = (p: { file: TFileRecord }) => {
   const rightSidebarStore = useRightSidebarStore();
-  const fileName = file.filePath.split("/").pop() || "";
-  const directoryPath = file.filePath.substring(0, file.filePath.lastIndexOf("/"));
+  const fileName = p.file.filePath.split("/").pop() || "";
+  const directoryPath = p.file.filePath.substring(0, p.file.filePath.lastIndexOf("/"));
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
 
   const formatDate = (dateString: string) => {
@@ -31,18 +31,18 @@ const StarredPageTableRow = ({ file }: { file: TFileRecord }) => {
   };
 
   useEffect(() => {
-    const extension = getFileExtension(file);
+    const extension = getFileExtension(p.file);
     if (!imageExtensions.includes(extension ?? "")) return;
 
     (async () => {
-      const resp = await getFile({ pb, id: file.id, isThumb: true });
+      const resp = await getFile({ pb, id: p.file.id, isThumb: true });
       if (resp.success) {
         const url = URL.createObjectURL(resp.data.file);
         setThumbnailUrl(url);
         return () => URL.revokeObjectURL(url);
       }
     })();
-  }, [file.id]);
+  }, [p.file.id]);
 
   return (
     <TableRow
@@ -50,7 +50,7 @@ const StarredPageTableRow = ({ file }: { file: TFileRecord }) => {
       onClick={() => {
         rightSidebarStore.setData(
           <RightSidebarContent title="File Details">
-            <FileDetails file={file} onDelete={() => rightSidebarStore.close()} />
+            <FileDetails file={p.file} onDelete={() => rightSidebarStore.close()} />
           </RightSidebarContent>,
         );
       }}
@@ -59,7 +59,7 @@ const StarredPageTableRow = ({ file }: { file: TFileRecord }) => {
         {thumbnailUrl ? (
           <img src={thumbnailUrl} alt={fileName} className="h-6 w-6 object-contain" />
         ) : (
-          <FileIcon extension={getFileExtension(file)} size={24} />
+          <FileIcon extension={getFileExtension(p.file)} size={24} />
         )}
         <span>{fileName}</span>
       </TableCell>
@@ -72,11 +72,11 @@ const StarredPageTableRow = ({ file }: { file: TFileRecord }) => {
           {directoryPath}
         </Link>
       </TableCell>
-      <TableCell>{getFileExtension(file) || "Unknown"}</TableCell>
-      <TableCell>{formatDate(file.created)}</TableCell>
+      <TableCell>{getFileExtension(p.file) || "Unknown"}</TableCell>
+      <TableCell>{formatDate(p.file.created)}</TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
-          <ToggleableStar file={file} size="sm" />
+          <ToggleableStar file={p.file} size="sm" />
         </div>
       </TableCell>
     </TableRow>
