@@ -15,7 +15,27 @@ export const useDirectoriesStore = create<{
 
 type TDirectoryTree = TDirectory & { children: TDirectoryTree[]; fullPath: string };
 
-const convertDirectoriesIntoDirectoryTree = (directories: TDirectory[]): TDirectoryTree[] => {
+const buildTree = (p: {
+  parentNode: TDirectoryTree;
+  allDirectories: TDirectory[];
+  parentId: string;
+}) => {
+  const children = p.allDirectories.filter((dir) => dir.directoryRelationId === p.parentId);
+
+  children.forEach((child) => {
+    const childNode: TDirectoryTree = {
+      ...child,
+      fullPath: `${p.parentNode.fullPath}${child.name}/`,
+      children: [],
+    };
+
+    p.parentNode.children.push(childNode);
+
+    buildTree({ parentNode: childNode, allDirectories: p.allDirectories, parentId: child.id });
+  });
+};
+
+const convertDirectoriesIntoDirectoryTree = (directories: TDirectory[]): TDirectoryTree => {
   // Create root node
   const rootNode: TDirectoryTree = {
     id: "root",
@@ -29,33 +49,13 @@ const convertDirectoriesIntoDirectoryTree = (directories: TDirectory[]): TDirect
     children: [],
   };
 
-  // Helper function to recursively build tree
-  const buildTree = (parentNode: TDirectoryTree, parentId: string) => {
-    // Find all directories that have this parent's ID as their directoryRelationId
-    const children = directories.filter((dir) => dir.directoryRelationId === parentId);
+  buildTree({
+    parentNode: rootNode,
+    allDirectories: directories,
+    parentId: "",
+  });
 
-    // For each child directory
-    children.forEach((child) => {
-      // Create child node with full path
-      const childNode: TDirectoryTree = {
-        ...child,
-        fullPath: `${parentNode.fullPath}${child.name}/`,
-        children: [],
-      };
-
-      // Add child to parent's children array
-      parentNode.children.push(childNode);
-
-      // Recursively build tree for this child
-      buildTree(childNode, child.id);
-    });
-  };
-
-  // Start building tree from root
-  buildTree(rootNode, "");
-
-  // Return array with just the root node
-  return [rootNode];
+  return rootNode;
 };
 
 export const useDirectoryTreeStore = () => {
@@ -63,7 +63,5 @@ export const useDirectoryTreeStore = () => {
 
   if (!directoriesStore.data) return { data: undefined } as const;
 
-  const tree = convertDirectoriesIntoDirectoryTree(directoriesStore.data);
-
-  return tree;
+  return { data: convertDirectoriesIntoDirectoryTree(directoriesStore.data) };
 };
