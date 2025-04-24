@@ -13,7 +13,7 @@ export const useDirectoriesStore = create<{
   clear: () => set(() => ({ data: undefined })),
 }));
 
-type TDirectoryTree = TDirectory & { children: TDirectoryTree[] };
+type TDirectoryTree = TDirectory & { children: TDirectoryTree[]; fullPath: string };
 
 const convertDirectoriesIntoDirectoryTree = (directories: TDirectory[]): TDirectoryTree[] => {
   // Create a map of all directories by their ID
@@ -23,10 +23,23 @@ const convertDirectoriesIntoDirectoryTree = (directories: TDirectory[]): TDirect
   // Create a map to store the tree structure
   const treeMap = new Map<string, TDirectoryTree>();
 
+  // Helper function to build full path recursively
+  const buildFullPath = (dir: TDirectory, path: string = ""): string => {
+    if (!dir.directoryRelationId) {
+      return dir.name;
+    }
+    const parent = directoryMap.get(dir.directoryRelationId);
+    if (!parent) {
+      return dir.name;
+    }
+    return `${buildFullPath(parent)}/${dir.name}`;
+  };
+
   // Initialize the tree structure
   directories.forEach((dir) => {
     treeMap.set(dir.id, {
       ...dir,
+      fullPath: buildFullPath(dir),
       children: [],
     });
   });
