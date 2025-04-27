@@ -1,17 +1,14 @@
-import { FileUploader } from "@/modules/files/FileUploader";
-import { useRightSidebarStore } from "@/stores/rightSidebarStore";
-import { Cloud, Upload } from "lucide-react";
+// import { useRightSidebarStore } from "@/stores/rightSidebarStore";
+// import { useRouter } from "next/router";
+import { Cloud } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { RightSidebarContent } from "./RightSidebar";
 import { ThemeToggle } from "./ThemeToggle";
-import { Button } from "./ui/button";
 
 export function Header() {
-  const router = useRouter();
-  const fullPath = router.asPath;
+  // const router = useRouter();
+  // const fullPath = router.asPath;
 
-  const rightSidebarStore = useRightSidebarStore();
+  // const rightSidebarStore = useRightSidebarStore();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -21,7 +18,7 @@ export function Header() {
           <span className="font-bold">PocketDrop</span>
         </Link>
         <nav className="flex items-center space-x-2">
-          {fullPath.startsWith("/browse") && (
+          {/* {fullPath.startsWith("/browse") && (
             <Button
               variant="outline"
               size="sm"
@@ -37,7 +34,7 @@ export function Header() {
               <Upload className="h-4 w-4" />
               Upload
             </Button>
-          )}
+          )} */}
           <ThemeToggle />
         </nav>
       </div>

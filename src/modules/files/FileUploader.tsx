@@ -4,7 +4,11 @@ import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { pb } from "@/config/pocketbaseConfig";
 
-export function FileUploader(p: { currentPath: string; onUploadComplete?: () => void }) {
+export function FileUploader(p: {
+  currentPath: string;
+  onUploadComplete?: () => void;
+  parentDirectoryId: string;
+}) {
   const [isUploading, setIsUploading] = useState(false);
 
   const onDrop = useCallback(
@@ -17,7 +21,9 @@ export function FileUploader(p: { currentPath: string; onUploadComplete?: () => 
           formData.append("file", file);
           formData.append("filePath", filePath);
 
-          await pb.collection("files").create({ file, filePath });
+          await pb
+            .collection("files")
+            .create({ file, filePath, directoryRelationId: p.parentDirectoryId });
         }
         p.onUploadComplete?.();
       } catch (e) {

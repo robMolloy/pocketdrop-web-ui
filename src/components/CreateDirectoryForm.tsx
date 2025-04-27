@@ -4,7 +4,11 @@ import { createFile } from "@/modules/files/dbFilesUtils";
 import { pb } from "@/config/pocketbaseConfig";
 import { createDirectory } from "@/modules/directories/dbDirectoriesUtils";
 
-export function CreateDirectoryForm(p: { onSuccess: () => void; currentPath: string, currentPathId:string }) {
+export function CreateDirectoryForm(p: {
+  onSuccess: () => void;
+  currentPath: string;
+  parentDirectoryId: string;
+}) {
   const [directoryName, setDirectoryName] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -45,10 +49,13 @@ export function CreateDirectoryForm(p: { onSuccess: () => void; currentPath: str
                 },
               });
 
-              const createDirResp = await createDirectory({pb,data:{
-                name: directoryName,
-                directoryRelationId: p.currentPathId
-              }})
+              const createDirResp = await createDirectory({
+                pb,
+                data: {
+                  name: directoryName,
+                  directoryRelationId: p.parentDirectoryId,
+                },
+              });
 
               if (!createResp.success) return setError("Error creating directory");
               if (!createDirResp.success) return setError("Error creating directory");

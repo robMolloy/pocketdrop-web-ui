@@ -36,9 +36,8 @@ const buildTree = (p: {
 };
 
 const convertDirectoriesIntoDirectoryTree = (directories: TDirectory[]): TDirectoryTree => {
-  // Create root node
   const rootNode: TDirectoryTree = {
-    id: "root",
+    id: "",
     name: "/",
     collectionId: "",
     collectionName: "directories",
@@ -59,32 +58,6 @@ const convertDirectoriesIntoDirectoryTree = (directories: TDirectory[]): TDirect
 };
 
 type TDirectoryWithFullPath = TDirectory & { fullPath: string };
-
-function buildDirectoriesWithFullPaths(directories: TDirectory[]): TDirectoryWithFullPath[] {
-  // Create a map for quick lookups
-  const dirMap = new Map<string, TDirectory>();
-  directories.forEach((dir) => dirMap.set(dir.id, dir));
-
-  return directories.map((dir) => {
-    // If there's no relation, fullPath is just the directory name
-    if (!dir.directoryRelationId) {
-      return { ...dir, fullPath: "/" + dir.name };
-    }
-
-    // Build the full path by traversing the directory relations
-    const pathParts: string[] = [dir.name];
-    let currentDir = dir;
-
-    // Follow the relation chain until we reach a directory with no relation
-    while (currentDir.directoryRelationId && dirMap.has(currentDir.directoryRelationId)) {
-      const parent = dirMap.get(currentDir.directoryRelationId)!;
-      pathParts.unshift(parent.name);
-      currentDir = parent;
-    }
-
-    return { ...dir, fullPath: "/" + pathParts.join("/") };
-  });
-}
 
 function traverseDirectoryTree(
   dirTree: TDirectoryTree,
@@ -113,8 +86,7 @@ export const useDirectoryTreeStore = () => {
   if (!directoriesStore.data) return { tree: undefined, data: undefined } as const;
 
   const tree = convertDirectoriesIntoDirectoryTree(directoriesStore.data);
-  const data = buildDirectoriesWithFullPaths(directoriesStore.data);
-  const data2 = buildDirectoriesWithFullPathsFromDirectoryTree(tree);
+  const fullPaths = buildDirectoriesWithFullPathsFromDirectoryTree(tree);
 
-  return { tree, data, data2 };
+  return { tree, fullPaths };
 };

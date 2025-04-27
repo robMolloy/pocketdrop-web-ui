@@ -25,7 +25,7 @@ const BreadcrumbLink = (p: { isLast: boolean; href: string; children: ReactNode 
   );
 };
 
-export const BrowseScreen = (p: { browsePath: string }) => {
+export const BrowseScreen = (p: { browsePath: string; directoryId?: string }) => {
   const router = useRouter();
   const rightSidebarStore = useRightSidebarStore();
   const filesStore = useFilesStore();
@@ -57,6 +57,9 @@ export const BrowseScreen = (p: { browsePath: string }) => {
         isLast: index === array.length - 1,
       };
     });
+
+  const directoryId = p.directoryId;
+  if (!directoryId) return <div>This directory does not exist</div>;
 
   return (
     <>
@@ -90,7 +93,7 @@ export const BrowseScreen = (p: { browsePath: string }) => {
                     <CreateDirectoryForm
                       onSuccess={modalStore.close}
                       currentPath={p.browsePath}
-                      currentPathId=""
+                      parentDirectoryId={directoryId}
                     />
                   }
                 />,
@@ -105,7 +108,11 @@ export const BrowseScreen = (p: { browsePath: string }) => {
       <br />
 
       <div>
-        <FileUploader currentPath={p.browsePath} onUploadComplete={() => {}} />
+        <FileUploader
+          currentPath={p.browsePath}
+          parentDirectoryId={directoryId}
+          onUploadComplete={() => {}}
+        />
       </div>
 
       <br />
