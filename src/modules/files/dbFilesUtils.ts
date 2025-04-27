@@ -4,6 +4,7 @@ import { z } from "zod";
 const fileRecordSchema = z.object({
   collectionId: z.string(),
   collectionName: z.string(),
+  directoryRelationId: z.string().optional(),
   id: z.string(),
   file: z.string(),
   filePath: z.string(),

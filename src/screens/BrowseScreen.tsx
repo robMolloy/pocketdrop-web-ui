@@ -6,6 +6,7 @@ import { RightSidebarContent } from "@/components/RightSidebar";
 import { ToggleableStar } from "@/components/ToggleableStar";
 import { Button } from "@/components/ui/button";
 import { FileUploader } from "@/modules/files/FileUploader";
+import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { useModalStore } from "@/stores/modalStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
@@ -30,20 +31,15 @@ export const BrowseScreen = (p: { browsePath: string; directoryId?: string }) =>
   const rightSidebarStore = useRightSidebarStore();
   const filesStore = useFilesStore();
   const modalStore = useModalStore();
+  const directoryTreeStore = useDirectoryTreeStore();
 
-  const currentPathDirs = !filesStore.data
-    ? []
-    : filesStore.data
-        .filter((x) => x.filePath.startsWith(p.browsePath))
-        .filter((x) => x.filePath.endsWith("/"))
-        .filter((x) => x.filePath.split("/").length === p.browsePath.split("/").length + 1);
+  const currentPathDirs = directoryTreeStore.fullPaths
+    ? directoryTreeStore.fullPaths.filter((x) => x.directoryRelationId === p.directoryId)
+    : [];
 
-  const currentPathFiles = !filesStore.data
-    ? []
-    : filesStore.data
-        .filter((x) => x.filePath.startsWith(p.browsePath))
-        .filter((x) => !x.filePath.endsWith("/"))
-        .filter((x) => x.filePath.split("/").length === p.browsePath.split("/").length);
+  const currentPathFiles = filesStore.data
+    ? filesStore.data.filter((x) => x.directoryRelationId === p.directoryId)
+    : [];
 
   // Create breadcrumb segments
   const pathSegments = p.browsePath
@@ -119,16 +115,16 @@ export const BrowseScreen = (p: { browsePath: string; directoryId?: string }) =>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
         {currentPathDirs
-          .sort((a, b) => (a.filePath > b.filePath ? 1 : -1))
+          .sort((a, b) => (a?.fullPath > b?.fullPath ? 1 : -1))
           .map((x) => (
             <div
-              key={x.filePath}
-              onClick={() => router.push(`/browse${x.filePath}`)}
+              key={x.fullPath}
+              onClick={() => router.push(`/browse${x.fullPath}`)}
               className="flex cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
             >
               <Folder className="mb-2" size={60} />
               <span className="break-all text-center text-sm">
-                {x.filePath.split("/").splice(-2, 1).join("")}
+                {x.fullPath.split("/").splice(-2, 1).join("")}
               </span>
             </div>
           ))}
