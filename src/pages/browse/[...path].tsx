@@ -1,4 +1,4 @@
-import { useBrowsePath } from "@/components/FileTree";
+import { useBrowsePath } from "@/components/DirectoryTree";
 import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { BrowseScreen } from "@/screens/BrowseScreen";
 

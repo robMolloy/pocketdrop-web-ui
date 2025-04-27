@@ -1,15 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { pb } from "@/config/pocketbaseConfig";
 import { logout } from "@/modules/auth/dbAuthUtils";
-import { useFilesStore } from "@/modules/files/filesStore";
+import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { useUsersStore } from "@/modules/users/usersStore";
 import { useCurrentUserStore } from "@/stores/authDataStore";
 import { Home, LogOut, Settings, Star, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import { DirectoryTree, DirectoryTree2 } from "./FileTree";
-import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
+import { DirectoryTree } from "./DirectoryTree";
 
 const SidebarButtonWrapper = (p: { children: ReactNode; href?: string }) =>
   p.href ? <Link href={p.href}>{p.children}</Link> : p.children;
@@ -43,7 +42,6 @@ const SidebarButton = (p: {
 
 export function LeftSidebar() {
   const router = useRouter();
-  const filesStore = useFilesStore();
   const directoryTreeStore = useDirectoryTreeStore();
   const userStore = useCurrentUserStore();
   const usersStore = useUsersStore();
@@ -59,9 +57,8 @@ export function LeftSidebar() {
           <SidebarButton href="/starred" Icon={Star} isHighlighted={router.pathname === "/starred"}>
             Starred
           </SidebarButton>
-          {filesStore.data !== undefined && <DirectoryTree data={filesStore.data} />}
           {directoryTreeStore.tree !== undefined && (
-            <DirectoryTree2 data={directoryTreeStore.tree} />
+            <DirectoryTree data={directoryTreeStore.tree} />
           )}
         </div>
       </div>

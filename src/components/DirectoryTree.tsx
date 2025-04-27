@@ -4,16 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-type TFile = {
-  collectionId: string;
-  collectionName: string;
-  id: string;
-  file: string;
-  filePath: string;
-  created: string;
-  updated: string;
-};
-
 type DirectoryNode = {
   name: string;
   path: string;
@@ -21,59 +11,7 @@ type DirectoryNode = {
   children?: DirectoryNode[];
 };
 
-type DirectoryNodeMap = {
-  [key: string]: DirectoryNode;
-};
-
-const splitAfterSlash = (path: string): string[] => {
-  return path.match(/(^\/|[^\/]+\/|[^\/]+$)/g) || [];
-};
-
-const convertFilesToDirectoryTree = (p: { data: TFile[] }): DirectoryNode[] => {
-  const root: DirectoryNodeMap = {};
-
-  // Process each file
-  p.data.forEach((file) => {
-    const pathParts = splitAfterSlash(file.filePath);
-    let currentLevel = root;
-    let currentPath = "";
-
-    // Process each part of the path
-    pathParts.forEach((part) => {
-      const isDirectory = part.endsWith("/");
-      const name = isDirectory ? part.slice(0, -1) : part;
-      currentPath += part;
-
-      if (!currentLevel[name]) {
-        currentLevel[name] = {
-          name: isDirectory ? `/${name}` : part,
-          path: currentPath,
-          isDirectory,
-          children: isDirectory ? [] : undefined,
-        };
-      }
-
-      // Move to next level if this is a directory
-      if (isDirectory) {
-        currentLevel = currentLevel[name].children as unknown as DirectoryNodeMap;
-      }
-    });
-  });
-
-  // Convert the nested object structure to an array
-  const convertToArray = (node: DirectoryNodeMap): DirectoryNode[] => {
-    return Object.values(node).map((item) => ({
-      ...item,
-      children: item.children
-        ? convertToArray(item.children as unknown as DirectoryNodeMap)
-        : undefined,
-    }));
-  };
-
-  return convertToArray(root);
-};
-
-function DirectoryItem({
+function DirectoryTreeItem({
   node,
   initIsOpen = false,
   activePath,
@@ -123,7 +61,7 @@ function DirectoryItem({
       {node.children && node.children.length > 0 && (
         <div className={`pl-4 ${isOpen ? "" : "hidden"}`}>
           {node.children.map((child) => (
-            <DirectoryItem key={child.path} node={child} activePath={activePath} />
+            <DirectoryTreeItem key={child.path} node={child} activePath={activePath} />
           ))}
         </div>
       )}
@@ -147,30 +85,6 @@ export const useBrowsePath = () => {
   return { browsePath };
 };
 
-export function DirectoryTree({ data }: { data: TFile[] }) {
-  const { browsePath } = useBrowsePath();
-
-  const directoryStructure = convertFilesToDirectoryTree({
-    data: data.sort((a, b) => (a > b ? 1 : -1)),
-  });
-
-  return (
-    <div className="flex flex-col">
-      {directoryStructure.length === 0 ? (
-        <DirectoryItem
-          node={{ name: "/", path: "/", isDirectory: true }}
-          initIsOpen={true}
-          activePath={browsePath}
-        />
-      ) : (
-        directoryStructure.map((node) => (
-          <DirectoryItem key={node.path} node={node} initIsOpen={true} activePath={browsePath} />
-        ))
-      )}
-    </div>
-  );
-}
-
 const convertDirectoryTreeToDirectoryNode = (tree: TDirectoryTree): DirectoryNode => {
   return {
     name: tree.name,
@@ -180,14 +94,14 @@ const convertDirectoryTreeToDirectoryNode = (tree: TDirectoryTree): DirectoryNod
   };
 };
 
-export const DirectoryTree2 = ({ data }: { data: TDirectoryTree }) => {
+export const DirectoryTree = ({ data }: { data: TDirectoryTree }) => {
   const { browsePath } = useBrowsePath();
 
   const rootNode = convertDirectoryTreeToDirectoryNode(data);
 
   return (
     <div className="flex flex-col">
-      <DirectoryItem node={rootNode} initIsOpen={true} activePath={browsePath} />
+      <DirectoryTreeItem node={rootNode} initIsOpen={true} activePath={browsePath} />
     </div>
   );
 };
