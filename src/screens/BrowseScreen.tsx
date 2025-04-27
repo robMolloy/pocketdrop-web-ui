@@ -6,7 +6,7 @@ import { RightSidebarContent } from "@/components/RightSidebar";
 import { ToggleableStar } from "@/components/ToggleableStar";
 import { Button } from "@/components/ui/button";
 import { FileUploader } from "@/modules/files/FileUploader";
-import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
+import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { useModalStore } from "@/stores/modalStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
@@ -26,7 +26,7 @@ const BreadcrumbLink = (p: { isLast: boolean; href: string; children: ReactNode 
   );
 };
 
-export const BrowseScreen = (p: { browsePath: string; directoryId?: string }) => {
+export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithFullPath }) => {
   const router = useRouter();
   const rightSidebarStore = useRightSidebarStore();
   const filesStore = useFilesStore();
@@ -34,11 +34,11 @@ export const BrowseScreen = (p: { browsePath: string; directoryId?: string }) =>
   const directoryTreeStore = useDirectoryTreeStore();
 
   const currentPathDirs = directoryTreeStore.fullPaths
-    ? directoryTreeStore.fullPaths.filter((x) => x.directoryRelationId === p.directoryId)
+    ? directoryTreeStore.fullPaths.filter((x) => x.directoryRelationId === p.directory.id)
     : [];
 
   const currentPathFiles = filesStore.data
-    ? filesStore.data.filter((x) => x.directoryRelationId === p.directoryId)
+    ? filesStore.data.filter((x) => x.directoryRelationId === p.directory.id)
     : [];
 
   // Create breadcrumb segments
@@ -53,9 +53,6 @@ export const BrowseScreen = (p: { browsePath: string; directoryId?: string }) =>
         isLast: index === array.length - 1,
       };
     });
-
-  const directoryId = p.directoryId;
-  if (!directoryId) return <div>This directory does not exist</div>;
 
   return (
     <>
@@ -89,7 +86,7 @@ export const BrowseScreen = (p: { browsePath: string; directoryId?: string }) =>
                     <CreateDirectoryForm
                       onSuccess={modalStore.close}
                       currentPath={p.browsePath}
-                      parentDirectoryId={directoryId}
+                      parentDirectoryId={p.directory.id}
                     />
                   }
                 />,
@@ -106,7 +103,7 @@ export const BrowseScreen = (p: { browsePath: string; directoryId?: string }) =>
       <div>
         <FileUploader
           currentPath={p.browsePath}
-          parentDirectoryId={directoryId}
+          parentDirectoryId={p.directory.id}
           onUploadComplete={() => {}}
         />
       </div>

@@ -7,7 +7,10 @@ const Index = () => {
   const browsePath = useBrowsePath().browsePath as string;
 
   const currentDirectory = directoryTreeStore.fullPaths?.find((x) => x.fullPath === browsePath);
-  return <BrowseScreen browsePath="/" directoryId={currentDirectory?.id} />;
+
+  if (!currentDirectory) return <div>Directory not found</div>;
+
+  return <BrowseScreen browsePath="/" directory={currentDirectory} />;
 };
 
 export default Index;

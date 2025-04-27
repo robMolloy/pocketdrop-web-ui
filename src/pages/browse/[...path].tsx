@@ -8,5 +8,7 @@ export default function BrowsePage() {
 
   const currentDirectory = directoryTreeStore.fullPaths?.find((x) => x.fullPath === browsePath);
 
-  return <BrowseScreen browsePath={browsePath} directoryId={currentDirectory?.id} />;
+  if (!currentDirectory) return <div>Directory not found</div>;
+
+  return <BrowseScreen browsePath={browsePath} directory={currentDirectory} />;
 }

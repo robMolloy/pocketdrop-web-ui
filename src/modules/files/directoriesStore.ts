@@ -14,6 +14,7 @@ export const useDirectoriesStore = create<{
 }));
 
 export type TDirectoryTree = TDirectory & { children: TDirectoryTree[]; fullPath: string };
+export type TDirectoryWithFullPath = TDirectory & { fullPath: string };
 
 const buildTree = (p: {
   parentNode: TDirectoryTree;
@@ -56,8 +57,6 @@ const convertDirectoriesIntoDirectoryTree = (directories: TDirectory[]): TDirect
 
   return rootNode;
 };
-
-type TDirectoryWithFullPath = TDirectory & { fullPath: string };
 
 function traverseDirectoryTree(
   dirTree: TDirectoryTree,
