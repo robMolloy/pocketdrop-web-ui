@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 type DirectoryNode = {
   name: string;
   path: string;
-  isDirectory: boolean;
   children?: DirectoryNode[];
 };
 
@@ -27,8 +26,6 @@ function DirectoryTreeItem({
   useEffect(() => {
     if (isOnActivePath) setIsOpen(true);
   }, [isOnActivePath]);
-
-  if (!node.isDirectory) return <></>;
 
   return (
     <div className="w-full">
@@ -89,7 +86,6 @@ const convertDirectoryTreeToDirectoryNode = (tree: TDirectoryTree): DirectoryNod
   return {
     name: tree.name,
     path: tree.fullPath,
-    isDirectory: true,
     children: tree.children.map(convertDirectoryTreeToDirectoryNode),
   };
 };
