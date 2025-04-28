@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 export const getFileExtension = (file: TFileRecord | TFile) => {
-  return file.filePath.split(".").pop()?.toLowerCase() ?? "";
+  return file.name.split(".").pop()?.toLowerCase() ?? "";
 };
 
 export const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "tiff", "ico"];

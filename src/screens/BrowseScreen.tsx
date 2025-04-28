@@ -126,35 +126,31 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
             </div>
           ))}
 
-        {currentPathFiles
-          .sort((a, b) => (a.filePath > b.filePath ? 1 : -1))
-          .map((file) => {
-            const fileName = file.filePath.split("/").pop() || "";
-
-            return (
-              <div
-                key={file.id}
-                onClick={async () => {
-                  rightSidebarStore.setData(
-                    <RightSidebarContent title="File Details">
-                      <FileDetails
-                        file={file}
-                        directory={p.directory}
-                        onDelete={() => rightSidebarStore.close()}
-                      />
-                    </RightSidebarContent>,
-                  );
-                }}
-                className="relative flex cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
-              >
-                <div className="absolute left-2 top-2">
-                  <ToggleableStar file={file} size="sm" />
-                </div>
-                <FileIcon extension={getFileExtension(file)} />
-                <span className="break-all text-center text-sm">{fileName}</span>
+        {currentPathFiles.map((file) => {
+          return (
+            <div
+              key={file.id}
+              onClick={async () => {
+                rightSidebarStore.setData(
+                  <RightSidebarContent title="File Details">
+                    <FileDetails
+                      file={file}
+                      directory={p.directory}
+                      onDelete={() => rightSidebarStore.close()}
+                    />
+                  </RightSidebarContent>,
+                );
+              }}
+              className="relative flex cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
+            >
+              <div className="absolute left-2 top-2">
+                <ToggleableStar file={file} size="sm" />
               </div>
-            );
-          })}
+              <FileIcon extension={getFileExtension(file)} />
+              <span className="break-all text-center text-sm">{file.name}</span>
+            </div>
+          );
+        })}
       </div>
     </>
   );

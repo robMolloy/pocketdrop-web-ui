@@ -90,10 +90,7 @@ const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFu
 const StarredPage = () => {
   const filesStore = useFilesStore();
   const directoriesStore = useDirectoryTreeStore();
-  const starredFiles =
-    filesStore.data
-      ?.filter((file) => file.isStarred)
-      ?.filter((file) => !file.filePath.endsWith("/")) ?? [];
+  const starredFiles = filesStore.data?.filter((file) => file.isStarred) ?? [];
 
   return (
     <div>

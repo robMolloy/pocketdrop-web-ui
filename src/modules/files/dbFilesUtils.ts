@@ -7,7 +7,7 @@ const fileRecordSchema = z.object({
   directoryRelationId: z.string().optional(),
   id: z.string(),
   file: z.string(),
-  filePath: z.string(),
+  // filePath: z.string(),
   name: z.string(),
   isStarred: z.boolean(),
   created: z.string(),
@@ -158,7 +158,7 @@ export const downloadFile = async (p: { data: TFile }) => {
   const downloadUrl = window.URL.createObjectURL(p.data.file);
   const a = document.createElement("a");
   a.href = downloadUrl;
-  a.download = p.data.filePath.split("/").slice(-1).join("");
+  a.download = p.data.name;
   document.body.appendChild(a);
   a.click();
 
