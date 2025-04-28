@@ -1,17 +1,11 @@
 import { CreateDirectoryForm } from "@/components/CreateDirectoryForm";
-import { FileDetails } from "@/components/FileDetails";
-import { FileIcon, getFileExtension } from "@/components/FileIcon";
 import { ModalContent } from "@/components/Modal";
-import { RightSidebarContent } from "@/components/RightSidebar";
-import { ToggleableStar } from "@/components/ToggleableStar";
 import { Button } from "@/components/ui/button";
-import { FileActionsDropdownMenu } from "@/modules/files/FileActionsDropdownMenu";
+import { DisplayFileIconView } from "@/modules/files/DisplayFileIconView";
 import { FileUploader } from "@/modules/files/FileUploader";
-import { TFileRecord } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { useModalStore } from "@/stores/modalStore";
-import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import { ChevronRight, Folder, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -128,39 +122,9 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
           ))}
 
         {currentPathFiles.map((file) => (
-          <IconViewFile key={file.id} file={file} directory={p.directory} />
+          <DisplayFileIconView key={file.id} file={file} directory={p.directory} />
         ))}
       </div>
     </>
-  );
-};
-
-const IconViewFile = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
-  const rightSidebarStore = useRightSidebarStore();
-
-  return (
-    <div
-      onClick={async () => {
-        rightSidebarStore.setData(
-          <RightSidebarContent title="File Details">
-            <FileDetails
-              file={p.file}
-              directory={p.directory}
-              onDelete={() => rightSidebarStore.close()}
-            />
-          </RightSidebarContent>,
-        );
-      }}
-      className="group relative flex cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
-    >
-      <div className="absolute right-2 top-2">
-        <ToggleableStar file={p.file} size="sm" />
-      </div>
-      <FileIcon extension={getFileExtension(p.file)} />
-      <span className="break-all text-center text-sm">{p.file.name}</span>
-      <div className="absolute left-2 top-2">
-        <FileActionsDropdownMenu file={p.file} />
-      </div>
-    </div>
   );
 };
