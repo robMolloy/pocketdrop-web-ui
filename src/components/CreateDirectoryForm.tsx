@@ -1,8 +1,7 @@
-import { useState } from "react";
-import { Button } from "./ui/button";
-import { createFile } from "@/modules/files/dbFilesUtils";
 import { pb } from "@/config/pocketbaseConfig";
 import { createDirectory } from "@/modules/directories/dbDirectoriesUtils";
+import { useState } from "react";
+import { Button } from "./ui/button";
 
 export function CreateDirectoryForm(p: {
   onSuccess: () => void;
@@ -42,12 +41,15 @@ export function CreateDirectoryForm(p: {
               if (directoryName.includes("/"))
                 return setError("Directory name cannot contain slashes");
 
-              const createResp = await createFile({
-                pb,
-                data: {
-                  filePath: `${p.currentPath}${p.currentPath.slice(-1) === "/" ? "" : "/"}${directoryName}/`,
-                },
-              });
+              // const createResp = await createFile({
+              //   pb,
+              //   data: {
+              //     filePath: `${p.currentPath}${p.currentPath.slice(-1) === "/" ? "" : "/"}${directoryName}/`,
+              //     file: "",
+              //     name: "",
+              //     isStarred: false,
+              //   },
+              // });
 
               const createDirResp = await createDirectory({
                 pb,
@@ -57,7 +59,7 @@ export function CreateDirectoryForm(p: {
                 },
               });
 
-              if (!createResp.success) return setError("Error creating directory");
+              // if (!createResp.success) return setError("Error creating directory");
               if (!createDirResp.success) return setError("Error creating directory");
               p.onSuccess();
             }}

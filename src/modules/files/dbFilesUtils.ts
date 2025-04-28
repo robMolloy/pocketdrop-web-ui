@@ -8,6 +8,7 @@ const fileRecordSchema = z.object({
   id: z.string(),
   file: z.string(),
   filePath: z.string(),
+  name: z.string(),
   isStarred: z.boolean(),
   created: z.string(),
   updated: z.string(),
@@ -77,7 +78,7 @@ export const smartSubscribeToFiles = async (p: {
 
 export const createFile = async (p: {
   pb: PocketBase;
-  data: { file?: File; filePath: string };
+  data: Omit<TFileRecord, "collectionId" | "collectionName" | "id" | "created" | "updated">;
 }) => {
   try {
     const resp = await p.pb.collection("files").create(p.data);

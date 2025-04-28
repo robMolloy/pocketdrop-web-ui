@@ -155,3 +155,5 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
     </>
   );
 };
+
+// const DisplayFileIcon = ()=>{}

@@ -64,7 +64,7 @@ export const smartSubscribeToDirectories = async (p: {
 export const createDirectory = async (p: {
   pb: PocketBase;
   // data: Omit<TDirectory, "created" | "updated" | "collectionId" | "collectionName" | "id">;
-  data: Pick<TDirectory, "name" | "directoryRelationId">;
+  data: Omit<TDirectory, "collectionId" | "collectionName" | "id" | "created" | "updated">;
 }) => {
   try {
     const resp = await p.pb.collection("directories").create(p.data);

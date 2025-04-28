@@ -1,8 +1,8 @@
-import { useState, useCallback } from "react";
-import { useDropzone } from "react-dropzone";
-import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { pb } from "@/config/pocketbaseConfig";
+import { Upload } from "lucide-react";
+import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
 
 export function FileUploader(p: {
   currentPath: string;
@@ -16,14 +16,15 @@ export function FileUploader(p: {
       setIsUploading(true);
       try {
         for (const file of acceptedFiles) {
-          const formData = new FormData();
+          // const formData = new FormData();
           const filePath = `${p.currentPath}${file.name}`;
-          formData.append("file", file);
-          formData.append("filePath", filePath);
+          // formData.append("file", file);
+          // formData.append("filePath", filePath);
+          // formData.append("name", file.name);
 
           await pb
             .collection("files")
-            .create({ file, filePath, directoryRelationId: p.parentDirectoryId });
+            .create({ name: file.name, file, filePath, directoryRelationId: p.parentDirectoryId });
         }
         p.onUploadComplete?.();
       } catch (e) {
