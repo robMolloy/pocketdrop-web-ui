@@ -1,13 +1,12 @@
 import { CreateDirectoryInModalButton } from "@/components/CreateDirectoryForm";
-import { Button } from "@/components/ui/button";
 import { DisplayDirectoriesAndFilesIconView } from "@/modules/directories/components/DisplayDirectoriesAndFilesIconView";
 import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/DisplayFilesTableView";
-// import { DisplayFilesTableView } from "@/modules/files/DisplayFilesTableView";
 import { FileUploader } from "@/modules/files/FileUploader";
 import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { useFilesStore } from "@/modules/files/filesStore";
+import { ViewTypeToggleButton } from "@/modules/viewType/components/ViewTypeToggleButton";
 import { useViewTypeStore } from "@/modules/viewType/viewTypeStore";
-import { ChevronRight, Grid, List } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -74,18 +73,7 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => viewTypeStore.toggle()}
-            title={viewTypeStore.data === "icon" ? "Switch to list view" : "Switch to icon view"}
-          >
-            {(() => {
-              const Icon = viewTypeStore.data === "table" ? List : Grid;
-              return <Icon size={20} />;
-            })()}
-            View
-          </Button>
+          <ViewTypeToggleButton />
           <CreateDirectoryInModalButton
             browsePath={p.browsePath}
             parentDirectoryId={p.directory.id}
