@@ -2,12 +2,40 @@ import { pb } from "@/config/pocketbaseConfig";
 import { createDirectory } from "@/modules/directories/dbDirectoriesUtils";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import { useModalStore } from "@/stores/modalStore";
+import { ModalContent } from "./Modal";
+import { Plus } from "lucide-react";
 
-export function CreateDirectoryForm(p: {
-  onSuccess: () => void;
-  currentPath: string;
+export const CreateDirectoryInModalButton = (p: {
+  browsePath: string;
   parentDirectoryId: string;
-}) {
+}) => {
+  const modalStore = useModalStore();
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={() =>
+        modalStore.setData(
+          <ModalContent
+            title="New directory"
+            description={`Create a new directory at ${p.browsePath}`}
+            content={
+              <CreateDirectoryForm
+                onSuccess={modalStore.close}
+                parentDirectoryId={p.parentDirectoryId}
+              />
+            }
+          />,
+        )
+      }
+    >
+      <Plus /> New Directory
+    </Button>
+  );
+};
+
+export function CreateDirectoryForm(p: { onSuccess: () => void; parentDirectoryId: string }) {
   const [directoryName, setDirectoryName] = useState("");
   const [error, setError] = useState<string | null>(null);
 
