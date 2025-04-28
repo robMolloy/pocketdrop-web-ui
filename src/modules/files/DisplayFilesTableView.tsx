@@ -86,8 +86,9 @@ const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFu
     </TableRow>
   );
 };
-export const DisplayFilesTableView = (p: {
+export const DisplayDirectoriesAndFilesTableView = (p: {
   files: TFileRecord[];
+  directories: TDirectoryWithFullPath[];
   parentDirectories: TDirectoryWithFullPath[];
 }) => {
   return (

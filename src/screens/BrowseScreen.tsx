@@ -1,5 +1,6 @@
 import { CreateDirectoryInModalButton } from "@/components/CreateDirectoryForm";
 import { DisplayDirectoriesAndFilesIconView } from "@/modules/directories/components/DisplayDirectoriesAndFilesIconView";
+import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/DisplayFilesTableView";
 // import { DisplayFilesTableView } from "@/modules/files/DisplayFilesTableView";
 import { FileUploader } from "@/modules/files/FileUploader";
 import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
@@ -92,9 +93,11 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
         directories={dirsInCurrentDirectory}
         parentDirectories={[p.directory]}
       />
-      {/* <div>
-        <DisplayFilesTableView files={currentPathFiles} relevantParentDirectories={[p.directory]} />
-      </div> */}
+      <DisplayDirectoriesAndFilesTableView
+        files={filesInCurrentDirectory}
+        directories={dirsInCurrentDirectory}
+        parentDirectories={[p.directory]}
+      />
     </>
   );
 };

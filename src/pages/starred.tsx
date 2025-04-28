@@ -1,5 +1,5 @@
 import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
-import { DisplayFilesTableView } from "@/modules/files/DisplayFilesTableView";
+import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/DisplayFilesTableView";
 import { useFilesStore } from "@/modules/files/filesStore";
 
 const StarredPage = () => {
@@ -10,7 +10,8 @@ const StarredPage = () => {
     <div>
       <h1 className="mb-4 text-3xl font-bold">Starred Files</h1>
 
-      <DisplayFilesTableView
+      <DisplayDirectoriesAndFilesTableView
+        directories={[]}
         files={starredFiles}
         parentDirectories={directoriesStore.fullPaths ?? []}
       />
