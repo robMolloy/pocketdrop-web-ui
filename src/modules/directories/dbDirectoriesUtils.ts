@@ -9,6 +9,7 @@ const directorySchema = z.object({
   directoryRelationId: z.string(),
   created: z.string(),
   updated: z.string(),
+  isStarred: z.boolean(),
 });
 export type TDirectory = z.infer<typeof directorySchema>;
 
