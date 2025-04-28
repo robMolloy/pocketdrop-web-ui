@@ -137,7 +137,11 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
                 onClick={async () => {
                   rightSidebarStore.setData(
                     <RightSidebarContent title="File Details">
-                      <FileDetails file={file} onDelete={() => rightSidebarStore.close()} />
+                      <FileDetails
+                        file={file}
+                        directory={p.directory}
+                        onDelete={() => rightSidebarStore.close()}
+                      />
                     </RightSidebarContent>,
                   );
                 }}

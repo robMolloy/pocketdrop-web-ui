@@ -6,20 +6,23 @@ import { Calendar, Download, FileText, Folder, Hash, Trash2 } from "lucide-react
 import { useEffect, useState } from "react";
 import { ToggleableStar } from "./ToggleableStar";
 import { Button } from "./ui/button";
+import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 
 const DetailsLine = (p: { Icon: typeof Hash; label: string; value: string }) => {
   return (
     <div className="flex items-center gap-2 text-sm">
-      <p.Icon className="h-4 w-4 text-muted-foreground" />
+      <p.Icon className="h-4 w-4 text-muted-foreground" size={40} />
       <span className="text-muted-foreground">{p.label}:</span>
       <span className="font-mono">{p.value}</span>
     </div>
   );
 };
 
-export function FileDetails(p: { file: TFileRecord; onDelete: () => void }) {
-  const fileName = p.file.filePath.split("/").pop() || "";
-  const directoryPath = p.file.filePath.substring(0, p.file.filePath.lastIndexOf("/"));
+export function FileDetails(p: {
+  file: TFileRecord;
+  directory: TDirectoryWithFullPath;
+  onDelete: () => void;
+}) {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -54,14 +57,14 @@ export function FileDetails(p: { file: TFileRecord; onDelete: () => void }) {
             {thumbnailUrl ? (
               <img
                 src={thumbnailUrl}
-                alt={fileName}
+                alt={p.file.name}
                 className="h-[120px] w-[120px] object-contain"
               />
             ) : (
               <FileIcon extension={getFileExtension(p.file)} size={120} />
             )}
             <div className="flex items-center gap-2 text-center text-xl">
-              {fileName}
+              {p.file.name}
               <ToggleableStar file={p.file} />
             </div>
 
@@ -90,7 +93,7 @@ export function FileDetails(p: { file: TFileRecord; onDelete: () => void }) {
 
       <div className="flex flex-col gap-2">
         <DetailsLine Icon={Hash} label="ID" value={p.file.id} />
-        <DetailsLine Icon={Folder} label="Path" value={directoryPath} />
+        <DetailsLine Icon={Folder} label="Directory Path" value={p.directory.fullPath} />
         <DetailsLine Icon={Calendar} label="Created" value={formatDate(p.file.created)} />
         <DetailsLine Icon={Calendar} label="Updated" value={formatDate(p.file.updated)} />
         <DetailsLine Icon={Hash} label="Collection ID" value={p.file.collectionId} />

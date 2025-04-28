@@ -18,8 +18,9 @@ import { TFileRecord } from "@/modules/files/dbFilesUtils";
 import { pb } from "@/config/pocketbaseConfig";
 import { getFile } from "@/modules/files/dbFilesUtils";
 import { useEffect, useState } from "react";
+import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 
-const StarredPageTableRow = (p: { file: TFileRecord }) => {
+const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
   const rightSidebarStore = useRightSidebarStore();
   const fileName = p.file.filePath.split("/").pop();
   const directoryPath = p.file.filePath.substring(0, p.file.filePath.lastIndexOf("/"));
@@ -50,7 +51,11 @@ const StarredPageTableRow = (p: { file: TFileRecord }) => {
       onClick={() => {
         rightSidebarStore.setData(
           <RightSidebarContent title="File Details">
-            <FileDetails file={p.file} onDelete={() => rightSidebarStore.close()} />
+            <FileDetails
+              file={p.file}
+              directory={p.directory}
+              onDelete={() => rightSidebarStore.close()}
+            />
           </RightSidebarContent>,
         );
       }}
@@ -85,6 +90,7 @@ const StarredPageTableRow = (p: { file: TFileRecord }) => {
 
 const StarredPage = () => {
   const filesStore = useFilesStore();
+  const directoriesStore = useDirectoryTreeStore();
   const starredFiles =
     filesStore.data
       ?.filter((file) => file.isStarred)
@@ -105,9 +111,14 @@ const StarredPage = () => {
           </TableHeaderRow>
         </TableHeader>
         <TableBody>
-          {starredFiles.map((file) => (
-            <StarredPageTableRow key={file.id} file={file} />
-          ))}
+          {starredFiles.map((file) => {
+            const directory = directoriesStore.fullPaths?.find(
+              (x) => x.id === file.directoryRelationId,
+            );
+            if (!directory) return <></>;
+
+            return <StarredPageTableRow key={file.id} file={file} directory={directory} />;
+          })}
         </TableBody>
       </Table>
     </div>
