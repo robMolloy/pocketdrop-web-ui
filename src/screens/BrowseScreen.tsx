@@ -1,3 +1,4 @@
+import * as React from "react";
 import { CreateDirectoryForm } from "@/components/CreateDirectoryForm";
 import { FileDetails } from "@/components/FileDetails";
 import { FileIcon, getFileExtension } from "@/components/FileIcon";
@@ -7,7 +8,7 @@ import { ToggleableStar } from "@/components/ToggleableStar";
 import { Button } from "@/components/ui/button";
 import { FileUploader } from "@/modules/files/FileUploader";
 import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
-import { TFileRecord } from "@/modules/files/dbFilesUtils";
+import { TFileRecord, updateFile } from "@/modules/files/dbFilesUtils";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { useModalStore } from "@/stores/modalStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
@@ -22,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { pb } from "@/config/pocketbaseConfig";
 
 const BreadcrumbLink = (p: { isLast: boolean; href: string; children: ReactNode }) => {
   return (
@@ -184,25 +186,7 @@ const IconViewFile = (p: { file: TFileRecord; directory: TDirectoryWithFullPath 
                   <ModalContent
                     title="Rename"
                     description={`Rename ${p.file.name}`}
-                    content={
-                      <div className="flex flex-col gap-4">
-                        <Input
-                          type="text"
-                          defaultValue={p.file.name}
-                          className="rounded-md border p-2"
-                          placeholder="Enter new name"
-                        />
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // TODO: Implement rename functionality
-                            modalStore.close();
-                          }}
-                        >
-                          Rename
-                        </Button>
-                      </div>
-                    }
+                    content={<RenameFileForm file={p.file} onSuccess={() => modalStore.close()} />}
                   />,
                 );
               }}
@@ -213,5 +197,39 @@ const IconViewFile = (p: { file: TFileRecord; directory: TDirectoryWithFullPath 
         </DropdownMenu>
       </div>
     </div>
+  );
+};
+
+const RenameFileForm = (p: { file: TFileRecord; onSuccess: () => void }) => {
+  const [newName, setNewName] = React.useState(p.file.name);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isLoading) return;
+
+    setIsLoading(true);
+
+    await (async () => {
+      const resp = await updateFile({ pb, data: { ...p.file, name: newName } });
+      if (resp.success) return p.onSuccess();
+      console.error("Failed to rename file:", resp.error);
+    })();
+
+    setIsLoading(false);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <Input
+        type="text"
+        value={newName}
+        onChange={(e) => setNewName(e.target.value)}
+        placeholder="Enter new name"
+      />
+      <Button type="submit" disabled={isLoading}>
+        {isLoading ? "Renaming..." : "Rename"}
+      </Button>
+    </form>
   );
 };
