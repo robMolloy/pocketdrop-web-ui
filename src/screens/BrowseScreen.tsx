@@ -15,6 +15,12 @@ import { ChevronRight, Folder, MoreVertical, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const BreadcrumbLink = (p: { isLast: boolean; href: string; children: ReactNode }) => {
   return (
@@ -157,14 +163,28 @@ const IconViewFile = (p: { file: TFileRecord; directory: TDirectoryWithFullPath 
       <FileIcon extension={getFileExtension(p.file)} />
       <span className="break-all text-center text-sm">{p.file.name}</span>
       <div className="absolute right-2 top-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100"
-          onClick={async (e) => e.stopPropagation()}
-        >
-          <MoreVertical className="h-5 w-5" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100"
+              onClick={async (e) => e.stopPropagation()}
+            >
+              <MoreVertical className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={async (e) => {
+                e.stopPropagation();
+                // TODO: Implement rename functionality
+              }}
+            >
+              Rename
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
