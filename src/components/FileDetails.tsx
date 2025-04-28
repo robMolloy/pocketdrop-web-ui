@@ -20,7 +20,7 @@ const DetailsLine = (p: { Icon: typeof Hash; label: string; value: string }) => 
 
 export function FileDetails(p: {
   file: TFileRecord;
-  directory: TDirectoryWithFullPath;
+  parentDirectory: TDirectoryWithFullPath;
   onDelete: () => void;
 }) {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
@@ -93,7 +93,7 @@ export function FileDetails(p: {
 
       <div className="flex flex-col gap-2">
         <DetailsLine Icon={Hash} label="ID" value={p.file.id} />
-        <DetailsLine Icon={Folder} label="Directory Path" value={p.directory.fullPath} />
+        <DetailsLine Icon={Folder} label="Directory Path" value={p.parentDirectory.fullPath} />
         <DetailsLine Icon={Calendar} label="Created" value={formatDate(p.file.created)} />
         <DetailsLine Icon={Calendar} label="Updated" value={formatDate(p.file.updated)} />
         <DetailsLine Icon={Hash} label="Collection ID" value={p.file.collectionId} />

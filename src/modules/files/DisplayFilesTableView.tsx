@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { pb } from "@/config/pocketbaseConfig";
 import { getFile, TFileRecord } from "@/modules/files/dbFilesUtils";
-import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
+import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { FileActionsDropdownMenu } from "@/modules/files/FileActionsDropdownMenu";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import Link from "next/link";
@@ -51,7 +51,7 @@ const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFu
           <RightSidebarContent title="File Details">
             <FileDetails
               file={p.file}
-              directory={p.directory}
+              parentDirectory={p.directory}
               onDelete={() => rightSidebarStore.close()}
             />
           </RightSidebarContent>,
@@ -86,9 +86,10 @@ const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFu
     </TableRow>
   );
 };
-export const DisplayFilesTableView = (p: { files: TFileRecord[] }) => {
-  const directoriesStore = useDirectoryTreeStore();
-
+export const DisplayFilesTableView = (p: {
+  files: TFileRecord[];
+  parentDirectories: TDirectoryWithFullPath[];
+}) => {
   return (
     <Table>
       <TableHeader>
@@ -102,9 +103,7 @@ export const DisplayFilesTableView = (p: { files: TFileRecord[] }) => {
       </TableHeader>
       <TableBody>
         {p.files.map((file) => {
-          const directory = directoriesStore.fullPaths?.find(
-            (x) => x.id === file.directoryRelationId,
-          );
+          const directory = p.parentDirectories.find((x) => x.id === file.directoryRelationId);
           if (!directory) return <></>;
 
           return <StarredPageTableRow key={file.id} file={file} directory={directory} />;

@@ -9,7 +9,7 @@ import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 
 export const DisplayFileIconView = (p: {
   file: TFileRecord;
-  directory: TDirectoryWithFullPath;
+  parentDirectory: TDirectoryWithFullPath;
 }) => {
   const rightSidebarStore = useRightSidebarStore();
 
@@ -20,7 +20,7 @@ export const DisplayFileIconView = (p: {
           <RightSidebarContent title="File Details">
             <FileDetails
               file={p.file}
-              directory={p.directory}
+              parentDirectory={p.parentDirectory}
               onDelete={() => rightSidebarStore.close()}
             />
           </RightSidebarContent>,
