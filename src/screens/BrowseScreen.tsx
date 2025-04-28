@@ -1,4 +1,3 @@
-import * as React from "react";
 import { CreateDirectoryForm } from "@/components/CreateDirectoryForm";
 import { FileDetails } from "@/components/FileDetails";
 import { FileIcon, getFileExtension } from "@/components/FileIcon";
@@ -6,24 +5,17 @@ import { ModalContent } from "@/components/Modal";
 import { RightSidebarContent } from "@/components/RightSidebar";
 import { ToggleableStar } from "@/components/ToggleableStar";
 import { Button } from "@/components/ui/button";
+import { FileActionsDropdownMenu } from "@/modules/files/FileActionsDropdownMenu";
 import { FileUploader } from "@/modules/files/FileUploader";
+import { TFileRecord } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
-import { TFileRecord, updateFile } from "@/modules/files/dbFilesUtils";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { useModalStore } from "@/stores/modalStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
-import { ChevronRight, Folder, MoreVertical, Plus } from "lucide-react";
+import { ChevronRight, Folder, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { pb } from "@/config/pocketbaseConfig";
 
 const BreadcrumbLink = (p: { isLast: boolean; href: string; children: ReactNode }) => {
   return (
@@ -170,91 +162,5 @@ const IconViewFile = (p: { file: TFileRecord; directory: TDirectoryWithFullPath 
         <FileActionsDropdownMenu file={p.file} />
       </div>
     </div>
-  );
-};
-
-const RenameFileForm = (p: { file: TFileRecord; onSuccess: () => void }) => {
-  const [newName, setNewName] = React.useState(p.file.name);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-
-  return (
-    <form className="w-full">
-      <div className="space-y-3">
-        {error && <div className="text-center text-sm text-destructive">{error}</div>}
-
-        <div className="space-y-1">
-          <label htmlFor="fileName" className="text-xs text-muted-foreground">
-            File name
-          </label>
-          <Input
-            type="text"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="Enter file name"
-            className="w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
-            autoFocus
-          />
-        </div>
-
-        <div className="flex justify-end gap-2">
-          <Button
-            type="submit"
-            onClick={async (e) => {
-              e.preventDefault();
-              if (isLoading) return;
-
-              if (!newName.trim()) return setError("File name cannot be empty");
-              if (newName.includes("/")) return setError("File name cannot contain slashes");
-
-              setIsLoading(true);
-              const resp = await updateFile({ pb, data: { ...p.file, name: newName } });
-              setIsLoading(false);
-
-              if (!resp.success) return setError("Error renaming file");
-              p.onSuccess();
-            }}
-            className="rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground hover:bg-primary/90"
-          >
-            {isLoading ? "Renaming..." : "Rename"}
-          </Button>
-        </div>
-      </div>
-    </form>
-  );
-};
-
-const FileActionsDropdownMenu = (p: { file: TFileRecord }) => {
-  const modalStore = useModalStore();
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100"
-          onClick={async (e) => e.stopPropagation()}
-        >
-          <MoreVertical className="h-5 w-5" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          onClick={async (e) => {
-            e.stopPropagation();
-            modalStore.setData(
-              <ModalContent
-                title="Rename"
-                description={`Rename ${p.file.name}`}
-                content={<RenameFileForm file={p.file} onSuccess={() => modalStore.close()} />}
-              />,
-            );
-          }}
-        >
-          Rename
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 };
