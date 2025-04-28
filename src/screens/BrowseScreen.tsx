@@ -204,23 +204,24 @@ const RenameFileForm = (p: { file: TFileRecord; onSuccess: () => void }) => {
   const [newName, setNewName] = React.useState(p.file.name);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isLoading) return;
-
-    setIsLoading(true);
-
-    await (async () => {
-      const resp = await updateFile({ pb, data: { ...p.file, name: newName } });
-      if (resp.success) return p.onSuccess();
-      console.error("Failed to rename file:", resp.error);
-    })();
-
-    setIsLoading(false);
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form
+      onSubmit={async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (isLoading) return;
+
+        setIsLoading(true);
+
+        await (async () => {
+          const resp = await updateFile({ pb, data: { ...p.file, name: newName } });
+          if (resp.success) return p.onSuccess();
+          console.error("Failed to rename file:", resp.error);
+        })();
+
+        setIsLoading(false);
+      }}
+      className="flex flex-col gap-4"
+    >
       <Input
         type="text"
         value={newName}

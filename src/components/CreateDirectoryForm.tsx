@@ -41,16 +41,6 @@ export function CreateDirectoryForm(p: {
               if (directoryName.includes("/"))
                 return setError("Directory name cannot contain slashes");
 
-              // const createResp = await createFile({
-              //   pb,
-              //   data: {
-              //     filePath: `${p.currentPath}${p.currentPath.slice(-1) === "/" ? "" : "/"}${directoryName}/`,
-              //     file: "",
-              //     name: "",
-              //     isStarred: false,
-              //   },
-              // });
-
               const createDirResp = await createDirectory({
                 pb,
                 data: {
@@ -59,7 +49,6 @@ export function CreateDirectoryForm(p: {
                 },
               });
 
-              // if (!createResp.success) return setError("Error creating directory");
               if (!createDirResp.success) return setError("Error creating directory");
               p.onSuccess();
             }}
