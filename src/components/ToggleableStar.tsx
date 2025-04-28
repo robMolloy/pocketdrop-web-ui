@@ -19,6 +19,7 @@ export function ToggleableStar(p: { file: TFileRecord; size?: "sm" | "md" | "lg"
   };
 
   const [isStarred, setIsStarred] = useState(p.file.isStarred);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setIsStarred(p.file.isStarred);
@@ -32,10 +33,16 @@ export function ToggleableStar(p: { file: TFileRecord; size?: "sm" | "md" | "lg"
       onClick={async (e) => {
         e.stopPropagation();
 
+        if (isLoading) return;
+        setIsLoading(true);
+
         const newIsStarred = !isStarred;
         setIsStarred(newIsStarred);
-        await updateFile({ pb, data: { ...p.file, isStarred: newIsStarred } });
+        const resp = await updateFile({ pb, data: { ...p.file, isStarred: newIsStarred } });
+        setIsLoading(false);
+        if (!resp.success) setIsStarred(!newIsStarred);
       }}
+      disabled={isLoading}
       title={isStarred ? "Unstar" : "Star"}
     >
       <Star
