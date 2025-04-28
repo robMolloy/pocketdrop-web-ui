@@ -22,6 +22,36 @@ const BreadcrumbLink = (p: { isLast: boolean; href: string; children: ReactNode 
   );
 };
 
+const Breadcrumbs = (p: { browsePath: string }) => {
+  const pathSegments = p.browsePath
+    .split("/")
+    .filter(Boolean)
+    .map((segment, index, array) => {
+      const path = "/" + array.slice(0, index + 1).join("/") + "/";
+      return {
+        name: segment,
+        path,
+        isLast: index === array.length - 1,
+      };
+    });
+
+  return (
+    <div className="flex items-center gap-1">
+      <BreadcrumbLink isLast={pathSegments.length === 0} href="/browse/">
+        /
+      </BreadcrumbLink>
+      {pathSegments.map((segment) => (
+        <div key={segment.path} className="flex items-center">
+          <ChevronRight className="text-muted-foreground" size={15} />
+          <BreadcrumbLink href={`/browse${segment.path}`} isLast={segment.isLast}>
+            {segment.name}
+          </BreadcrumbLink>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithFullPath }) => {
   const router = useRouter();
   const filesStore = useFilesStore();
@@ -36,37 +66,12 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
     ? filesStore.data.filter((x) => x.directoryRelationId === p.directory.id)
     : [];
 
-  // Create breadcrumb segments
-  const pathSegments = p.browsePath
-    .split("/")
-    .filter(Boolean)
-    .map((segment, index, array) => {
-      const path = "/" + array.slice(0, index + 1).join("/") + "/";
-      return {
-        name: segment,
-        path,
-        isLast: index === array.length - 1,
-      };
-    });
-
   return (
     <>
       <div className="flex items-end justify-between">
         <div className="flex items-end gap-2">
           <h1 className="mb-0 text-2xl font-bold">Current Path:</h1>
-          <div className="flex items-center gap-1">
-            <BreadcrumbLink isLast={pathSegments.length === 0} href="/browse/">
-              /
-            </BreadcrumbLink>
-            {pathSegments.map((segment) => (
-              <div key={segment.path} className="flex items-center">
-                <ChevronRight className="text-muted-foreground" size={15} />
-                <BreadcrumbLink href={`/browse${segment.path}`} isLast={segment.isLast}>
-                  {segment.name}
-                </BreadcrumbLink>
-              </div>
-            ))}
-          </div>
+          <Breadcrumbs browsePath={p.browsePath} />
         </div>
         <div className="flex items-end gap-2">
           <Button
