@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 
 const BreadcrumbLink = (p: { isLast: boolean; href: string; children: ReactNode }) => {
   return (
@@ -142,6 +143,7 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
 
 const IconViewFile = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
   const rightSidebarStore = useRightSidebarStore();
+  const modalStore = useModalStore();
   return (
     <div
       onClick={async () => {
@@ -178,7 +180,31 @@ const IconViewFile = (p: { file: TFileRecord; directory: TDirectoryWithFullPath 
             <DropdownMenuItem
               onClick={async (e) => {
                 e.stopPropagation();
-                // TODO: Implement rename functionality
+                modalStore.setData(
+                  <ModalContent
+                    title="Rename"
+                    description={`Rename ${p.file.name}`}
+                    content={
+                      <div className="flex flex-col gap-4">
+                        <Input
+                          type="text"
+                          defaultValue={p.file.name}
+                          className="rounded-md border p-2"
+                          placeholder="Enter new name"
+                        />
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // TODO: Implement rename functionality
+                            modalStore.close();
+                          }}
+                        >
+                          Rename
+                        </Button>
+                      </div>
+                    }
+                  />,
+                );
               }}
             >
               Rename
