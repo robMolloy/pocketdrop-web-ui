@@ -9,6 +9,7 @@ const StarredPage = () => {
   const filesStore = useFilesStore();
   const starredFiles = filesStore.data?.filter((file) => file.isStarred) ?? [];
   const directoriesStore = useDirectoryTreeStore();
+  const starredDirectories = directoriesStore.fullPaths?.filter((dir) => dir.isStarred) ?? [];
   const viewTypeStore = useViewTypeStore();
 
   return (
@@ -21,7 +22,7 @@ const StarredPage = () => {
       <br />
       {viewTypeStore.data === "table" && (
         <DisplayDirectoriesAndFilesTableView
-          directories={[]}
+          directories={starredDirectories}
           files={starredFiles}
           parentDirectories={directoriesStore.fullPaths ?? []}
         />
@@ -29,7 +30,7 @@ const StarredPage = () => {
 
       {viewTypeStore.data === "icon" && (
         <DisplayDirectoriesAndFilesIconView
-          directories={[]}
+          directories={starredDirectories}
           files={starredFiles}
           parentDirectories={directoriesStore.fullPaths ?? []}
         />
