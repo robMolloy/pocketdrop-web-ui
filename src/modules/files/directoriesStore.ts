@@ -45,6 +45,7 @@ const convertDirectoriesIntoDirectoryTree = (directories: TDirectory[]): TDirect
     created: new Date().toISOString(),
     updated: new Date().toISOString(),
     directoryRelationId: "undefined", // "" would match the root node
+    isStarred: false,
     fullPath: "/",
     children: [],
   };

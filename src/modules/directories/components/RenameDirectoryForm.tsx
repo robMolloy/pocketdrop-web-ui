@@ -1,42 +1,14 @@
 import { pb } from "@/config/pocketbaseConfig";
-import { createDirectory } from "@/modules/directories/dbDirectoriesUtils";
+import { updateDirectory } from "@/modules/directories/dbDirectoriesUtils";
+import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { useState } from "react";
-import { Button } from "./ui/button";
-import { useModalStore } from "@/stores/modalStore";
-import { ModalContent } from "./Modal";
-import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export const CreateDirectoryInModalButton = (p: {
-  browsePath: string;
-  parentDirectoryId: string;
-}) => {
-  const modalStore = useModalStore();
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={() =>
-        modalStore.setData(
-          <ModalContent
-            title="New directory"
-            description={`Create a new directory at ${p.browsePath}`}
-            content={
-              <CreateDirectoryForm
-                onSuccess={modalStore.close}
-                parentDirectoryId={p.parentDirectoryId}
-              />
-            }
-          />,
-        )
-      }
-    >
-      <Plus /> New Directory
-    </Button>
-  );
-};
-
-export function CreateDirectoryForm(p: { onSuccess: () => void; parentDirectoryId: string }) {
-  const [directoryName, setDirectoryName] = useState("");
+export function RenameDirectoryForm(p: {
+  directory: TDirectoryWithFullPath;
+  onSuccess: () => void;
+}) {
+  const [directoryName, setDirectoryName] = useState(p.directory.name);
   const [error, setError] = useState<string | null>(null);
 
   return (
@@ -69,21 +41,20 @@ export function CreateDirectoryForm(p: { onSuccess: () => void; parentDirectoryI
               if (directoryName.includes("/"))
                 return setError("Directory name cannot contain slashes");
 
-              const createDirResp = await createDirectory({
+              const updateDirResp = await updateDirectory({
                 pb,
                 data: {
+                  ...p.directory,
                   name: directoryName,
-                  directoryRelationId: p.parentDirectoryId,
-                  isStarred: false,
                 },
               });
 
-              if (!createDirResp.success) return setError("Error creating directory");
+              if (!updateDirResp.success) return setError("Error renaming directory");
               p.onSuccess();
             }}
             className="rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground hover:bg-primary/90"
           >
-            Create
+            Rename
           </Button>
         </div>
       </div>
