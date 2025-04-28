@@ -2,7 +2,7 @@ import { FileDetails } from "@/components/FileDetails";
 import { FileIcon, getFileExtension } from "@/components/FileIcon";
 import { RightSidebarContent } from "@/components/RightSidebar";
 import { ToggleableStar } from "@/components/ToggleableStar";
-import { FileActionsDropdownMenu } from "@/modules/files/FileActionsDropdownMenu";
+import { FileActionsDropdownMenu } from "@/modules/files/components/FileActionsDropdownMenu";
 import { TFileRecord } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";

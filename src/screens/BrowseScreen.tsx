@@ -1,7 +1,7 @@
 import { CreateDirectoryInModalButton } from "@/components/CreateDirectoryForm";
 import { DisplayDirectoriesAndFilesIconView } from "@/modules/directories/components/DisplayDirectoriesAndFilesIconView";
-import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/DisplayFilesTableView";
-import { FileUploader } from "@/modules/files/FileUploader";
+import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/components/DisplayFilesTableView";
+import { FileUploader } from "@/modules/files/components/FileUploader";
 import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { ViewTypeToggleButton } from "@/modules/viewType/components/ViewTypeToggleButton";

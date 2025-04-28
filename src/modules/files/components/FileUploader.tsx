@@ -16,11 +16,7 @@ export function FileUploader(p: {
       setIsUploading(true);
       try {
         for (const file of acceptedFiles) {
-          // const formData = new FormData();
           const filePath = `${p.currentPath}${file.name}`;
-          // formData.append("file", file);
-          // formData.append("filePath", filePath);
-          // formData.append("name", file.name);
 
           await pb
             .collection("files")

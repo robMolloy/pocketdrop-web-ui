@@ -1,6 +1,6 @@
 import { DisplayDirectoriesAndFilesIconView } from "@/modules/directories/components/DisplayDirectoriesAndFilesIconView";
 import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
-import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/DisplayFilesTableView";
+import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/components/DisplayFilesTableView";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { ViewTypeToggleButton } from "@/modules/viewType/components/ViewTypeToggleButton";
 import { useViewTypeStore } from "@/modules/viewType/viewTypeStore";

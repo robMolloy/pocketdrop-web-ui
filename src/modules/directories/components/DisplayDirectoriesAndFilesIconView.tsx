@@ -1,4 +1,4 @@
-import { DisplayFileIconView } from "@/modules/files/DisplayFileIconView";
+import { DisplayFileIconView } from "@/modules/files/components/DisplayFileIconView";
 import { TFileRecord } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { Folder } from "lucide-react";

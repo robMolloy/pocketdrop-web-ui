@@ -14,7 +14,7 @@ import {
 import { pb } from "@/config/pocketbaseConfig";
 import { getFile, TFileRecord } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
-import { FileActionsDropdownMenu } from "@/modules/files/FileActionsDropdownMenu";
+import { FileActionsDropdownMenu } from "@/modules/files/components/FileActionsDropdownMenu";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import Link from "next/link";
 import { useEffect, useState } from "react";
