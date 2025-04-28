@@ -1,11 +1,13 @@
 import { CreateDirectoryInModalButton } from "@/components/CreateDirectoryForm";
+import { Button } from "@/components/ui/button";
 import { DisplayDirectoriesAndFilesIconView } from "@/modules/directories/components/DisplayDirectoriesAndFilesIconView";
 import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/DisplayFilesTableView";
 // import { DisplayFilesTableView } from "@/modules/files/DisplayFilesTableView";
 import { FileUploader } from "@/modules/files/FileUploader";
 import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { useFilesStore } from "@/modules/files/filesStore";
-import { ChevronRight } from "lucide-react";
+import { useViewTypeStore } from "@/modules/viewType/viewTypeStore";
+import { ChevronRight, Grid, List } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -53,6 +55,7 @@ const Breadcrumbs = (p: { path: string }) => {
 export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithFullPath }) => {
   const filesStore = useFilesStore();
   const directoryTreeStore = useDirectoryTreeStore();
+  const viewTypeStore = useViewTypeStore();
 
   const dirsInCurrentDirectory = directoryTreeStore.fullPaths
     ? directoryTreeStore.fullPaths.filter((x) => x.directoryRelationId === p.directory.id)
@@ -70,10 +73,24 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
           <Breadcrumbs path={p.browsePath} />
         </div>
 
-        <CreateDirectoryInModalButton
-          browsePath={p.browsePath}
-          parentDirectoryId={p.directory.id}
-        />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => viewTypeStore.toggle()}
+            title={viewTypeStore.data === "icon" ? "Switch to list view" : "Switch to icon view"}
+          >
+            {(() => {
+              const Icon = viewTypeStore.data === "table" ? List : Grid;
+              return <Icon size={20} />;
+            })()}
+            View
+          </Button>
+          <CreateDirectoryInModalButton
+            browsePath={p.browsePath}
+            parentDirectoryId={p.directory.id}
+          />
+        </div>
       </div>
 
       <br />
@@ -88,16 +105,20 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
 
       <br />
 
-      <DisplayDirectoriesAndFilesIconView
-        files={filesInCurrentDirectory}
-        directories={dirsInCurrentDirectory}
-        parentDirectories={[p.directory]}
-      />
-      <DisplayDirectoriesAndFilesTableView
-        files={filesInCurrentDirectory}
-        directories={dirsInCurrentDirectory}
-        parentDirectories={[p.directory]}
-      />
+      {viewTypeStore.data === "icon" && (
+        <DisplayDirectoriesAndFilesIconView
+          files={filesInCurrentDirectory}
+          directories={dirsInCurrentDirectory}
+          parentDirectories={[p.directory]}
+        />
+      )}
+      {viewTypeStore.data === "table" && (
+        <DisplayDirectoriesAndFilesTableView
+          files={filesInCurrentDirectory}
+          directories={dirsInCurrentDirectory}
+          parentDirectories={[p.directory]}
+        />
+      )}
     </>
   );
 };
