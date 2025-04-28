@@ -7,10 +7,11 @@ import { ToggleableStar } from "@/components/ToggleableStar";
 import { Button } from "@/components/ui/button";
 import { FileUploader } from "@/modules/files/FileUploader";
 import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
+import { TFileRecord } from "@/modules/files/dbFilesUtils";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { useModalStore } from "@/stores/modalStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
-import { ChevronRight, Folder, Plus } from "lucide-react";
+import { ChevronRight, Folder, MoreVertical, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
@@ -28,7 +29,6 @@ const BreadcrumbLink = (p: { isLast: boolean; href: string; children: ReactNode 
 
 export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithFullPath }) => {
   const router = useRouter();
-  const rightSidebarStore = useRightSidebarStore();
   const filesStore = useFilesStore();
   const modalStore = useModalStore();
   const directoryTreeStore = useDirectoryTreeStore();
@@ -126,34 +126,46 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
             </div>
           ))}
 
-        {currentPathFiles.map((file) => {
-          return (
-            <div
-              key={file.id}
-              onClick={async () => {
-                rightSidebarStore.setData(
-                  <RightSidebarContent title="File Details">
-                    <FileDetails
-                      file={file}
-                      directory={p.directory}
-                      onDelete={() => rightSidebarStore.close()}
-                    />
-                  </RightSidebarContent>,
-                );
-              }}
-              className="relative flex cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
-            >
-              <div className="absolute left-2 top-2">
-                <ToggleableStar file={file} size="sm" />
-              </div>
-              <FileIcon extension={getFileExtension(file)} />
-              <span className="break-all text-center text-sm">{file.name}</span>
-            </div>
-          );
-        })}
+        {currentPathFiles.map((file) => (
+          <IconViewFile key={file.id} file={file} directory={p.directory} />
+        ))}
       </div>
     </>
   );
 };
 
-// const DisplayFileIcon = ()=>{}
+const IconViewFile = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
+  const rightSidebarStore = useRightSidebarStore();
+  return (
+    <div
+      onClick={async () => {
+        rightSidebarStore.setData(
+          <RightSidebarContent title="File Details">
+            <FileDetails
+              file={p.file}
+              directory={p.directory}
+              onDelete={() => rightSidebarStore.close()}
+            />
+          </RightSidebarContent>,
+        );
+      }}
+      className="group relative flex cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
+    >
+      <div className="absolute left-2 top-2">
+        <ToggleableStar file={p.file} size="sm" />
+      </div>
+      <FileIcon extension={getFileExtension(p.file)} />
+      <span className="break-all text-center text-sm">{p.file.name}</span>
+      <div className="absolute right-2 top-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100"
+          onClick={async (e) => e.stopPropagation()}
+        >
+          <MoreVertical className="h-5 w-5" />
+        </Button>
+      </div>
+    </div>
+  );
+};
