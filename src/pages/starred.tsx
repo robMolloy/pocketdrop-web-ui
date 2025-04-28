@@ -22,8 +22,7 @@ import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/d
 
 const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
   const rightSidebarStore = useRightSidebarStore();
-  const fileName = p.file.filePath.split("/").pop();
-  const directoryPath = p.file.filePath.substring(0, p.file.filePath.lastIndexOf("/"));
+
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
 
   const formatDate = (dateString: string) => {
@@ -62,19 +61,19 @@ const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFu
     >
       <TableCell className="flex items-center gap-2">
         {thumbnailUrl ? (
-          <img src={thumbnailUrl} alt={fileName} className="h-6 w-6 object-contain" />
+          <img src={thumbnailUrl} alt={p.file.name} className="h-6 w-6 object-contain" />
         ) : (
           <FileIcon extension={getFileExtension(p.file)} size={24} />
         )}
-        <span>{fileName}</span>
+        <span>{p.file.name}</span>
       </TableCell>
       <TableCell>
         <Link
-          href={`/browse${directoryPath}`}
+          href={`/browse${p.directory.fullPath}`}
           onClick={(e) => e.stopPropagation()}
           className="hover:underline"
         >
-          {directoryPath}
+          {p.directory.fullPath}
         </Link>
       </TableCell>
       <TableCell>{getFileExtension(p.file) || "Unknown"}</TableCell>
