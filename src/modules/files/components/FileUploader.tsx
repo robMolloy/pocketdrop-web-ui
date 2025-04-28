@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { pb } from "@/config/pocketbaseConfig";
-import { Upload } from "lucide-react";
+import { CustomIcon } from "@/components/CustomIcon";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
@@ -47,7 +47,9 @@ export function FileUploader(p: {
       style={{ height: "136px" }}
     >
       <input {...getInputProps()} />
-      <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
+      <span className="mb-2 h-8 w-8 text-muted-foreground">
+        <CustomIcon iconName="upload" size="xl" />
+      </span>
       {isUploading ? (
         <p className="text-sm text-muted-foreground">Uploading...</p>
       ) : isDragActive ? (

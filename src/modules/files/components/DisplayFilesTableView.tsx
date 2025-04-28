@@ -62,7 +62,7 @@ const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFu
         {thumbnailUrl ? (
           <img src={thumbnailUrl} alt={p.file.name} className="h-6 w-6 object-contain" />
         ) : (
-          <FileIcon extension={getFileExtension(p.file)} size={24} />
+          <FileIcon extension={getFileExtension(p.file)} size="lg" />
         )}
         <span>{p.file.name}</span>
       </TableCell>

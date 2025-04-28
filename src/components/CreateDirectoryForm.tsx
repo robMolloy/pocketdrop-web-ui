@@ -1,10 +1,10 @@
 import { pb } from "@/config/pocketbaseConfig";
 import { createDirectory } from "@/modules/directories/dbDirectoriesUtils";
-import { useState } from "react";
-import { Button } from "./ui/button";
 import { useModalStore } from "@/stores/modalStore";
+import { useState } from "react";
+import { CustomIcon } from "./CustomIcon";
 import { ModalContent } from "./Modal";
-import { Plus } from "lucide-react";
+import { Button } from "./ui/button";
 
 export const CreateDirectoryInModalButton = (p: {
   browsePath: string;
@@ -30,7 +30,7 @@ export const CreateDirectoryInModalButton = (p: {
         )
       }
     >
-      <Plus /> New Directory
+      <CustomIcon iconName="plus" size="md" /> New Directory
     </Button>
   );
 };

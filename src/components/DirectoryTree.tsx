@@ -1,8 +1,8 @@
 import { TDirectoryTree } from "@/modules/files/directoriesStore";
-import { ChevronDown, ChevronRight, Folder } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { CustomIcon } from "./CustomIcon";
 
 type DirectoryNode = {
   name: string;
@@ -40,8 +40,11 @@ function DirectoryTreeItem({
           }}
         >
           {(() => {
-            const Comp = isOpen ? ChevronDown : ChevronRight;
-            return <Comp className="mr-1 h-4 w-4 flex-shrink-0" />;
+            return (
+              <span className="mr-1 h-4 w-4 flex-shrink-0">
+                <CustomIcon iconName={isOpen ? "chevronDown" : "chevronRight"} size="sm" />
+              </span>
+            );
           })()}
         </div>
 
@@ -50,7 +53,9 @@ function DirectoryTreeItem({
           className={`flex flex-1 items-center`}
           onClick={() => setIsOpen(true)}
         >
-          <Folder className="mr-2 h-4 w-4" />
+          <span className="mr-2">
+            <CustomIcon iconName="folder" size="sm" />
+          </span>
           <span className="truncate text-sm">{node.name}</span>
         </Link>
       </div>

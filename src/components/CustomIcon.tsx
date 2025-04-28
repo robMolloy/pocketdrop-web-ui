@@ -1,0 +1,94 @@
+import { cn } from "@/lib/utils";
+import {
+  ChevronDown,
+  ChevronRight,
+  Folder,
+  Plus,
+  Star,
+  Calendar,
+  Download,
+  FileText,
+  Hash,
+  Trash2,
+  File,
+  FileArchive,
+  FileAudio,
+  FileCode,
+  FileVideo,
+  Image,
+  FileSpreadsheet,
+  Presentation,
+  Cloud,
+  Home,
+  LogOut,
+  Settings,
+  Users,
+  Moon,
+  Sun,
+  Monitor,
+  X,
+  Check,
+  Circle,
+  MoreVertical,
+  Upload,
+  Pencil,
+  Grid,
+  List,
+} from "lucide-react";
+
+const iconMap = {
+  plus: Plus,
+  star: Star,
+  folder: Folder,
+  chevronRight: ChevronRight,
+  chevronDown: ChevronDown,
+  calendar: Calendar,
+  download: Download,
+  fileText: FileText,
+  hash: Hash,
+  trash2: Trash2,
+  file: File,
+  fileArchive: FileArchive,
+  fileAudio: FileAudio,
+  fileCode: FileCode,
+  fileVideo: FileVideo,
+  image: Image,
+  fileSpreadsheet: FileSpreadsheet,
+  presentation: Presentation,
+  cloud: Cloud,
+  home: Home,
+  logOut: LogOut,
+  settings: Settings,
+  users: Users,
+  moon: Moon,
+  sun: Sun,
+  monitor: Monitor,
+  x: X,
+  check: Check,
+  circle: Circle,
+  moreVertical: MoreVertical,
+  upload: Upload,
+  pencil: Pencil,
+  grid: Grid,
+  list: List,
+};
+
+const iconSizeClass = {
+  xs: "h-3 w-3",
+  sm: "h-4 w-4",
+  md: "h-5 w-5",
+  lg: "h-6 w-6",
+  xl: "h-8 w-8",
+  "2xl": "h-10 w-10",
+};
+
+export const CustomIcon = (p: {
+  iconName: keyof typeof iconMap;
+  size: keyof typeof iconSizeClass;
+  className?: string;
+}) => {
+  const Icon = iconMap[p.iconName];
+  const sizeClass = iconSizeClass[p.size];
+
+  return <Icon className={cn(sizeClass, p.className)} />;
+};

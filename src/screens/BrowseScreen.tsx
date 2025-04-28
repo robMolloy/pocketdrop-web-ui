@@ -1,4 +1,5 @@
 import { CreateDirectoryInModalButton } from "@/components/CreateDirectoryForm";
+import { CustomIcon } from "@/components/CustomIcon";
 import { DisplayDirectoriesAndFilesIconView } from "@/modules/directories/components/DisplayDirectoriesAndFilesIconView";
 import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/components/DisplayFilesTableView";
 import { FileUploader } from "@/modules/files/components/FileUploader";
@@ -6,7 +7,6 @@ import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/d
 import { useFilesStore } from "@/modules/files/filesStore";
 import { ViewTypeToggleButton } from "@/modules/viewType/components/ViewTypeToggleButton";
 import { useViewTypeStore } from "@/modules/viewType/viewTypeStore";
-import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -41,7 +41,7 @@ const Breadcrumbs = (p: { path: string }) => {
       </BreadcrumbLink>
       {pathSegments.map((segment) => (
         <div key={segment.path} className="flex items-center">
-          <ChevronRight className="text-muted-foreground" size={15} />
+          <CustomIcon iconName="chevronRight" className="text-muted-foreground" size="lg" />
           <BreadcrumbLink href={`/browse${segment.path}`} isLast={segment.isLast}>
             {segment.name}
           </BreadcrumbLink>

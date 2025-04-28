@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { TFileRecord } from "@/modules/files/dbFilesUtils";
 import { useModalStore } from "@/stores/modalStore";
-import { MoreVertical } from "lucide-react";
+import { CustomIcon } from "@/components/CustomIcon";
 import { RenameFileForm } from "./RenameFileForm";
 
 export const FileActionsDropdownMenu = (p: { file: TFileRecord }) => {
@@ -23,7 +23,7 @@ export const FileActionsDropdownMenu = (p: { file: TFileRecord }) => {
           className="h-5 w-5 text-muted-foreground"
           onClick={async (e) => e.stopPropagation()}
         >
-          <MoreVertical className="h-5 w-5" />
+          <CustomIcon iconName="moreVertical" size="md" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

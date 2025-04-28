@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { useModalStore } from "@/stores/modalStore";
-import { MoreVertical } from "lucide-react";
 import { RenameDirectoryForm } from "./RenameDirectoryForm";
+import { CustomIcon } from "@/components/CustomIcon";
 
 export const DirectoryActionsDropdownMenu = (p: { directory: TDirectoryWithFullPath }) => {
   const modalStore = useModalStore();
@@ -23,7 +23,7 @@ export const DirectoryActionsDropdownMenu = (p: { directory: TDirectoryWithFullP
           className="h-5 w-5 text-muted-foreground"
           onClick={async (e) => e.stopPropagation()}
         >
-          <MoreVertical className="h-5 w-5" />
+          <CustomIcon iconName="moreVertical" size="md" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

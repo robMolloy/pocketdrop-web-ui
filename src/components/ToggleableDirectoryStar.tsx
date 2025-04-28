@@ -1,9 +1,9 @@
-import { Star } from "lucide-react";
-import { Button } from "./ui/button";
-import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
-import { useEffect, useState } from "react";
 import { pb } from "@/config/pocketbaseConfig";
 import { updateDirectory } from "@/modules/directories/dbDirectoriesUtils";
+import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
+import { useEffect, useState } from "react";
+import { CustomIcon } from "./CustomIcon";
+import { Button } from "./ui/button";
 
 export function ToggleableDirectoryStar(p: {
   directory: TDirectoryWithFullPath;
@@ -14,12 +14,6 @@ export function ToggleableDirectoryStar(p: {
     sm: "h-6 w-6",
     md: "h-8 w-8",
     lg: "h-10 w-10",
-  };
-
-  const iconSize = {
-    sm: "h-3 w-3",
-    md: "h-5 w-5",
-    lg: "h-6 w-6",
   };
 
   const [isStarred, setIsStarred] = useState(p.directory.isStarred);
@@ -52,8 +46,10 @@ export function ToggleableDirectoryStar(p: {
       disabled={isLoading}
       title={isStarred ? "Unstar" : "Star"}
     >
-      <Star
-        className={`${iconSize[size]} ${isStarred ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}
+      <CustomIcon
+        iconName="star"
+        size="md"
+        className={isStarred ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}
       />
     </Button>
   );

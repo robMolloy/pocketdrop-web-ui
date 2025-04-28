@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useViewTypeStore } from "../viewTypeStore";
-import { Grid, List } from "lucide-react";
+import { CustomIcon } from "@/components/CustomIcon";
 
 export const ViewTypeToggleButton = () => {
   const viewTypeStore = useViewTypeStore();
@@ -12,10 +12,7 @@ export const ViewTypeToggleButton = () => {
       onClick={() => viewTypeStore.toggle()}
       title={viewTypeStore.data === "icon" ? "Switch to list view" : "Switch to icon view"}
     >
-      {(() => {
-        const Icon = viewTypeStore.data === "table" ? List : Grid;
-        return <Icon size={20} />;
-      })()}
+      <CustomIcon iconName={viewTypeStore.data === "table" ? "list" : "grid"} size="md" />
       View
     </Button>
   );

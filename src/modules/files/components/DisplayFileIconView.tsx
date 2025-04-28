@@ -31,7 +31,9 @@ export const DisplayFileIconView = (p: {
       <div className="absolute right-2 top-2">
         <ToggleableStar file={p.file} size="sm" />
       </div>
-      <FileIcon extension={getFileExtension(p.file)} />
+      <span className="mb-2">
+        <FileIcon extension={getFileExtension(p.file)} size="2xl" />
+      </span>
       <span className="break-all text-center text-sm">{p.file.name}</span>
       <div className="absolute left-2 top-2 opacity-40 group-hover:opacity-100">
         <FileActionsDropdownMenu file={p.file} />

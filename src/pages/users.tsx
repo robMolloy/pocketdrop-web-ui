@@ -21,7 +21,7 @@ import { deleteUser, TUser, updateUserStatus } from "@/modules/users/dbUsersUtil
 import { useUsersStore } from "@/modules/users/usersStore";
 import { useCurrentUserStore } from "@/stores/authDataStore";
 import { useModalStore } from "@/stores/modalStore";
-import { Trash2 } from "lucide-react";
+import { CustomIcon } from "@/components/CustomIcon";
 
 type TUserStatus = TUser["status"];
 const statusColorClassMap: { [k in TUserStatus]: string } = {
@@ -113,7 +113,7 @@ const UsersPage = () => {
                         );
                       }}
                     >
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <CustomIcon iconName="trash2" size="md" className="text-destructive" />
                     </Button>
                   )}
                 </TableCell>

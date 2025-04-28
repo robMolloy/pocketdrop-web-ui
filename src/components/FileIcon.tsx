@@ -1,15 +1,5 @@
 import { TFile, TFileRecord } from "@/modules/files/dbFilesUtils";
-import {
-  File,
-  FileArchive,
-  FileAudio,
-  FileCode,
-  FileText,
-  FileVideo,
-  Image,
-  FileSpreadsheet,
-  Presentation,
-} from "lucide-react";
+import { CustomIcon } from "./CustomIcon";
 
 export const getFileExtension = (file: TFileRecord | TFile) => {
   return file.name.split(".").pop()?.toLowerCase() ?? "";
@@ -73,20 +63,23 @@ const videoExtensions = [
 const spreadsheetExtensions = ["xls", "xlsx", "ods", "numbers"];
 const presentationExtensions = ["ppt", "pptx", "odp", "key"];
 
-export function FileIcon(p: { extension: string; size?: number }) {
-  const FileComp = p.extension
-    ? File
+export function FileIcon(p: {
+  extension: string;
+  size: React.ComponentProps<typeof CustomIcon>["size"];
+}) {
+  const iconName: React.ComponentProps<typeof CustomIcon>["iconName"] = p.extension
+    ? "file"
     : (() => {
-        if (imageExtensions.includes(p.extension)) return Image;
-        if (textExtensions.includes(p.extension)) return FileText;
-        if (codeExtensions.includes(p.extension)) return FileCode;
-        if (fileExtensions.includes(p.extension)) return FileArchive;
-        if (audioExtensions.includes(p.extension)) return FileAudio;
-        if (videoExtensions.includes(p.extension)) return FileVideo;
-        if (spreadsheetExtensions.includes(p.extension)) return FileSpreadsheet;
-        if (presentationExtensions.includes(p.extension)) return Presentation;
-        return File;
+        if (imageExtensions.includes(p.extension)) return "image";
+        if (textExtensions.includes(p.extension)) return "fileText";
+        if (codeExtensions.includes(p.extension)) return "fileCode";
+        if (fileExtensions.includes(p.extension)) return "fileArchive";
+        if (audioExtensions.includes(p.extension)) return "fileAudio";
+        if (videoExtensions.includes(p.extension)) return "fileVideo";
+        if (spreadsheetExtensions.includes(p.extension)) return "fileSpreadsheet";
+        if (presentationExtensions.includes(p.extension)) return "presentation";
+        return "file";
       })();
 
-  return <FileComp size={p.size ? p.size : 40} />;
+  return <CustomIcon iconName={iconName} size={p.size} />;
 }

@@ -1,6 +1,6 @@
-import { Moon, Sun, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useThemeStore } from "@/stores/themeStore";
+import { CustomIcon } from "./CustomIcon";
 
 export function ThemeToggle() {
   const themeStore = useThemeStore();
@@ -15,10 +15,10 @@ export function ThemeToggle() {
         return theme === "light" ? "Light mode" : theme === "dark" ? "Dark mode" : "System theme";
       })()}
     >
-      {(() => {
-        const Comp = theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
-        return <Comp className="h-[1.2rem] w-[1.2rem]" />;
-      })()}
+      <CustomIcon
+        iconName={theme === "light" ? "sun" : theme === "dark" ? "moon" : "monitor"}
+        size="sm"
+      />
       <span className="sr-only">Toggle theme</span>
     </Button>
   );

@@ -4,18 +4,18 @@ import { logout } from "@/modules/auth/dbAuthUtils";
 import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { useUsersStore } from "@/modules/users/usersStore";
 import { useCurrentUserStore } from "@/stores/authDataStore";
-import { Home, LogOut, Settings, Star, Users } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { DirectoryTree } from "./DirectoryTree";
+import { CustomIcon } from "./CustomIcon";
 
 const SidebarButtonWrapper = (p: { children: ReactNode; href?: string }) =>
   p.href ? <Link href={p.href}>{p.children}</Link> : p.children;
 
 const SidebarButton = (p: {
   href?: string;
-  Icon: typeof Home;
+  iconName: React.ComponentProps<typeof CustomIcon>["iconName"];
   children: ReactNode;
   isHighlighted: boolean;
   onClick?: () => void;
@@ -28,7 +28,9 @@ const SidebarButton = (p: {
         className="relative w-full justify-start pl-6"
         onClick={p.onClick}
       >
-        <p.Icon className="mr-2 h-4 w-4" />
+        <span className="mr-2">
+          <CustomIcon iconName={p.iconName} size="sm" />
+        </span>
         {p.children}
         {p.badgeCount !== undefined && p.badgeCount > 0 && (
           <span className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-destructive px-2 py-0.5 text-xs text-destructive-foreground">
@@ -51,10 +53,14 @@ export function LeftSidebar() {
     <div className={"flex h-full flex-col"}>
       <div className="flex-1 overflow-y-auto p-2">
         <div className="flex flex-col gap-1">
-          <SidebarButton href="/" Icon={Home} isHighlighted={router.pathname === "/"}>
+          <SidebarButton href="/" iconName={"home"} isHighlighted={router.pathname === "/"}>
             Home
           </SidebarButton>
-          <SidebarButton href="/starred" Icon={Star} isHighlighted={router.pathname === "/starred"}>
+          <SidebarButton
+            href="/starred"
+            iconName="star"
+            isHighlighted={router.pathname === "/starred"}
+          >
             Starred
           </SidebarButton>
           {directoryTreeStore.tree !== undefined && (
@@ -68,7 +74,7 @@ export function LeftSidebar() {
           {userStore.data?.status === "admin" && (
             <SidebarButton
               href="/users"
-              Icon={Users}
+              iconName="users"
               isHighlighted={router.pathname === "/users"}
               badgeCount={pendingUsersCount}
             >
@@ -77,12 +83,12 @@ export function LeftSidebar() {
           )}
           <SidebarButton
             href="/settings"
-            Icon={Settings}
+            iconName="settings"
             isHighlighted={router.pathname === "/settings"}
           >
             Settings
           </SidebarButton>
-          <SidebarButton Icon={LogOut} isHighlighted={false} onClick={() => logout({ pb })}>
+          <SidebarButton iconName="logOut" isHighlighted={false} onClick={() => logout({ pb })}>
             Log Out
           </SidebarButton>
         </div>

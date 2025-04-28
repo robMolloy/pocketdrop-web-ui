@@ -2,16 +2,20 @@ import { FileIcon, getFileExtension, imageExtensions } from "@/components/FileIc
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { pb } from "@/config/pocketbaseConfig";
 import { TFileRecord, deleteFile, downloadFile, getFile } from "@/modules/files/dbFilesUtils";
-import { Calendar, Download, FileText, Folder, Hash, Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ToggleableStar } from "./ToggleableStar";
 import { Button } from "./ui/button";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
+import { CustomIcon } from "./CustomIcon";
 
-const DetailsLine = (p: { Icon: typeof Hash; label: string; value: string }) => {
+const DetailsLine = (p: {
+  iconName: React.ComponentProps<typeof CustomIcon>["iconName"];
+  label: string;
+  value: string;
+}) => {
   return (
     <div className="flex items-center gap-2 text-sm">
-      <p.Icon className="h-4 w-4 text-muted-foreground" size={40} />
+      <CustomIcon iconName={p.iconName} size="md" />
       <span className="text-muted-foreground">{p.label}:</span>
       <span className="font-mono">{p.value}</span>
     </div>
@@ -61,7 +65,7 @@ export function FileDetails(p: {
                 className="h-[120px] w-[120px] object-contain"
               />
             ) : (
-              <FileIcon extension={getFileExtension(p.file)} size={120} />
+              <FileIcon extension={getFileExtension(p.file)} size="2xl" />
             )}
             <div className="flex items-center gap-2 text-center text-xl">
               {p.file.name}
@@ -76,11 +80,11 @@ export function FileDetails(p: {
                   if (resp.success) downloadFile({ data: resp.data });
                 }}
               >
-                <Download size={40} />
+                <CustomIcon iconName="download" size="md" />
                 Download
               </Button>
               <Button variant="destructive" className="flex flex-1 gap-2" onClick={handleDelete}>
-                <Trash2 size={40} />
+                <CustomIcon iconName="trash2" size="md" />
                 Delete
               </Button>
             </div>
@@ -92,13 +96,17 @@ export function FileDetails(p: {
       <div className="mb-2 flex items-center gap-2 text-xl">Information</div>
 
       <div className="flex flex-col gap-2">
-        <DetailsLine Icon={Hash} label="ID" value={p.file.id} />
-        <DetailsLine Icon={Folder} label="Directory Path" value={p.parentDirectory.fullPath} />
-        <DetailsLine Icon={Calendar} label="Created" value={formatDate(p.file.created)} />
-        <DetailsLine Icon={Calendar} label="Updated" value={formatDate(p.file.updated)} />
-        <DetailsLine Icon={Hash} label="Collection ID" value={p.file.collectionId} />
-        <DetailsLine Icon={Folder} label="Collection Name" value={p.file.collectionName} />
-        <DetailsLine Icon={FileText} label="File" value={p.file.file} />
+        <DetailsLine iconName={"hash"} label="ID" value={p.file.id} />
+        <DetailsLine
+          iconName={"folder"}
+          label="Directory Path"
+          value={p.parentDirectory.fullPath}
+        />
+        <DetailsLine iconName={"calendar"} label="Created" value={formatDate(p.file.created)} />
+        <DetailsLine iconName={"calendar"} label="Updated" value={formatDate(p.file.updated)} />
+        <DetailsLine iconName={"hash"} label="Collection ID" value={p.file.collectionId} />
+        <DetailsLine iconName={"folder"} label="Collection Name" value={p.file.collectionName} />
+        <DetailsLine iconName={"fileText"} label="File" value={p.file.file} />
       </div>
     </>
   );
