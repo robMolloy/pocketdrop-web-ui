@@ -20,7 +20,7 @@ export const FileActionsDropdownMenu = (p: { file: TFileRecord }) => {
         <Button
           variant="ghost"
           size="icon"
-          className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100"
+          className="h-5 w-5 text-muted-foreground"
           onClick={async (e) => e.stopPropagation()}
         >
           <MoreVertical className="h-5 w-5" />

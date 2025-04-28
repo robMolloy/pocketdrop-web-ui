@@ -19,6 +19,7 @@ import { pb } from "@/config/pocketbaseConfig";
 import { getFile } from "@/modules/files/dbFilesUtils";
 import { useEffect, useState } from "react";
 import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
+import { FileActionsDropdownMenu } from "@/modules/files/FileActionsDropdownMenu";
 
 const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
   const rightSidebarStore = useRightSidebarStore();
@@ -81,6 +82,7 @@ const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFu
       <TableCell>
         <div className="flex items-center gap-2">
           <ToggleableStar file={p.file} size="sm" />
+          <FileActionsDropdownMenu file={p.file} />
         </div>
       </TableCell>
     </TableRow>

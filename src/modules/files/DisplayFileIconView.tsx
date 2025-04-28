@@ -33,7 +33,7 @@ export const DisplayFileIconView = (p: {
       </div>
       <FileIcon extension={getFileExtension(p.file)} />
       <span className="break-all text-center text-sm">{p.file.name}</span>
-      <div className="absolute left-2 top-2">
+      <div className="absolute left-2 top-2 opacity-40 group-hover:opacity-100">
         <FileActionsDropdownMenu file={p.file} />
       </div>
     </div>
