@@ -145,7 +145,7 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
 
 const IconViewFile = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
   const rightSidebarStore = useRightSidebarStore();
-  const modalStore = useModalStore();
+
   return (
     <div
       onClick={async () => {
@@ -161,40 +161,13 @@ const IconViewFile = (p: { file: TFileRecord; directory: TDirectoryWithFullPath 
       }}
       className="group relative flex cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
     >
-      <div className="absolute left-2 top-2">
+      <div className="absolute right-2 top-2">
         <ToggleableStar file={p.file} size="sm" />
       </div>
       <FileIcon extension={getFileExtension(p.file)} />
       <span className="break-all text-center text-sm">{p.file.name}</span>
-      <div className="absolute right-2 top-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100"
-              onClick={async (e) => e.stopPropagation()}
-            >
-              <MoreVertical className="h-5 w-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={async (e) => {
-                e.stopPropagation();
-                modalStore.setData(
-                  <ModalContent
-                    title="Rename"
-                    description={`Rename ${p.file.name}`}
-                    content={<RenameFileForm file={p.file} onSuccess={() => modalStore.close()} />}
-                  />,
-                );
-              }}
-            >
-              Rename
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="absolute left-2 top-2">
+        <FileActionsDropdownMenu file={p.file} />
       </div>
     </div>
   );
@@ -248,5 +221,40 @@ const RenameFileForm = (p: { file: TFileRecord; onSuccess: () => void }) => {
         </div>
       </div>
     </form>
+  );
+};
+
+const FileActionsDropdownMenu = (p: { file: TFileRecord }) => {
+  const modalStore = useModalStore();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100"
+          onClick={async (e) => e.stopPropagation()}
+        >
+          <MoreVertical className="h-5 w-5" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          onClick={async (e) => {
+            e.stopPropagation();
+            modalStore.setData(
+              <ModalContent
+                title="Rename"
+                description={`Rename ${p.file.name}`}
+                content={<RenameFileForm file={p.file} onSuccess={() => modalStore.close()} />}
+              />,
+            );
+          }}
+        >
+          Rename
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
