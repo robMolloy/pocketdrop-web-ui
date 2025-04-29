@@ -63,7 +63,7 @@ onRecordUpdateRequest((e) => {
   const name = e.record.get("name");
   const id = e.record.get("id");
   const file = e.record.get("file");
-  if(file.size>1) e.record.set("size", file.size);
+  if (file.size > 0) e.record.set("size", file.size);
 
   const count = $app.countRecords(
     "files",
@@ -75,6 +75,52 @@ onRecordUpdateRequest((e) => {
     throw new BadRequestError(
       "Two files within the same parent directory cannot share identical names.",
     );
+
+  e.next();
+}, "files");
+
+onRecordAfterCreateSuccess((e) => {
+  const id = e.record.get("id");
+
+  let collection = $app.findCollectionByNameOrId("filesVersionHistory");
+  let record = new Record(collection);
+
+  record.set("fileRelationId", id);
+  record.set("isStarred", e.record.get("isStarred"));
+  record.set("name", e.record.get("name"));
+  record.set("directoryRelationId", e.record.get("directoryRelationId"));
+  record.set("size", e.record.get("size"));
+
+  $app.save(record);
+
+  e.next();
+}, "files");
+
+onRecordAfterUpdateSuccess((e) => {
+  console.log("after successful file updated");
+  // const id = e.record.get("id");
+  // const prev = $app.FindFirstRecordByFilter(
+  //   "filesVersionHistory",
+  //   dbx.hashExp({ fileRelationId: id }),
+  // );
+
+  // const prevExists = !!prev;
+  // const isSameFileAsPrev = prev?.size === e.record.get("size");
+
+  // (() => {
+  //   if (!prevExists || isSameFileAsPrev) return;
+
+  //   let collection = $app.findCollectionByNameOrId("filesVersionHistory");
+  //   let record = new Record(collection);
+
+  //   record.set("fileRelationId", id);
+  //   record.set("isStarred", e.record.get("isStarred"));
+  //   record.set("name", e.record.get("name"));
+  //   record.set("directoryRelationId", e.record.get("directoryRelationId"));
+  //   record.set("size", e.record.get("size"));
+
+  //   $app.save(record);
+  // })();
 
   e.next();
 }, "files");
