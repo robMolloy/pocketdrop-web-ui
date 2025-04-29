@@ -12,7 +12,7 @@ const DisplayDirectoryIconView = (p: { directory: TDirectoryWithFullPath }) => {
   return (
     <div
       onClick={() => router.push(`/browse${p.directory.fullPath}`)}
-      className="group relative flex h-full cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
+      className="group relative flex h-full w-full cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
     >
       <div className="absolute right-2 top-2">
         <ToggleableDirectoryStar directory={p.directory} size="sm" />
@@ -34,9 +34,9 @@ export const DisplayDirectoriesAndFilesIconView = (p: {
   parentDirectories: TDirectoryWithFullPath[];
 }) => {
   return (
-    <div className="flex flex-wrap gap-4">
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
       {p.directories.map((x) => (
-        <div key={x.id} className="w-[180px]">
+        <div key={x.id}>
           <DisplayDirectoryIconView directory={x} />
         </div>
       ))}
@@ -47,7 +47,7 @@ export const DisplayDirectoriesAndFilesIconView = (p: {
         if (!directory) return <></>;
 
         return (
-          <div key={file.id} className="w-[180px]">
+          <div key={file.id}>
             <DisplayFileIconView file={file} parentDirectory={directory} />
           </div>
         );
