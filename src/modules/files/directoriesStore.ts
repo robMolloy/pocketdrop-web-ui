@@ -88,5 +88,5 @@ export const useDirectoryTreeStore = () => {
   const tree = convertDirectoriesIntoDirectoryTree(directoriesStore.data);
   const fullPaths = buildDirectoriesWithFullPathsFromDirectoryTree(tree);
 
-  return { tree, fullPaths };
+  return { tree, fullPaths: fullPaths.sort((a, b) => (a.created > b.created ? -1 : 1)) };
 };

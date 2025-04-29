@@ -22,8 +22,9 @@ import { CustomIcon } from "@/components/CustomIcon";
 import { ToggleableDirectoryStar } from "@/components/ToggleableDirectoryStar";
 import { DirectoryActionsDropdownMenu } from "@/modules/directories/components/DirectoryActionsDropdownMenu";
 import { formatDate } from "@/utils/dateUtils";
+import { useRouter } from "next/router";
 
-const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
+const DisplayFileTableView = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
   const rightSidebarStore = useRightSidebarStore();
 
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
@@ -86,8 +87,13 @@ const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFu
   );
 };
 const DisplayDirectoryTableView = (p: { directory: TDirectoryWithFullPath }) => {
+  const router = useRouter();
+
   return (
-    <TableRow className="cursor-pointer">
+    <TableRow
+      className="cursor-pointer"
+      onClick={() => router.push(`/browse${p.directory.fullPath}`)}
+    >
       <TableCell className="flex items-center gap-2">
         <CustomIcon iconName="folder" size="lg" />
         <span>{p.directory.name}</span>
@@ -136,7 +142,7 @@ export const DisplayDirectoriesAndFilesTableView = (p: {
           const directory = p.parentDirectories.find((x) => x.id === file.directoryRelationId);
           if (!directory) return <></>;
 
-          return <StarredPageTableRow key={file.id} file={file} directory={directory} />;
+          return <DisplayFileTableView key={file.id} file={file} directory={directory} />;
         })}
       </TableBody>
     </Table>

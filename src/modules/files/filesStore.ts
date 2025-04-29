@@ -3,7 +3,7 @@ import { create } from "zustand";
 
 type TState = TFileRecord[] | undefined;
 
-export const useFilesStore = create<{
+const useInitFilesStore = create<{
   data: TState;
   setData: (x: TState) => void;
   clear: () => void;
@@ -12,3 +12,12 @@ export const useFilesStore = create<{
   setData: (data) => set(() => ({ data })),
   clear: () => set(() => ({ data: undefined })),
 }));
+
+export const useFilesStore = () => {
+  const initFilesStore = useInitFilesStore();
+
+  return {
+    ...initFilesStore,
+    data: initFilesStore.data?.sort((a, b) => (a.created > b.created ? -1 : 1)),
+  };
+};
