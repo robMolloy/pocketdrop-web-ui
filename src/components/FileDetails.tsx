@@ -7,6 +7,7 @@ import { ToggleableStar } from "./ToggleableStar";
 import { Button } from "./ui/button";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { CustomIcon } from "./CustomIcon";
+import { formatDate } from "@/utils/dateUtils";
 
 const DetailsLine = (p: {
   iconName: React.ComponentProps<typeof CustomIcon>["iconName"];
@@ -15,7 +16,7 @@ const DetailsLine = (p: {
 }) => {
   return (
     <div className="flex items-center gap-2 text-sm">
-      <CustomIcon iconName={p.iconName} size="md" />
+      <CustomIcon iconName={p.iconName} size="sm" />
       <span className="text-muted-foreground">{p.label}:</span>
       <span className="font-mono">{p.value}</span>
     </div>
@@ -42,16 +43,6 @@ export function FileDetails(p: {
       }
     })();
   }, [p.file.id]);
-
-  const handleDelete = async () => {
-    const result = await deleteFile({ pb, id: p.file.id });
-    if (result.success) p.onDelete();
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
 
   return (
     <>
@@ -83,7 +74,14 @@ export function FileDetails(p: {
                 <CustomIcon iconName="download" size="md" />
                 Download
               </Button>
-              <Button variant="destructive" className="flex flex-1 gap-2" onClick={handleDelete}>
+              <Button
+                variant="destructive"
+                className="flex flex-1 gap-2"
+                onClick={async () => {
+                  const result = await deleteFile({ pb, id: p.file.id });
+                  if (result.success) p.onDelete();
+                }}
+              >
                 <CustomIcon iconName="trash2" size="md" />
                 Delete
               </Button>

@@ -18,16 +18,15 @@ import { FileActionsDropdownMenu } from "@/modules/files/components/FileActionsD
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { CustomIcon } from "@/components/CustomIcon";
+import { ToggleableDirectoryStar } from "@/components/ToggleableDirectoryStar";
+import { DirectoryActionsDropdownMenu } from "@/modules/directories/components/DirectoryActionsDropdownMenu";
+import { formatDate } from "@/utils/dateUtils";
 
 const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
   const rightSidebarStore = useRightSidebarStore();
 
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString();
-  };
 
   useEffect(() => {
     const extension = getFileExtension(p.file);
@@ -86,6 +85,33 @@ const StarredPageTableRow = (p: { file: TFileRecord; directory: TDirectoryWithFu
     </TableRow>
   );
 };
+const DisplayDirectoryTableView = (p: { directory: TDirectoryWithFullPath }) => {
+  return (
+    <TableRow className="cursor-pointer">
+      <TableCell className="flex items-center gap-2">
+        <CustomIcon iconName="folder" size="lg" />
+        <span>{p.directory.name}</span>
+      </TableCell>
+      <TableCell>
+        <Link
+          href={`/browse${p.directory.fullPath}`}
+          onClick={(e) => e.stopPropagation()}
+          className="hover:underline"
+        >
+          {p.directory.fullPath}
+        </Link>
+      </TableCell>
+      <TableCell></TableCell>
+      <TableCell>{formatDate(p.directory.created)}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <ToggleableDirectoryStar directory={p.directory} size="sm" />
+          <DirectoryActionsDropdownMenu directory={p.directory} />
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+};
 export const DisplayDirectoriesAndFilesTableView = (p: {
   files: TFileRecord[];
   directories: TDirectoryWithFullPath[];
@@ -103,6 +129,9 @@ export const DisplayDirectoriesAndFilesTableView = (p: {
         </TableHeaderRow>
       </TableHeader>
       <TableBody>
+        {p.directories.map((directory) => {
+          return <DisplayDirectoryTableView key={directory.id} directory={directory} />;
+        })}
         {p.files.map((file) => {
           const directory = p.parentDirectories.find((x) => x.id === file.directoryRelationId);
           if (!directory) return <></>;
