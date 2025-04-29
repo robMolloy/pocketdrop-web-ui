@@ -9,16 +9,25 @@ interface SettingItemProps {
   onCheckedChange: (checked: boolean) => void;
 }
 
-export const SettingItem = ({ title, description, checked, onCheckedChange }: SettingItemProps) => {
+export const SettingItem = (p: {
+  title: string;
+  description: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}) => {
   return (
     <div className="flex items-center justify-between">
       <div>
-        <h2 className="text-lg">{title}</h2>
-        <p className="text-sm text-gray-500">{description}</p>
+        <h2 className="text-lg">{p.title}</h2>
+        <p className="text-sm text-gray-500">{p.description}</p>
       </div>
-      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+      <Switch checked={p.checked} onCheckedChange={p.onCheckedChange} />
     </div>
   );
+};
+
+const HorizontalSpacer = () => {
+  return <div className="my-4 h-px bg-gray-100" />;
 };
 
 const SettingsPage = () => {
@@ -36,7 +45,7 @@ const SettingsPage = () => {
           checked={storeVersionHistory}
           onCheckedChange={setStoreVersionHistory}
         />
-
+        <HorizontalSpacer />
         <SettingItem
           title="Encrypt Files"
           description="Enable encryption for stored files"
