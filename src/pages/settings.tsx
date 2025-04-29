@@ -1,4 +1,5 @@
 import { useSettingsStore } from "../stores/settingsStore";
+import { Switch } from "@/components/ui/switch";
 
 const SettingsPage = () => {
   const { storeVersionHistory, encryptFiles, setStoreVersionHistory, setEncryptFiles } =
@@ -16,15 +17,7 @@ const SettingsPage = () => {
               Keep track of file changes and maintain version history
             </p>
           </div>
-          <label className="relative inline-flex cursor-pointer items-center">
-            <input
-              type="checkbox"
-              className="peer sr-only"
-              checked={storeVersionHistory}
-              onChange={(e) => setStoreVersionHistory(e.target.checked)}
-            />
-            <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"></div>
-          </label>
+          <Switch checked={storeVersionHistory} onCheckedChange={setStoreVersionHistory} />
         </div>
 
         <div className="flex items-center justify-between">
@@ -32,15 +25,7 @@ const SettingsPage = () => {
             <h2 className="text-lg">Encrypt Files</h2>
             <p className="text-sm text-gray-500">Enable encryption for stored files</p>
           </div>
-          <label className="relative inline-flex cursor-pointer items-center">
-            <input
-              type="checkbox"
-              className="peer sr-only"
-              checked={encryptFiles}
-              onChange={(e) => setEncryptFiles(e.target.checked)}
-            />
-            <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300"></div>
-          </label>
+          <Switch checked={encryptFiles} onCheckedChange={setEncryptFiles} />
         </div>
       </div>
     </div>
