@@ -62,3 +62,29 @@ export const smartSubscribeToSettings = async (p: {
 
   return { success: true, data: unsub } as const;
 };
+
+export const createSetting = async (p: {
+  pb: PocketBase;
+  data: Omit<TSettingsRecord, "collectionId" | "collectionName" | "id" | "created" | "updated">;
+}) => {
+  try {
+    const resp = await p.pb.collection("settings").create(p.data);
+    return { success: true, data: resp } as const;
+  } catch (error) {
+    console.error(error);
+    return { success: false, error } as const;
+  }
+};
+
+export const updateSetting = async (p: {
+  pb: PocketBase;
+  data: Omit<TSettingsRecord, "collectionId" | "collectionName" | "created" | "updated">;
+}) => {
+  try {
+    const resp = await p.pb.collection("settings").update(p.data.id, p.data);
+    return { success: true, data: resp } as const;
+  } catch (error) {
+    console.error(error);
+    return { success: false, error } as const;
+  }
+};

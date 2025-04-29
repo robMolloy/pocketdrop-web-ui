@@ -6,6 +6,8 @@ import { smartSubscribeToDirectories } from "@/modules/directories/dbDirectories
 import { smartSubscribeToFiles } from "@/modules/files/dbFilesUtils";
 import { useDirectoriesStore } from "@/modules/files/directoriesStore";
 import { useFilesStore } from "@/modules/files/filesStore";
+import { smartSubscribeToSettings } from "@/modules/settings/dbSettingsUtils";
+import { useSettingsStore } from "@/modules/settings/settingsStore";
 import { smartSubscribeToUsers } from "@/modules/users/dbUsersUtils";
 import { useUsersStore } from "@/modules/users/usersStore";
 import { useAuthDataSync, useIsLoggedInStore } from "@/stores/authDataStore";
@@ -21,6 +23,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const directoriesStore = useDirectoriesStore();
   // const directoryTreeStore = useDirectoryTreeStore();
   const usersStore = useUsersStore();
+  const settingsStore = useSettingsStore();
 
   themeStore.useThemeStoreSideEffect();
   useAuthDataSync({ pb: pb });
@@ -30,10 +33,12 @@ export default function App({ Component, pageProps }: AppProps) {
       smartSubscribeToDirectories({ pb, onChange: (x) => directoriesStore.setData(x) });
       smartSubscribeToFiles({ pb, onChange: (x) => filesStore.setData(x) });
       smartSubscribeToUsers({ pb, onChange: (x) => usersStore.setData(x) });
+      smartSubscribeToSettings({ pb, onChange: (x) => settingsStore.setData(x) });
     } else {
       directoriesStore.clear();
       filesStore.clear();
       usersStore.clear();
+      settingsStore.clear();
     }
   }, [isLoggedInStore.data]);
 

@@ -1,6 +1,8 @@
-import { useSettingsStore } from "../stores/settingsStore";
+import { useSettingsStore } from "../modules/settings/settingsStore";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { pb } from "@/config/pocketbaseConfig";
+import { createSetting, updateSetting } from "@/modules/settings/dbSettingsUtils";
 
 export const SettingItem = (p: {
   title: string;
@@ -43,8 +45,10 @@ const HorizontalSpacer = () => {
 };
 
 const SettingsPage = () => {
-  const { storeVersionHistory, encryptFiles, setStoreVersionHistory, setEncryptFiles } =
-    useSettingsStore();
+  const settingsStore = useSettingsStore();
+
+  const versionHistorySetting = settingsStore.data?.find((x) => x.settingName === "versionHistory");
+  const encryptFilesSetting = settingsStore.data?.find((x) => x.settingName === "encryptFiles");
 
   return (
     <div className="mx-auto max-w-2xl p-6">
@@ -54,15 +58,22 @@ const SettingsPage = () => {
         <SettingItem
           title="Store Version History"
           description="Keep track of file changes and maintain version history"
-          checked={storeVersionHistory}
-          onCheckedChange={setStoreVersionHistory}
+          checked={versionHistorySetting?.isEnabled ?? false}
+          onCheckedChange={(isEnabled) => {
+            if (versionHistorySetting)
+              return updateSetting({ pb, data: { ...versionHistorySetting, isEnabled } });
+
+            createSetting({ pb, data: { settingName: "versionHistory", isEnabled } });
+          }}
         />
         <HorizontalSpacer />
         <SettingItem
           title="Encrypt Files"
           description="Enable encryption for stored files"
-          checked={encryptFiles}
-          onCheckedChange={setEncryptFiles}
+          checked={encryptFilesSetting?.isEnabled ?? false}
+          onCheckedChange={(x) => {
+            createSetting({ pb, data: { settingName: "encryptFiles", isEnabled: x } });
+          }}
           disabled={true}
           disabledTooltip="File encryption is not yet implemented"
         />
