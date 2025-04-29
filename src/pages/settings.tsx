@@ -1,14 +1,14 @@
-import { useSettingsStore } from "../modules/settings/settingsStore";
-import { Switch } from "@/components/ui/switch";
+import { OptimisticSwitch } from "@/components/OptimisticSwitch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { pb } from "@/config/pocketbaseConfig";
 import { createSetting, updateSetting } from "@/modules/settings/dbSettingsUtils";
+import { useSettingsStore } from "../modules/settings/settingsStore";
 
 export const SettingItem = (p: {
   title: string;
   description: string;
   checked: boolean;
-  onCheckedChange: (checked: boolean) => void;
+  onCheckedChange: (checked: boolean) => Promise<{ success: boolean }>;
   disabled?: boolean;
   disabledTooltip?: string;
 }) => {
@@ -18,7 +18,11 @@ export const SettingItem = (p: {
         <h2 className="text-lg">{p.title}</h2>
         <p className="text-sm text-gray-500">{p.description}</p>
       </div>
-      <Switch checked={p.checked} onCheckedChange={p.onCheckedChange} disabled={p.disabled} />
+      <OptimisticSwitch
+        checked={p.checked}
+        onCheckedChange={p.onCheckedChange}
+        disabled={p.disabled}
+      />
     </div>
   );
 
@@ -63,7 +67,7 @@ const SettingsPage = () => {
             if (versionHistorySetting)
               return updateSetting({ pb, data: { ...versionHistorySetting, isEnabled } });
 
-            createSetting({ pb, data: { settingName: "versionHistory", isEnabled } });
+            return createSetting({ pb, data: { settingName: "versionHistory", isEnabled } });
           }}
         />
         <HorizontalSpacer />
@@ -71,8 +75,11 @@ const SettingsPage = () => {
           title="Encrypt Files"
           description="Enable encryption for stored files"
           checked={encryptFilesSetting?.isEnabled ?? false}
-          onCheckedChange={(x) => {
-            createSetting({ pb, data: { settingName: "encryptFiles", isEnabled: x } });
+          onCheckedChange={(isEnabled) => {
+            if (encryptFilesSetting)
+              return updateSetting({ pb, data: { ...encryptFilesSetting, isEnabled } });
+
+            return createSetting({ pb, data: { settingName: "versionHistory", isEnabled } });
           }}
           disabled={true}
           disabledTooltip="File encryption is not yet implemented"
