@@ -144,7 +144,7 @@ export const DisplayDirectoriesAndFilesTableView = (p: {
           <TableHead>Type</TableHead>
           <TableHead>Size</TableHead>
           <TableHead>Created</TableHead>
-          <TableHead></TableHead>
+          <TableHead>Actions</TableHead>
         </TableHeaderRow>
       </TableHeader>
       <TableBody>
