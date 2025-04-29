@@ -115,7 +115,7 @@ export const getFileFromFileRecord = async (p: {
     const fileUrl = p.pb.files.getURL(
       p.data,
       p.data.file,
-      p.isThumb ? { thumb: "200x200" } : undefined,
+      p.isThumb ? { thumb: "100x100" } : undefined,
     );
     if (!fileUrl) return { success: false, error: "File not found" } as const;
 

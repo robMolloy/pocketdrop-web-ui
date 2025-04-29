@@ -59,12 +59,14 @@ const DisplayFileTableView = (p: { file: TFileRecord; directory: TDirectoryWithF
         );
       }}
     >
-      <TableCell className="text-center">
-        {thumbnailUrl ? (
-          <img src={thumbnailUrl} alt={p.file.name} className="min-h-6 min-w-6 object-contain" />
-        ) : (
-          <FileIcon extension={getFileExtension(p.file)} size="lg" />
-        )}
+      <TableCell>
+        <span className="flex items-center justify-center">
+          {thumbnailUrl ? (
+            <img src={thumbnailUrl} alt={p.file.name} className="h-6 w-6 object-contain" />
+          ) : (
+            <FileIcon extension={getFileExtension(p.file)} size="lg" />
+          )}
+        </span>
       </TableCell>
       <TableCell>
         <span className="whitespace-nowrap">{p.file.name}</span>
@@ -99,7 +101,9 @@ const DisplayDirectoryTableView = (p: { directory: TDirectoryWithFullPath }) => 
       onClick={() => router.push(`/browse${p.directory.fullPath}`)}
     >
       <TableCell>
-        <CustomIcon iconName="folder" size="lg" />
+        <span className="flex items-center justify-center">
+          <CustomIcon iconName="folder" size="lg" />
+        </span>
       </TableCell>
       <TableCell>
         <span>{p.directory.name}</span>
