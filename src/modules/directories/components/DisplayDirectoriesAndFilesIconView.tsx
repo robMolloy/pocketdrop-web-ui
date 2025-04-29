@@ -5,13 +5,14 @@ import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { useRouter } from "next/router";
 import { DirectoryActionsDropdownMenu } from "./DirectoryActionsDropdownMenu";
 import { CustomIcon } from "@/components/CustomIcon";
+
 const DisplayDirectoryIconView = (p: { directory: TDirectoryWithFullPath }) => {
   const router = useRouter();
 
   return (
     <div
       onClick={() => router.push(`/browse${p.directory.fullPath}`)}
-      className="group relative flex cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
+      className="group relative flex h-full cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
     >
       <div className="absolute right-2 top-2">
         <ToggleableDirectoryStar directory={p.directory} size="sm" />
@@ -33,9 +34,11 @@ export const DisplayDirectoriesAndFilesIconView = (p: {
   parentDirectories: TDirectoryWithFullPath[];
 }) => {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+    <div className="flex flex-wrap gap-4">
       {p.directories.map((x) => (
-        <DisplayDirectoryIconView key={x.id} directory={x} />
+        <div key={x.id} className="w-[180px]">
+          <DisplayDirectoryIconView directory={x} />
+        </div>
       ))}
 
       {p.files.map((file) => {
@@ -43,7 +46,11 @@ export const DisplayDirectoriesAndFilesIconView = (p: {
 
         if (!directory) return <></>;
 
-        return <DisplayFileIconView key={file.id} file={file} parentDirectory={directory} />;
+        return (
+          <div key={file.id} className="w-[180px]">
+            <DisplayFileIconView file={file} parentDirectory={directory} />
+          </div>
+        );
       })}
     </div>
   );

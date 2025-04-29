@@ -26,7 +26,7 @@ export const DisplayFileIconView = (p: {
           </RightSidebarContent>,
         );
       }}
-      className="group relative flex cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
+      className="group relative flex h-full cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
     >
       <div className="absolute right-2 top-2">
         <ToggleableStar file={p.file} size="sm" />
