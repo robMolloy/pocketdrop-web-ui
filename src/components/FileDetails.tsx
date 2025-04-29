@@ -16,9 +16,11 @@ const DetailsLine = (p: {
 }) => {
   return (
     <div className="flex items-center gap-2 text-sm">
-      <CustomIcon iconName={p.iconName} size="sm" />
-      <span className="text-muted-foreground">{p.label}:</span>
-      <span className="font-mono">{p.value}</span>
+      <span>
+        <CustomIcon iconName={p.iconName} size="sm" />
+      </span>
+      <span className="whitespace-nowrap text-muted-foreground">{p.label}:</span>
+      <span className="truncate font-mono">{p.value}</span>
     </div>
   );
 };
