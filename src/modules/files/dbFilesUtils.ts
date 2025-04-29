@@ -7,7 +7,7 @@ const fileRecordSchema = z.object({
   directoryRelationId: z.string().optional(),
   id: z.string(),
   file: z.string(),
-  // filePath: z.string(),
+  size: z.number(),
   name: z.string(),
   isStarred: z.boolean(),
   created: z.string(),

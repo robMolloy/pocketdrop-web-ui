@@ -23,6 +23,7 @@ import { ToggleableDirectoryStar } from "@/components/ToggleableDirectoryStar";
 import { DirectoryActionsDropdownMenu } from "@/modules/directories/components/DirectoryActionsDropdownMenu";
 import { formatDate } from "@/utils/dateUtils";
 import { useRouter } from "next/router";
+import { formatFileSize } from "../fileUtils";
 
 const DisplayFileTableView = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
   const rightSidebarStore = useRightSidebarStore();
@@ -58,13 +59,15 @@ const DisplayFileTableView = (p: { file: TFileRecord; directory: TDirectoryWithF
         );
       }}
     >
-      <TableCell className="flex items-center gap-2">
+      <TableCell className="text-center">
         {thumbnailUrl ? (
-          <img src={thumbnailUrl} alt={p.file.name} className="h-6 w-6 object-contain" />
+          <img src={thumbnailUrl} alt={p.file.name} className="min-h-6 min-w-6 object-contain" />
         ) : (
           <FileIcon extension={getFileExtension(p.file)} size="lg" />
         )}
-        <span>{p.file.name}</span>
+      </TableCell>
+      <TableCell>
+        <span className="whitespace-nowrap">{p.file.name}</span>
       </TableCell>
       <TableCell>
         <Link
@@ -76,6 +79,7 @@ const DisplayFileTableView = (p: { file: TFileRecord; directory: TDirectoryWithF
         </Link>
       </TableCell>
       <TableCell>{getFileExtension(p.file) || "Unknown"}</TableCell>
+      <TableCell className="whitespace-nowrap">{formatFileSize(p.file.size)}</TableCell>
       <TableCell>{formatDate(p.file.created)}</TableCell>
       <TableCell>
         <div className="flex items-center gap-2">
@@ -94,8 +98,10 @@ const DisplayDirectoryTableView = (p: { directory: TDirectoryWithFullPath }) => 
       className="cursor-pointer"
       onClick={() => router.push(`/browse${p.directory.fullPath}`)}
     >
-      <TableCell className="flex items-center gap-2">
+      <TableCell>
         <CustomIcon iconName="folder" size="lg" />
+      </TableCell>
+      <TableCell>
         <span>{p.directory.name}</span>
       </TableCell>
       <TableCell>
@@ -107,6 +113,7 @@ const DisplayDirectoryTableView = (p: { directory: TDirectoryWithFullPath }) => 
           {p.directory.fullPath}
         </Link>
       </TableCell>
+      <TableCell></TableCell>
       <TableCell></TableCell>
       <TableCell>{formatDate(p.directory.created)}</TableCell>
       <TableCell>
@@ -127,9 +134,11 @@ export const DisplayDirectoriesAndFilesTableView = (p: {
     <Table>
       <TableHeader>
         <TableHeaderRow>
+          <TableHead></TableHead>
           <TableHead>Name</TableHead>
           <TableHead>Path</TableHead>
           <TableHead>Type</TableHead>
+          <TableHead>Size</TableHead>
           <TableHead>Created</TableHead>
           <TableHead></TableHead>
         </TableHeaderRow>
