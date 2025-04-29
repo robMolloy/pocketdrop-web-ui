@@ -27,7 +27,7 @@ export const SettingItem = (p: {
           <TooltipTrigger asChild>
             <div className="cursor-not-allowed opacity-50">{content}</div>
           </TooltipTrigger>
-          <TooltipContent>
+          <TooltipContent sideOffset={-30}>
             <p>{p.disabledTooltip}</p>
           </TooltipContent>
         </Tooltip>
