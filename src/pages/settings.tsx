@@ -2,13 +2,6 @@ import { useSettingsStore } from "../stores/settingsStore";
 
 import { Switch } from "@/components/ui/switch";
 
-interface SettingItemProps {
-  title: string;
-  description: string;
-  checked: boolean;
-  onCheckedChange: (checked: boolean) => void;
-}
-
 export const SettingItem = (p: {
   title: string;
   description: string;
@@ -27,7 +20,7 @@ export const SettingItem = (p: {
 };
 
 const HorizontalSpacer = () => {
-  return <div className="my-4 h-px bg-gray-100" />;
+  return <div className="my-4 h-px bg-secondary" />;
 };
 
 const SettingsPage = () => {
