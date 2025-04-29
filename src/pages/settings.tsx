@@ -1,5 +1,25 @@
 import { useSettingsStore } from "../stores/settingsStore";
+
 import { Switch } from "@/components/ui/switch";
+
+interface SettingItemProps {
+  title: string;
+  description: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}
+
+export const SettingItem = ({ title, description, checked, onCheckedChange }: SettingItemProps) => {
+  return (
+    <div className="flex items-center justify-between">
+      <div>
+        <h2 className="text-lg">{title}</h2>
+        <p className="text-sm text-gray-500">{description}</p>
+      </div>
+      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+    </div>
+  );
+};
 
 const SettingsPage = () => {
   const { storeVersionHistory, encryptFiles, setStoreVersionHistory, setEncryptFiles } =
@@ -10,23 +30,19 @@ const SettingsPage = () => {
       <h1 className="mb-6 text-2xl font-bold">Settings</h1>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg">Store Version History</h2>
-            <p className="text-sm text-gray-500">
-              Keep track of file changes and maintain version history
-            </p>
-          </div>
-          <Switch checked={storeVersionHistory} onCheckedChange={setStoreVersionHistory} />
-        </div>
+        <SettingItem
+          title="Store Version History"
+          description="Keep track of file changes and maintain version history"
+          checked={storeVersionHistory}
+          onCheckedChange={setStoreVersionHistory}
+        />
 
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg">Encrypt Files</h2>
-            <p className="text-sm text-gray-500">Enable encryption for stored files</p>
-          </div>
-          <Switch checked={encryptFiles} onCheckedChange={setEncryptFiles} />
-        </div>
+        <SettingItem
+          title="Encrypt Files"
+          description="Enable encryption for stored files"
+          checked={encryptFiles}
+          onCheckedChange={setEncryptFiles}
+        />
       </div>
     </div>
   );
