@@ -63,7 +63,7 @@ onRecordUpdateRequest((e) => {
   const name = e.record.get("name");
   const id = e.record.get("id");
   const file = e.record.get("file");
-  e.record.set("size", file.size);
+  if(file.size>1) e.record.set("size", file.size);
 
   const count = $app.countRecords(
     "files",
