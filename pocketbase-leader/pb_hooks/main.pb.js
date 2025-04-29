@@ -29,7 +29,11 @@ onRecordUpdateRequest((e) => {
   const directoryRelationId = e.record.get("directoryRelationId");
   const name = e.record.get("name");
   const id = e.record.get("id");
-  const count = $app.countRecords("directories", $dbx.hashExp({ directoryRelationId, name }), $dbx.not($dbx.hashExp({id:id})));
+  const count = $app.countRecords(
+    "directories",
+    $dbx.hashExp({ directoryRelationId, name }),
+    $dbx.not($dbx.hashExp({ id: id })),
+  );
 
   if (count > 0)
     throw new BadRequestError(
@@ -39,9 +43,11 @@ onRecordUpdateRequest((e) => {
   e.next();
 }, "directories");
 
-onRecordCreateRequest((e) => {
+onRecordCreateRequest(async (e) => {
   const directoryRelationId = e.record.get("directoryRelationId");
   const name = e.record.get("name");
+  const file = e.record.get("file");
+  e.record.set("size", file.size);
 
   const count = $app.countRecords("files", $dbx.hashExp({ directoryRelationId, name }));
 
@@ -56,8 +62,14 @@ onRecordUpdateRequest((e) => {
   const directoryRelationId = e.record.get("directoryRelationId");
   const name = e.record.get("name");
   const id = e.record.get("id");
+  const file = e.record.get("file");
+  e.record.set("size", file.size);
 
-  const count = $app.countRecords("files", $dbx.hashExp({ directoryRelationId, name }), $dbx.not($dbx.hashExp({id:id})));
+  const count = $app.countRecords(
+    "files",
+    $dbx.hashExp({ directoryRelationId, name }),
+    $dbx.not($dbx.hashExp({ id: id })),
+  );
 
   if (count > 0)
     throw new BadRequestError(
