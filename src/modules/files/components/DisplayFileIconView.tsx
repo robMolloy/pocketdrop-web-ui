@@ -16,15 +16,15 @@ const useFlash = (file: TFileRecord) => {
     if (isFirstRender.current) return;
 
     setShouldFlash(true);
-    const timer = setTimeout(() => setShouldFlash(false), 1500);
+    const timer = setTimeout(() => setShouldFlash(false), 1100);
     return () => clearTimeout(timer);
   }, [file]);
 
   useEffect(() => {
-    setTimeout(() => (isFirstRender.current = false), 100);
+    setTimeout(() => (isFirstRender.current = false), 100); // handles dev mode double render
   }, []);
 
-  return { flashClass: shouldFlash ? "animate-flash" : "" };
+  return { flashClass: shouldFlash ? "animate-pulse repeat-1 duration-1000" : "" };
 };
 
 export const DisplayFileIconView = (p: {

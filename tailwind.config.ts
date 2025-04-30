@@ -52,15 +52,6 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      keyframes: {
-        flash: {
-          "0%, 100%": { opacity: "0" },
-          "50%": { opacity: "0.4" },
-        },
-      },
-      animation: {
-        flash: "flash 1.5s ease-in-out",
-      },
     },
   },
   plugins: [require("tailwindcss-animate")],
