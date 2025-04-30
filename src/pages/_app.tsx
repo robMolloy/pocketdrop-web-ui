@@ -13,6 +13,7 @@ import { useUsersStore } from "@/modules/users/usersStore";
 import { useAuthDataSync, useIsLoggedInStore } from "@/stores/authDataStore";
 import { useThemeStore } from "@/stores/themeStore";
 import "@/styles/globals.css";
+import "@/styles/markdown.css";
 import type { AppProps } from "next/app";
 import { useEffect } from "react";
 

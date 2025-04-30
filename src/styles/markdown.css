@@ -1,0 +1,70 @@
+/* Markdown styles */
+.react-markdown {
+  line-height: 1.6;
+}
+
+.react-markdown h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+  font-weight: bold;
+}
+
+.react-markdown h2 {
+  font-size: 1.5em;
+  margin: 0.83em 0;
+  font-weight: bold;
+}
+
+.react-markdown h3 {
+  font-size: 1.17em;
+  margin: 1em 0;
+  font-weight: bold;
+}
+
+.react-markdown p {
+  margin: 1em 0;
+}
+
+.react-markdown ul,
+.react-markdown ol {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+.react-markdown li {
+  margin: 0.5em 0;
+}
+
+.react-markdown a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.react-markdown strong {
+  font-weight: bold;
+}
+
+.react-markdown em {
+  font-style: italic;
+}
+
+.react-markdown code {
+  background-color: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 0.25em;
+  font-family: monospace;
+}
+
+.react-markdown pre {
+  background-color: #f3f4f6;
+  padding: 1em;
+  border-radius: 0.25em;
+  overflow-x: auto;
+}
+
+.react-markdown blockquote {
+  border-left: 4px solid #e5e7eb;
+  padding-left: 1em;
+  margin: 1em 0;
+  color: #6b7280;
+} 

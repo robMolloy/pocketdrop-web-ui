@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Anthropic from "@anthropic-ai/sdk";
 import { useEffect, useRef, useState } from "react";
+import Markdown from "react-markdown";
 
 const uuid = () => crypto.randomUUID();
 
@@ -61,7 +62,11 @@ const ErrorMessage = () => {
   );
 };
 const AssistantMessage = (p: { children: string }) => {
-  return <p className="whitespace-pre-wrap">{p.children}</p>;
+  return (
+    <div className="react-markdown">
+      <Markdown>{p.children}</Markdown>
+    </div>
+  );
 };
 
 type TChatMessage = {
