@@ -161,19 +161,25 @@ const AiChat = () => {
             }}
           >
             <div className="flex items-start space-x-2">
-              <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={handleTextareaChange}
-                onKeyDown={handleKeyDown}
-                placeholder="Type your message..."
-                className="flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                rows={1}
-                style={{ minHeight: "80px", maxHeight: "200px" }}
-              />
-              <Button type="submit" disabled={mode === "thinking" || mode === "streaming"}>
-                Send
-              </Button>
+              <div className="relative flex-1">
+                <textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={handleTextareaChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Type your message..."
+                  className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  rows={1}
+                  style={{ minHeight: "80px", maxHeight: "200px" }}
+                />
+                <Button
+                  type="submit"
+                  disabled={mode === "thinking" || mode === "streaming"}
+                  className="absolute bottom-2 right-2 h-8 w-8 p-0"
+                >
+                  <CustomIcon iconName="upload" size="sm" />
+                </Button>
+              </div>
             </div>
           </form>
         </CardContent>
