@@ -63,6 +63,13 @@ export function LeftSidebar() {
           >
             Starred
           </SidebarButton>
+          <SidebarButton
+            href="/ai-chat"
+            iconName="brain"
+            isHighlighted={router.pathname === "/ai-chat"}
+          >
+            AI Chat
+          </SidebarButton>
           {directoryTreeStore.tree !== undefined && (
             <DirectoryTree data={directoryTreeStore.tree} />
           )}

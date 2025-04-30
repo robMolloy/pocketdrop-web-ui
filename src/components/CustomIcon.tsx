@@ -34,6 +34,7 @@ import {
   Pencil,
   Grid,
   List,
+  Brain,
 } from "lucide-react";
 
 const iconMap = {
@@ -71,6 +72,7 @@ const iconMap = {
   pencil: Pencil,
   grid: Grid,
   list: List,
+  brain: Brain,
 };
 
 const iconSizeClass = {
