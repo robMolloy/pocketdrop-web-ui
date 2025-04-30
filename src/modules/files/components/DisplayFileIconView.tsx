@@ -6,23 +6,37 @@ import { FileActionsDropdownMenu } from "@/modules/files/components/FileActionsD
 import { TFileRecord } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+
+const useFlash = (file: TFileRecord) => {
+  const [shouldFlash, setShouldFlash] = useState(false);
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) return;
+
+    setShouldFlash(true);
+    const timer = setTimeout(() => setShouldFlash(false), 2000);
+    return () => clearTimeout(timer);
+  }, [file]);
+
+  useEffect(() => {
+    setTimeout(() => (isFirstRender.current = false), 2000);
+  }, []);
+
+  return { flashClass: shouldFlash ? "animate-flash" : "" };
+};
 
 export const DisplayFileIconView = (p: {
   file: TFileRecord;
   parentDirectory: TDirectoryWithFullPath;
 }) => {
   const rightSidebarStore = useRightSidebarStore();
-  const [shouldFlash, setShouldFlash] = useState(false);
 
-  useEffect(() => {
-    setShouldFlash(true);
-    const timer = setTimeout(() => setShouldFlash(false), 2000);
-    return () => clearTimeout(timer);
-  }, [p.file]);
+  const { flashClass } = useFlash(p.file);
 
   return (
-    <div className={shouldFlash ? "animate-flash" : ""}>
+    <div className={`h-full ${flashClass}`}>
       <div
         onClick={async () => {
           rightSidebarStore.setData(
@@ -35,7 +49,7 @@ export const DisplayFileIconView = (p: {
             </RightSidebarContent>,
           );
         }}
-        className={`group relative flex h-full cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent`}
+        className="group relative flex h-full cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
       >
         <div className="absolute right-2 top-2">
           <ToggleableStar file={p.file} size="sm" />
