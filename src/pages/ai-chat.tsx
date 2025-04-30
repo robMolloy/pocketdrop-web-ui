@@ -3,28 +3,32 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Anthropic from "@anthropic-ai/sdk";
 import { useEffect, useRef, useState } from "react";
-import { z } from "zod";
 
 const uuid = () => crypto.randomUUID();
 
-const callClaude = async (prompt: string) => {
+const callClaude = async (p: { prompt: string; onStream: (text: string) => void }) => {
   try {
     const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
+      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
       dangerouslyAllowBrowser: true,
     });
 
-    const response = await anthropic.messages.create({
+    const stream = await anthropic.messages.create({
       model: "claude-3-7-sonnet-20250219",
       max_tokens: 1000,
-      messages: [{ role: "user", content: prompt }],
+      messages: [{ role: "user", content: p.prompt }],
+      stream: true,
     });
 
-    const schema = z.object({ content: z.tuple([z.object({ text: z.string() })]) });
-    const parsed = schema.safeParse(response);
+    let fullResponse = "";
+    for await (const message of stream) {
+      if (message.type === "content_block_delta" && "text" in message.delta) {
+        fullResponse += message.delta.text;
+        p.onStream(fullResponse);
+      }
+    }
 
-    if (!parsed.success) return parsed;
-    return { success: true, data: parsed.data.content[0].text } as const;
+    return { success: true, data: fullResponse } as const;
   } catch (error) {
     return { success: false, error: error } as const;
   }
@@ -55,6 +59,7 @@ const AiChat = () => {
   const [mode, setMode] = useState<"ready" | "thinking">("ready");
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<TChatMessage[]>([]);
+  const [streamedResponse, setStreamedResponse] = useState("");
   const scrollContainer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -72,6 +77,7 @@ const AiChat = () => {
           return <Comp key={x.id}>{x.content}</Comp>;
         })}
         {mode === "thinking" && <p>Thinking...</p>}
+        {streamedResponse && <p>{streamedResponse}</p>}
       </div>
 
       <Card className="rounded-none border-0">
@@ -80,7 +86,10 @@ const AiChat = () => {
             onSubmit={async (e) => {
               e.preventDefault();
               setMode("thinking");
-              const claudeRtn = callClaude(input);
+              const claudeRtn = callClaude({
+                prompt: input,
+                onStream: (text) => setStreamedResponse(text),
+              });
               setMessages((x) => [...x, { id: uuid(), role: "user", content: input }]);
               setInput("");
 
