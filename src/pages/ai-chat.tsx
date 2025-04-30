@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import Anthropic from "@anthropic-ai/sdk";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
+
+const uuid = () => crypto.randomUUID();
+
 const callClaude = async (prompt: string) => {
   try {
     const anthropic = new Anthropic({
@@ -16,17 +19,12 @@ const callClaude = async (prompt: string) => {
       max_tokens: 1000,
       messages: [{ role: "user", content: prompt }],
     });
-    const schema = z.object({
-      content: z.tuple([z.object({ text: z.string() })]),
-    });
 
+    const schema = z.object({ content: z.tuple([z.object({ text: z.string() })]) });
     const parsed = schema.safeParse(response);
 
     if (!parsed.success) return parsed;
-    return {
-      success: true,
-      data: parsed.data.content[0].text,
-    } as const;
+    return { success: true, data: parsed.data.content[0].text } as const;
   } catch (error) {
     return { success: false, error: error } as const;
   }
@@ -43,10 +41,20 @@ const UserMessage = (p: { children: string }) => {
     </div>
   );
 };
+const AssistantMessage = (p: { children: string }) => {
+  return <p className="whitespace-pre-wrap">{p.children}</p>;
+};
+
+type TChatMessage = {
+  id: string;
+  role: "user" | "bot";
+  content: string;
+};
 
 const AiChat = () => {
+  const [mode, setMode] = useState<"ready" | "thinking">("ready");
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<TChatMessage[]>([]);
   const scrollContainer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,27 +65,29 @@ const AiChat = () => {
   return (
     <div className="flex h-full flex-col gap-4">
       <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4" ref={scrollContainer}>
-        <UserMessage>Hello! How can I help you today?</UserMessage>
+        <AssistantMessage>Hello! How can I help you today?</AssistantMessage>
 
-        {/* AI Message */}
-        <p className="whitespace-pre-wrap">{`This is a sample user message
-asd`}</p>
-
-        {messages.map((x) => (
-          <UserMessage key={x}>{x}</UserMessage>
-        ))}
+        {messages.map((x) => {
+          const Comp = x.role === "user" ? UserMessage : AssistantMessage;
+          return <Comp key={x.id}>{x.content}</Comp>;
+        })}
+        {mode === "thinking" && <p>Thinking...</p>}
       </div>
 
-      {/* Input Area */}
       <Card className="rounded-none border-0">
         <CardContent className="p-4">
           <form
             onSubmit={async (e) => {
               e.preventDefault();
-              const resp = await callClaude(input);
-              console.log(`ai-chat.tsx:${/*LL*/ 85}`, { resp });
-              setMessages([...messages, input]);
+              setMode("thinking");
+              const claudeRtn = callClaude(input);
+              setMessages((x) => [...x, { id: uuid(), role: "user", content: input }]);
               setInput("");
+
+              const resp = await claudeRtn;
+              if (resp.success)
+                setMessages((x) => [...x, { id: uuid(), role: "bot", content: resp.data }]);
+              setMode("ready");
             }}
           >
             <div className="flex items-center space-x-2">
@@ -87,7 +97,9 @@ asd`}</p>
                 placeholder="Type your message..."
                 className="flex-1"
               />
-              <Button type="submit">Send</Button>
+              <Button type="submit" disabled={mode === "thinking"}>
+                Send
+              </Button>
             </div>
           </form>
         </CardContent>
