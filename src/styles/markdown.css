@@ -5,38 +5,43 @@
 
 .react-markdown h1 {
   font-size: 2em;
-  margin: 0.67em 0;
+  margin-bottom: 0.67em;
   font-weight: bold;
+  color: hsl(var(--foreground));
 }
 
 .react-markdown h2 {
   font-size: 1.5em;
-  margin: 0.83em 0;
+  margin-bottom: 0.83em;
   font-weight: bold;
+  color: hsl(var(--foreground));
 }
 
 .react-markdown h3 {
   font-size: 1.17em;
-  margin: 1em 0;
+  margin-bottom: 1em;
   font-weight: bold;
+  color: hsl(var(--foreground));
 }
 
 .react-markdown p {
-  margin: 1em 0;
+  margin-bottom: 1em;
+  color: hsl(var(--foreground));
 }
 
 .react-markdown ul,
 .react-markdown ol {
-  margin: 1em 0;
+  margin-bottom: 1em;
   padding-left: 2em;
+  color: hsl(var(--foreground));
 }
 
 .react-markdown li {
-  margin: 0.5em 0;
+  margin-bottom: 0.5em;
 }
 
 .react-markdown a {
-  color: #2563eb;
+  color: hsl(var(--primary));
   text-decoration: underline;
 }
 
@@ -49,22 +54,26 @@
 }
 
 .react-markdown code {
-  background-color: #f3f4f6;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
   padding: 0.2em 0.4em;
-  border-radius: 0.25em;
+  border-radius: var(--radius);
   font-family: monospace;
+  
 }
 
 .react-markdown pre {
-  background-color: #f3f4f6;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
   padding: 1em;
-  border-radius: 0.25em;
+  border-radius: var(--radius);
   overflow-x: auto;
+  margin-bottom: 1em;
 }
 
 .react-markdown blockquote {
-  border-left: 4px solid #e5e7eb;
+  border-left: 4px solid hsl(var(--border));
   padding-left: 1em;
-  margin: 1em 0;
-  color: #6b7280;
+  margin-bottom: 1em;
+  color: hsl(var(--muted-foreground));
 } 
