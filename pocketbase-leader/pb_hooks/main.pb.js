@@ -98,29 +98,57 @@ onRecordAfterCreateSuccess((e) => {
 
 onRecordAfterUpdateSuccess((e) => {
   console.log("after successful file updated");
-  // const id = e.record.get("id");
-  // const prev = $app.FindFirstRecordByFilter(
-  //   "filesVersionHistory",
-  //   dbx.hashExp({ fileRelationId: id }),
-  // );
 
-  // const prevExists = !!prev;
-  // const isSameFileAsPrev = prev?.size === e.record.get("size");
+  // hardcoded for dev (to avoid race conditions / async issues)
+  const id = "800w51c58qad2t7";
+  // const id = e.record.id
 
-  // (() => {
-  //   if (!prevExists || isSameFileAsPrev) return;
+  const initRecord = $app.findRecordById("files", id); // just use e.record
 
-  //   let collection = $app.findCollectionByNameOrId("filesVersionHistory");
-  //   let record = new Record(collection);
+  const fullPath = initRecord.baseFilesPath() + "/" + initRecord.get("file");
 
-  //   record.set("fileRelationId", id);
-  //   record.set("isStarred", e.record.get("isStarred"));
-  //   record.set("name", e.record.get("name"));
-  //   record.set("directoryRelationId", e.record.get("directoryRelationId"));
-  //   record.set("size", e.record.get("size"));
+  let fsys, file, content;
+  try {
+    // initialize the filesystem
+    fsys = $app.newFilesystem();
 
-  //   $app.save(record);
-  // })();
+    // retrieve a file reader for the avatar key
+    file = fsys.getFile(fullPath);
+
+    content = file.read();
+    $filesystem.fileFromBytes(content, "randomName");
+
+    console.log(3, file);
+  } catch (error) {
+    console.log(4, error);
+  }
+
+  /*
+   *
+   * use the above to get file
+   *
+   */
+
+  // if (!file) return e.next();
+
+  console.log(/*LL*/ 134);
+
+  const collection = $app.findCollectionByNameOrId("filesVersionHistory");
+  console.log(/*LL*/ 137);
+
+  const record = new Record(collection);
+  console.log(/*LL*/ 140);
+
+  record.set("fileRelationId", id);
+  // record.set("file", initRecord.get("file"));
+  record.set("isStarred", e.record.get("isStarred"));
+  record.set("name", e.record.get("name"));
+  record.set("directoryRelationId", e.record.get("directoryRelationId"));
+  record.set("size", e.record.get("size"));
+  console.log(/*LL*/ 148);
+
+  $app.save(record);
+  console.log(/*LL*/ 151);
 
   e.next();
 }, "files");
