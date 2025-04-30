@@ -54,12 +54,12 @@ const config: Config = {
       },
       keyframes: {
         flash: {
-          "0%, 100%": { backgroundColor: "transparent" },
-          "50%": { backgroundColor: "hsl(var(--secondary))" },
+          "0%, 100%": { opacity: "0" },
+          "50%": { opacity: "0.4" },
         },
       },
       animation: {
-        flash: "flash 2s ease-in-out",
+        flash: "flash 1.5s ease-in-out",
       },
     },
   },

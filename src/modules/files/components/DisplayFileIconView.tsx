@@ -16,12 +16,12 @@ const useFlash = (file: TFileRecord) => {
     if (isFirstRender.current) return;
 
     setShouldFlash(true);
-    const timer = setTimeout(() => setShouldFlash(false), 2000);
+    const timer = setTimeout(() => setShouldFlash(false), 1500);
     return () => clearTimeout(timer);
   }, [file]);
 
   useEffect(() => {
-    setTimeout(() => (isFirstRender.current = false), 2000);
+    setTimeout(() => (isFirstRender.current = false), 100);
   }, []);
 
   return { flashClass: shouldFlash ? "animate-flash" : "" };
@@ -36,31 +36,31 @@ export const DisplayFileIconView = (p: {
   const { flashClass } = useFlash(p.file);
 
   return (
-    <div className={`h-full ${flashClass}`}>
-      <div
-        onClick={async () => {
-          rightSidebarStore.setData(
-            <RightSidebarContent title="File Details">
-              <FileDetails
-                file={p.file}
-                parentDirectory={p.parentDirectory}
-                onDelete={() => rightSidebarStore.close()}
-              />
-            </RightSidebarContent>,
-          );
-        }}
-        className="group relative flex h-full cursor-pointer flex-col items-center rounded-lg border p-4 hover:bg-accent"
-      >
-        <div className="absolute right-2 top-2">
-          <ToggleableStar file={p.file} size="sm" />
-        </div>
-        <span className="mb-2">
-          <FileIcon extension={getFileExtension(p.file)} size="2xl" />
-        </span>
-        <span className="break-all text-center text-sm">{p.file.name}</span>
-        <div className="absolute left-2 top-2 opacity-40 group-hover:opacity-100">
-          <FileActionsDropdownMenu file={p.file} />
-        </div>
+    <div
+      onClick={async () => {
+        rightSidebarStore.setData(
+          <RightSidebarContent title="File Details">
+            <FileDetails
+              file={p.file}
+              parentDirectory={p.parentDirectory}
+              onDelete={() => rightSidebarStore.close()}
+            />
+          </RightSidebarContent>,
+        );
+      }}
+      className="group relative flex h-full cursor-pointer flex-col items-center overflow-hidden rounded-lg border p-4 hover:bg-accent"
+    >
+      <div className={`absolute inset-0 bg-foreground opacity-0 ${flashClass}`} />
+
+      <div className="absolute right-2 top-2">
+        <ToggleableStar file={p.file} size="sm" />
+      </div>
+      <span className="mb-2">
+        <FileIcon extension={getFileExtension(p.file)} size="2xl" />
+      </span>
+      <span className="break-all text-center text-sm">{p.file.name}</span>
+      <div className="absolute left-2 top-2 opacity-40 group-hover:opacity-100">
+        <FileActionsDropdownMenu file={p.file} />
       </div>
     </div>
   );
