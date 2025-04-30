@@ -7,7 +7,12 @@ import Markdown from "react-markdown";
 
 const uuid = () => crypto.randomUUID();
 
-const callClaude = async (p: { prompt: string; onStream: (text: string) => void }) => {
+const callClaude = async (p: {
+  messages: Omit<TChatMessage, "id">[];
+  onFirstStream: () => void;
+  onStream: (text: string) => void;
+}) => {
+  let firstStream = true;
   try {
     const anthropic = new Anthropic({
       apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
@@ -15,14 +20,19 @@ const callClaude = async (p: { prompt: string; onStream: (text: string) => void 
     });
 
     const stream = await anthropic.messages.create({
-      model: "claude-3-7-sonnet-20250219",
+      model: "claude-3-5-haiku-20241022",
+      // model: "claude-3-7-sonnet-20250219",
       max_tokens: 1000,
-      messages: [{ role: "user", content: p.prompt }],
+      messages: p.messages,
       stream: true,
     });
 
     let fullResponse = "";
     for await (const message of stream) {
+      if (firstStream) {
+        p.onFirstStream();
+        firstStream = false;
+      }
       if (message.type === "content_block_delta" && "text" in message.delta) {
         fullResponse += message.delta.text;
         p.onStream(fullResponse);
@@ -70,7 +80,7 @@ const AssistantMessage = (p: { children: string }) => {
 
 type TChatMessage = {
   id: string;
-  role: "user" | "bot";
+  role: "user" | "assistant";
   content: string;
 };
 
@@ -98,12 +108,10 @@ const AiChat = () => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       if (e.metaKey || e.ctrlKey) {
-        // Cmd+Enter or Ctrl+Enter - insert new line
         const cursorPosition = e.currentTarget.selectionStart;
         const textBefore = input.substring(0, cursorPosition);
         const textAfter = input.substring(cursorPosition);
         setInput(textBefore + "\n" + textAfter);
-        // Move cursor after the newline
         setTimeout(() => {
           if (textareaRef.current) {
             textareaRef.current.selectionStart = cursorPosition + 1;
@@ -123,7 +131,7 @@ const AiChat = () => {
 
   return (
     <div className="flex h-full flex-col gap-4">
-      <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4" ref={scrollContainer}>
+      <div className="flex flex-1 flex-col gap-4 overflow-y-auto" ref={scrollContainer}>
         <AssistantMessage>Hello! How can I help you today?</AssistantMessage>
 
         {messages.map((x) => {
@@ -135,55 +143,52 @@ const AiChat = () => {
         {mode === "error" && <ErrorMessage />}
       </div>
 
-      <Card className="rounded-none border-0">
-        <CardContent className="p-4">
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setMode("thinking");
-              const claudeRtn = callClaude({
-                prompt: input,
-                onStream: (text) => {
-                  setMode("streaming");
-                  setStreamedResponse(text);
-                },
-              });
-              setMessages((x) => [...x, { id: uuid(), role: "user", content: input }]);
-              setInput("");
-              if (textareaRef.current) {
-                textareaRef.current.style.height = "auto";
-              }
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setMode("thinking");
+          const newMessages = [...messages, { role: "user", content: input }] as TChatMessage[];
+          const claudeRtn = callClaude({
+            messages: newMessages.map((x) => ({ role: x.role, content: x.content })),
+            onFirstStream: () => setMode("streaming"),
+            onStream: (text) => setStreamedResponse(text),
+          });
+          setMessages((x) => [...x, { id: uuid(), role: "user", content: input }]);
+          setInput("");
+          if (textareaRef.current) {
+            textareaRef.current.style.height = "auto";
+          }
 
-              const resp = await claudeRtn;
-              if (resp.success)
-                setMessages((x) => [...x, { id: uuid(), role: "bot", content: resp.data }]);
-              setMode("ready");
-            }}
-          >
-            <div className="flex items-start space-x-2">
-              <div className="relative flex-1">
-                <textarea
-                  ref={textareaRef}
-                  value={input}
-                  onChange={handleTextareaChange}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type your message..."
-                  className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  rows={1}
-                  style={{ minHeight: "80px", maxHeight: "200px" }}
-                />
-                <Button
-                  type="submit"
-                  disabled={mode === "thinking" || mode === "streaming"}
-                  className="absolute bottom-2 right-2 h-8 w-8 p-0"
-                >
-                  <CustomIcon iconName="upload" size="sm" />
-                </Button>
-              </div>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+          const resp = await claudeRtn;
+          if (!resp.success) return setMode("error");
+
+          if (resp.success)
+            setMessages((x) => [...x, { id: uuid(), role: "assistant", content: resp.data }]);
+          setMode("ready");
+        }}
+      >
+        <div className="flex items-start">
+          <div className="relative flex-1">
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={handleTextareaChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your message..."
+              className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              rows={1}
+              style={{ minHeight: "80px", maxHeight: "200px" }}
+            />
+            <Button
+              type="submit"
+              disabled={mode === "thinking" || mode === "streaming"}
+              className="absolute bottom-3 right-1 h-8 w-8 p-0"
+            >
+              <CustomIcon iconName="upload" size="sm" />
+            </Button>
+          </div>
+        </div>
+      </form>
     </div>
   );
 };
