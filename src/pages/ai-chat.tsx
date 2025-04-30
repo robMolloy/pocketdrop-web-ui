@@ -56,7 +56,7 @@ type TChatMessage = {
 };
 
 const AiChat = () => {
-  const [mode, setMode] = useState<"ready" | "thinking">("ready");
+  const [mode, setMode] = useState<"ready" | "thinking" | "streaming" | "error">("ready");
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<TChatMessage[]>([]);
   const [streamedResponse, setStreamedResponse] = useState("");
@@ -77,7 +77,7 @@ const AiChat = () => {
           return <Comp key={x.id}>{x.content}</Comp>;
         })}
         {mode === "thinking" && <p>Thinking...</p>}
-        {streamedResponse && <p>{streamedResponse}</p>}
+        {mode === "streaming" && <p>{streamedResponse}</p>}
       </div>
 
       <Card className="rounded-none border-0">
@@ -88,7 +88,10 @@ const AiChat = () => {
               setMode("thinking");
               const claudeRtn = callClaude({
                 prompt: input,
-                onStream: (text) => setStreamedResponse(text),
+                onStream: (text) => {
+                  setMode("streaming");
+                  setStreamedResponse(text);
+                },
               });
               setMessages((x) => [...x, { id: uuid(), role: "user", content: input }]);
               setInput("");
