@@ -1,3 +1,4 @@
+import { CustomIcon } from "@/components/CustomIcon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,20 @@ const UserMessage = (p: { children: string }) => {
     </div>
   );
 };
+const ErrorMessage = () => {
+  return (
+    <div className="flex items-center justify-center p-4">
+      <Card className="/10 w-full max-w-md border-destructive">
+        <CardContent className="flex items-center gap-3 p-4">
+          <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-destructive text-destructive-foreground">
+            <CustomIcon iconName="x" size="sm" />
+          </div>
+          <p className="font-medium">There has been an error processing your request.</p>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 const AssistantMessage = (p: { children: string }) => {
   return <p className="whitespace-pre-wrap">{p.children}</p>;
 };
@@ -56,7 +71,7 @@ type TChatMessage = {
 };
 
 const AiChat = () => {
-  const [mode, setMode] = useState<"ready" | "thinking" | "streaming" | "error">("ready");
+  const [mode, setMode] = useState<"ready" | "thinking" | "streaming" | "error">("error");
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<TChatMessage[]>([]);
   const [streamedResponse, setStreamedResponse] = useState("");
@@ -65,7 +80,7 @@ const AiChat = () => {
   useEffect(() => {
     if (!scrollContainer.current) return;
     scrollContainer.current.scrollTop = scrollContainer.current.scrollHeight;
-  }, [messages]);
+  }, [messages, streamedResponse]);
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -77,7 +92,8 @@ const AiChat = () => {
           return <Comp key={x.id}>{x.content}</Comp>;
         })}
         {mode === "thinking" && <p>Thinking...</p>}
-        {mode === "streaming" && <p>{streamedResponse}</p>}
+        {mode === "streaming" && <AssistantMessage>{streamedResponse}</AssistantMessage>}
+        {mode === "error" && <ErrorMessage />}
       </div>
 
       <Card className="rounded-none border-0">
@@ -109,7 +125,7 @@ const AiChat = () => {
                 placeholder="Type your message..."
                 className="flex-1"
               />
-              <Button type="submit" disabled={mode === "thinking"}>
+              <Button type="submit" disabled={mode === "thinking" || mode === "streaming"}>
                 Send
               </Button>
             </div>
