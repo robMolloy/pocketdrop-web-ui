@@ -78,7 +78,10 @@ export const smartSubscribeToFiles = async (p: {
 
 export const createFile = async (p: {
   pb: PocketBase;
-  data: Omit<TFileRecord, "collectionId" | "collectionName" | "id" | "created" | "updated">;
+  data: Omit<
+    TFileRecord,
+    "collectionId" | "collectionName" | "id" | "file" | "size" | "created" | "updated"
+  > & { file: File };
 }) => {
   try {
     const resp = await p.pb.collection("files").create(p.data);
@@ -87,7 +90,13 @@ export const createFile = async (p: {
     return { success: false, error } as const;
   }
 };
-export const updateFile = async (p: { pb: PocketBase; data: TFileRecord }) => {
+export const updateFile = async (p: {
+  pb: PocketBase;
+  data: Omit<
+    TFileRecord,
+    "collectionId" | "collectionName" | "file" | "size" | "created" | "updated"
+  > & { file: File | string };
+}) => {
   try {
     const resp = await p.pb.collection("files").update(p.data.id, p.data);
     return { success: true, data: resp } as const;

@@ -85,8 +85,8 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
 
       <div>
         <FileUploader
-          currentPath={p.browsePath}
           parentDirectoryId={p.directory.id}
+          siblingFiles={filesInCurrentDirectory}
           onUploadComplete={() => {}}
         />
       </div>

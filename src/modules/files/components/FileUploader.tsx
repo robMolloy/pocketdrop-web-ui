@@ -1,13 +1,14 @@
+import { CustomIcon } from "@/components/CustomIcon";
 import { Button } from "@/components/ui/button";
 import { pb } from "@/config/pocketbaseConfig";
-import { CustomIcon } from "@/components/CustomIcon";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { createFile, TFileRecord, updateFile } from "../dbFilesUtils";
 
 export function FileUploader(p: {
-  currentPath: string;
   onUploadComplete?: () => void;
   parentDirectoryId: string;
+  siblingFiles: TFileRecord[];
 }) {
   const [isUploading, setIsUploading] = useState(false);
 
@@ -16,21 +17,29 @@ export function FileUploader(p: {
       setIsUploading(true);
       try {
         for (const file of acceptedFiles) {
-          const filePath = `${p.currentPath}${file.name}`;
+          const fileWithSameName = p.siblingFiles.find((x) => x.name === file.name);
+          const resp = await (() => {
+            const newFile = {
+              name: file.name,
+              file,
+              directoryRelationId: p.parentDirectoryId,
+              isStarred: false,
+            };
+            if (fileWithSameName)
+              return updateFile({ pb, data: { id: fileWithSameName.id, ...newFile } });
 
-          await pb
-            .collection("files")
-            .create({ name: file.name, file, filePath, directoryRelationId: p.parentDirectoryId });
+            return createFile({ pb, data: newFile });
+          })();
+          if (resp.success) p.onUploadComplete?.();
         }
-        p.onUploadComplete?.();
       } catch (e) {
         const error = e as { message: string };
         console.error("Error uploading file:", error.message);
-      } finally {
-        setIsUploading(false);
       }
+
+      setIsUploading(false);
     },
-    [p.currentPath, p.onUploadComplete],
+    [p.onUploadComplete],
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
