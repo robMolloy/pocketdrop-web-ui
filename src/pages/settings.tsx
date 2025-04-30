@@ -7,10 +7,8 @@ import { useSettingsStore } from "../modules/settings/settingsStore";
 export const SettingItem = (p: {
   title: string;
   description: string;
-  checked: boolean;
-  onCheckedChange: (checked: boolean) => Promise<{ success: boolean }>;
-  disabled?: boolean;
   disabledTooltip?: string;
+  children?: React.ReactNode;
 }) => {
   const content = (
     <div className="flex items-center justify-between">
@@ -18,15 +16,11 @@ export const SettingItem = (p: {
         <h2 className="text-lg">{p.title}</h2>
         <p className="text-sm text-gray-500">{p.description}</p>
       </div>
-      <OptimisticSwitch
-        checked={p.checked}
-        onCheckedChange={p.onCheckedChange}
-        disabled={p.disabled}
-      />
+      {p.children}
     </div>
   );
 
-  if (p.disabled && p.disabledTooltip) {
+  if (!!p.disabledTooltip) {
     return (
       <TooltipProvider delayDuration={100}>
         <Tooltip>
@@ -62,28 +56,34 @@ const SettingsPage = () => {
         <SettingItem
           title="Store Version History"
           description="Keep track of file changes and maintain version history"
-          checked={versionHistorySetting?.isEnabled ?? false}
-          onCheckedChange={(isEnabled) => {
-            if (versionHistorySetting)
-              return updateSetting({ pb, data: { ...versionHistorySetting, isEnabled } });
+        >
+          <OptimisticSwitch
+            checked={versionHistorySetting?.isEnabled ?? false}
+            onCheckedChange={(isEnabled) => {
+              if (versionHistorySetting)
+                return updateSetting({ pb, data: { ...versionHistorySetting, isEnabled } });
 
-            return createSetting({ pb, data: { settingName: "versionHistory", isEnabled } });
-          }}
-        />
+              return createSetting({ pb, data: { settingName: "versionHistory", isEnabled } });
+            }}
+          />
+        </SettingItem>
         <HorizontalSpacer />
         <SettingItem
           title="Encrypt Files"
           description="Enable encryption for stored files"
-          checked={encryptFilesSetting?.isEnabled ?? false}
-          onCheckedChange={(isEnabled) => {
-            if (encryptFilesSetting)
-              return updateSetting({ pb, data: { ...encryptFilesSetting, isEnabled } });
-
-            return createSetting({ pb, data: { settingName: "versionHistory", isEnabled } });
-          }}
-          disabled={true}
           disabledTooltip="File encryption is not yet implemented"
-        />
+        >
+          <OptimisticSwitch
+            checked={encryptFilesSetting?.isEnabled ?? false}
+            disabled={true}
+            onCheckedChange={(isEnabled) => {
+              if (encryptFilesSetting)
+                return updateSetting({ pb, data: { ...encryptFilesSetting, isEnabled } });
+
+              return createSetting({ pb, data: { settingName: "versionHistory", isEnabled } });
+            }}
+          />
+        </SettingItem>
       </div>
     </div>
   );

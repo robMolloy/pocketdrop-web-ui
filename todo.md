@@ -1,4 +1,4 @@
-- settings
+todo
 
 - onFileUpdate
 
@@ -6,8 +6,11 @@
   - add to file history
 
 - security
-
   - check security on all collections
+
+Complete
+
+- settings
 
 - optimisticSwitch
   - use on settings page
