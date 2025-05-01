@@ -5,6 +5,17 @@ import { useEffect, useRef, useState } from "react";
 
 const uuid = () => crypto.randomUUID();
 
+const convertFileToFileDetails = async (file: File): Promise<TChatMessageContentImage> => {
+  const data = await convertFileToBase64(file);
+
+  const media_type = file.type;
+  const type = media_type.split("/")[0] as string;
+
+  const rtn = { type, source: { type: "base64", media_type, data } } as TChatMessageContentImage;
+
+  return rtn;
+};
+
 const convertFileToBase64 = async (file: File) => {
   const resp = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -13,15 +24,12 @@ const convertFileToBase64 = async (file: File) => {
     reader.readAsDataURL(file);
   });
 
-  return resp.replace("data:image/png;base64,", "");
+  return resp.split(";base64,")[1] as string;
 };
 
 const convertFileToImagePngChatMessage = async (file: File) => {
-  const data = await convertFileToBase64(file);
-  return {
-    type: "image",
-    source: { type: "base64", media_type: "image/png", data },
-  } as TChatMessageContentImage;
+  const resp = await convertFileToFileDetails(file);
+  return resp as TChatMessageContentImage;
 };
 
 const AiChat = () => {

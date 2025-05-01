@@ -5,6 +5,10 @@ export type TChatMessageContentImage = {
   type: "image";
   source: { type: "base64"; media_type: "image/png"; data: string };
 };
+export type TChatMessageContentMedia = {
+  type: "image";
+  source: { type: "base64"; media_type: "image/png"; data: string };
+};
 export type TChatMessage = {
   id: string;
   role: "user" | "assistant";
