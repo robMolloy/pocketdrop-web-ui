@@ -16,5 +16,8 @@ const useInitSettingsStore = create<{
 export const useSettingsStore = () => {
   const store = useInitSettingsStore();
 
-  return store;
+  return {
+    ...store,
+    aiChatSetting: { get: () => store.data?.find((x) => x.settingName === "aiChat") },
+  };
 };

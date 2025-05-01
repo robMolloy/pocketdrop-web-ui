@@ -47,18 +47,38 @@ const SettingsPage = () => {
 
   const versionHistorySetting = settingsStore.data?.find((x) => x.settingName === "versionHistory");
   const encryptFilesSetting = settingsStore.data?.find((x) => x.settingName === "encryptFiles");
+  const aiChatSetting = settingsStore.data?.find((x) => x.settingName === "aiChat");
 
   return (
-    <div className="mx-auto max-w-2xl p-6">
-      <h1 className="mb-6 text-2xl font-bold">Settings</h1>
+    <div className="mx-auto max-w-2xl">
+      <h1 className="text-2xl font-bold">Settings</h1>
 
-      <div className="space-y-4">
+      <br />
+
+      <div>
+        <SettingItem
+          title="Use AI Chat"
+          description="Allow AI chat and help index your files - this will allow search"
+        >
+          <OptimisticSwitch
+            checked={aiChatSetting?.isEnabled ?? false}
+            onCheckedChange={(isEnabled) => {
+              if (aiChatSetting)
+                return updateSetting({ pb, data: { ...aiChatSetting, isEnabled } });
+
+              return createSetting({ pb, data: { settingName: "aiChat", isEnabled } });
+            }}
+          />
+        </SettingItem>
+        <HorizontalSpacer />
         <SettingItem
           title="Store Version History"
           description="Keep track of file changes and maintain version history"
+          disabledTooltip="File version history is not yet implemented"
         >
           <OptimisticSwitch
             checked={versionHistorySetting?.isEnabled ?? false}
+            disabled={true}
             onCheckedChange={(isEnabled) => {
               if (versionHistorySetting)
                 return updateSetting({ pb, data: { ...versionHistorySetting, isEnabled } });
@@ -67,10 +87,12 @@ const SettingsPage = () => {
             }}
           />
         </SettingItem>
+
         <HorizontalSpacer />
+
         <SettingItem
           title="Encrypt Files"
-          description="Enable encryption for stored files"
+          description="Enable client-side encryption for stored files"
           disabledTooltip="File encryption is not yet implemented"
         >
           <OptimisticSwitch

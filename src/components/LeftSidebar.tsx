@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { ReactNode } from "react";
 import { DirectoryTree } from "./DirectoryTree";
 import { CustomIcon } from "./CustomIcon";
+import { useSettingsStore } from "@/modules/settings/settingsStore";
 
 const SidebarButtonWrapper = (p: { children: ReactNode; href?: string }) =>
   p.href ? <Link href={p.href}>{p.children}</Link> : p.children;
@@ -48,6 +49,7 @@ export function LeftSidebar() {
   const userStore = useCurrentUserStore();
   const usersStore = useUsersStore();
   const pendingUsersCount = usersStore.data.filter((user) => user.status === "pending").length;
+  const settingsStore = useSettingsStore();
 
   return (
     <div className={"flex h-full flex-col"}>
@@ -63,13 +65,15 @@ export function LeftSidebar() {
           >
             Starred
           </SidebarButton>
-          <SidebarButton
-            href="/ai-chat"
-            iconName="brain"
-            isHighlighted={router.pathname === "/ai-chat"}
-          >
-            AI Chat
-          </SidebarButton>
+          {settingsStore.aiChatSetting.get()?.isEnabled && (
+            <SidebarButton
+              href="/ai-chat"
+              iconName="brain"
+              isHighlighted={router.pathname === "/ai-chat"}
+            >
+              AI Chat
+            </SidebarButton>
+          )}
           {directoryTreeStore.tree !== undefined && (
             <DirectoryTree data={directoryTreeStore.tree} />
           )}
