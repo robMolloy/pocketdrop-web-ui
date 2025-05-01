@@ -72,20 +72,43 @@ const AiChat = () => {
         <AssistantMessage>Hello! How can I help you today?</AssistantMessage>
 
         {messages.map((x) => {
-          const Comp = x.role === "user" ? UserMessageText : AssistantMessage;
-          return x.content.map((content) => {
-            if (content.type === "text") return <Comp key={x.id}>{content.text}</Comp>;
-            if (content.type === "image")
-              return <UserMessageImage key={x.id}>{content.source.data}</UserMessageImage>;
+          if (x.role === "assistant")
+            return x.content.map((content, j) => {
+              const key = `${x.id}-${j}`;
+              console.log(`ai-chat.tsx:${/*LL*/ 78}`, key);
+              return (
+                <AssistantMessage key={key}>
+                  {content.type === "text" ? content.text : ""}
+                </AssistantMessage>
+              );
+            });
 
-            return <></>;
-          });
+          if (x.role === "user")
+            return (
+              <>
+                {x.content
+                  .filter((x) => x.type === "text")
+                  .map((content, j) => {
+                    const key = `${x.id}-text-${j}`;
+                    console.log(`ai-chat.tsx:${/*LL*/ 93}`, key);
+                    return <UserMessageText key={key}>{content.text}</UserMessageText>;
+                  })}
+                <div className="flex items-start gap-2">
+                  {x.content
+                    .filter((x) => x.type === "image")
+                    .map((content, j) => {
+                      const key = `${x.id}-image-${j}`;
+                      console.log(`ai-chat.tsx:${/*LL*/ 93}`, key);
+                      return <UserMessageImage key={key}>{content.source.data}</UserMessageImage>;
+                    })}
+                </div>
+              </>
+            );
         })}
 
         {mode === "thinking" && <p>Thinking...</p>}
         {mode === "streaming" && <AssistantMessage>{streamedResponse}</AssistantMessage>}
         {mode === "error" && <ErrorMessage />}
-        <pre>{JSON.stringify(messages, undefined, 2)}</pre>
       </div>
 
       <form
@@ -100,17 +123,16 @@ const AiChat = () => {
 
           const newMessages = [...messages, newUserMessage];
 
-          const claudeRtn = callClaude({
+          setMessages(newMessages);
+          setCurrentInput("");
+          setCurrentImages([]);
+
+          const resp = await callClaude({
             messages: newMessages.map((x) => ({ role: x.role, content: x.content })),
             onFirstStream: () => setMode("streaming"),
             onStream: (text) => setStreamedResponse(text),
           });
 
-          setMessages(newMessages);
-          setCurrentInput("");
-          setCurrentImages([]);
-
-          const resp = await claudeRtn;
           if (!resp.success) return setMode("error");
 
           setMessages((x) => [...x, createAssistantMessage(resp.data)]);
