@@ -96,59 +96,58 @@ onRecordAfterCreateSuccess((e) => {
   e.next();
 }, "files");
 
+console.log("after successful file updated");
 onRecordAfterUpdateSuccess((e) => {
-  console.log("after successful file updated");
+  // // hardcoded for dev (to avoid race conditions / async issues)
+  // const id = "800w51c58qad2t7";
+  // // const id = e.record.id
 
-  // hardcoded for dev (to avoid race conditions / async issues)
-  const id = "800w51c58qad2t7";
-  // const id = e.record.id
+  // const initRecord = $app.findRecordById("files", id); // just use e.record
 
-  const initRecord = $app.findRecordById("files", id); // just use e.record
+  // const fullPath = initRecord.baseFilesPath() + "/" + initRecord.get("file");
 
-  const fullPath = initRecord.baseFilesPath() + "/" + initRecord.get("file");
+  // let fsys, file, content;
+  // try {
+  //   // initialize the filesystem
+  //   fsys = $app.newFilesystem();
 
-  let fsys, file, content;
-  try {
-    // initialize the filesystem
-    fsys = $app.newFilesystem();
+  //   // retrieve a file reader for the avatar key
+  //   file = fsys.getFile(fullPath);
 
-    // retrieve a file reader for the avatar key
-    file = fsys.getFile(fullPath);
+  //   content = file.read();
+  //   $filesystem.fileFromBytes(content, "randomName");
 
-    content = file.read();
-    $filesystem.fileFromBytes(content, "randomName");
+  //   console.log(3, file);
+  // } catch (error) {
+  //   console.log(4, error);
+  // }
 
-    console.log(3, file);
-  } catch (error) {
-    console.log(4, error);
-  }
+  // /*
+  //  *
+  //  * use the above to get file
+  //  *
+  //  */
 
-  /*
-   *
-   * use the above to get file
-   *
-   */
+  // // if (!file) return e.next();
 
-  // if (!file) return e.next();
+  // console.log(/*LL*/ 134);
 
-  console.log(/*LL*/ 134);
+  // const collection = $app.findCollectionByNameOrId("filesVersionHistory");
+  // console.log(/*LL*/ 137);
 
-  const collection = $app.findCollectionByNameOrId("filesVersionHistory");
-  console.log(/*LL*/ 137);
+  // const record = new Record(collection);
+  // console.log(/*LL*/ 140);
 
-  const record = new Record(collection);
-  console.log(/*LL*/ 140);
+  // record.set("fileRelationId", id);
+  // // record.set("file", initRecord.get("file"));
+  // record.set("isStarred", e.record.get("isStarred"));
+  // record.set("name", e.record.get("name"));
+  // record.set("directoryRelationId", e.record.get("directoryRelationId"));
+  // record.set("size", e.record.get("size"));
+  // console.log(/*LL*/ 148);
 
-  record.set("fileRelationId", id);
-  // record.set("file", initRecord.get("file"));
-  record.set("isStarred", e.record.get("isStarred"));
-  record.set("name", e.record.get("name"));
-  record.set("directoryRelationId", e.record.get("directoryRelationId"));
-  record.set("size", e.record.get("size"));
-  console.log(/*LL*/ 148);
-
-  $app.save(record);
-  console.log(/*LL*/ 151);
+  // $app.save(record);
+  // console.log(/*LL*/ 151);
 
   e.next();
 }, "files");
