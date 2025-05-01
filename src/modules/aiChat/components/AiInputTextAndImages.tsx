@@ -22,36 +22,31 @@ export const AiInputTextAndImages = (p: {
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     p.onInputText(e.target.value);
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
+    if (!textareaRef.current) return;
+
+    textareaRef.current.style.height = "auto";
+    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (!(e.key === "Enter" && !e.shiftKey)) return;
-    if (e.metaKey || e.ctrlKey) {
-      const cursorPosition = e.currentTarget.selectionStart;
-      const textBefore = p.text.substring(0, cursorPosition);
-      const textAfter = p.text.substring(cursorPosition);
-      p.onInputText(textBefore + "\n" + textAfter);
-      setTimeout(() => {
-        if (textareaRef.current) {
-          textareaRef.current.selectionStart = cursorPosition + 1;
-          textareaRef.current.selectionEnd = cursorPosition + 1;
-        }
-      }, 0);
-      return;
+    if (e.key !== "Enter" || e.shiftKey) return;
+
+    if (!e.metaKey && !e.ctrlKey) {
+      e.preventDefault();
+      return e.currentTarget.form?.requestSubmit();
     }
 
-    // Regular Enter - submit form
-    e.preventDefault();
-    const form = e.currentTarget.form;
-    if (form) form.requestSubmit();
-  };
+    const cursorPosition = e.currentTarget.selectionStart;
+    const textBefore = p.text.substring(0, cursorPosition);
+    const textAfter = p.text.substring(cursorPosition);
+    p.onInputText(textBefore + "\n" + textAfter);
+    setTimeout(() => {
+      if (!textareaRef.current) return;
 
-  // useEffect(() => p.onInputText(input), [input]);
-  // useEffect(() => p.onInputImages(images), [images]);
+      textareaRef.current.selectionStart = cursorPosition + 1;
+      textareaRef.current.selectionEnd = cursorPosition + 1;
+    }, 0);
+  };
 
   return (
     <div>
@@ -66,9 +61,7 @@ export const AiInputTextAndImages = (p: {
               />
               <button
                 type="button"
-                onClick={() => {
-                  p.onInputImages(p.images.filter((_, i) => i !== index));
-                }}
+                onClick={() => p.onInputImages(p.images.filter((_, i) => i !== index))}
                 className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-destructive-foreground"
               >
                 <CustomIcon iconName="x" size="xs" />
@@ -88,7 +81,7 @@ export const AiInputTextAndImages = (p: {
             placeholder={isDragActive ? "Drop images here..." : "Type your message..."}
             className={`w-full resize-none rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${isDragActive ? "border-primary" : ""}`}
             rows={1}
-            style={{ minHeight: "80px", maxHeight: "200px" }}
+            style={{ minHeight: "80px", maxHeight: "160px" }}
           />
           <Button
             type="submit"
