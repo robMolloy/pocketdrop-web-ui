@@ -43,7 +43,10 @@ export const AiChatForm = (p: {
       onStream: (text) => p.onStream(text),
     });
 
-    if (!resp.success) return setMode("error");
+    if (!resp.success) {
+      console.error(resp);
+      return setMode("error");
+    }
 
     setMode("ready");
     p.onComplete([...updatedMessages, createAssistantMessage(resp.data)]);

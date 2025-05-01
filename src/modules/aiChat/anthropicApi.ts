@@ -9,10 +9,28 @@ export const TChatMessageContentImageSchema = z.object({
     data: z.string(),
   }),
 });
+export const TChatMessageContentDocSchema = z.object({
+  type: z.literal("document"),
+  source: z.object({
+    type: z.literal("base64"),
+    media_type: z.enum(["application/pdf"]),
+    data: z.string(),
+  }),
+});
+
+export const chatMessageContentMediaSchema = z.union([
+  TChatMessageContentDocSchema,
+  TChatMessageContentImageSchema,
+]);
 
 export type TChatMessageContentText = { type: "text"; text: string };
 export type TChatMessageContentImage = z.infer<typeof TChatMessageContentImageSchema>;
-export type TChatMessageContent = (TChatMessageContentText | TChatMessageContentImage)[];
+export type TChatMessageContentDoc = z.infer<typeof TChatMessageContentDocSchema>;
+export type TChatMessageContent = (
+  | TChatMessageContentText
+  | TChatMessageContentImage
+  | TChatMessageContentDoc
+)[];
 export type TChatMessage = { id: string; role: "user" | "assistant"; content: TChatMessageContent };
 
 const uuid = () => crypto.randomUUID();

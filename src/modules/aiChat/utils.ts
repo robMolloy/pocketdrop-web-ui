@@ -1,5 +1,5 @@
-import { TChatMessageContentImageSchema } from "./anthropicApi";
 import { z } from "zod";
+import { chatMessageContentMediaSchema } from "./anthropicApi";
 
 export const convertFileToBase64 = async (file: File) => {
   const resp = await new Promise<string>((resolve, reject) => {
@@ -14,15 +14,14 @@ export const convertFileToBase64 = async (file: File) => {
 
 export const convertFileToFileDetails = async (file: File) => {
   const base64Resp = await convertFileToBase64(file);
+
   if (!base64Resp.success) return base64Resp;
 
   const media_type = file.type;
-  const type = media_type.split("/")[0];
+  const type = media_type === "application/pdf" ? "document" : media_type.split("/")[0];
+  const payload = { type, source: { type: "base64", media_type, data: base64Resp.data } };
 
-  return TChatMessageContentImageSchema.safeParse({
-    type,
-    source: { type: "base64", media_type, data: base64Resp.data },
-  });
+  return chatMessageContentMediaSchema.safeParse(payload);
 };
 
 export const convertFilesToFileDetails = async (files: File[]) => {

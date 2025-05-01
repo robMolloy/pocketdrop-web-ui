@@ -13,7 +13,10 @@ export const AiInputTextAndImages = (p: {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    accept: { "image/*": [".png", ".jpg", ".jpeg", ".gif"] },
+    accept: {
+      "image/*": [".png", ".jpg", ".jpeg", ".gif"],
+      "application/pdf": [".pdf"],
+    },
     onDrop: (acceptedFiles) => {
       p.onInputImages([...p.images, ...acceptedFiles]);
     },
