@@ -55,7 +55,7 @@ export const AiChatForm = (p: {
   return (
     <form onSubmit={handleSubmit}>
       <AiInputTextAndImages
-        disabled={mode === "thinking" || mode === "streaming"}
+        disabled={currentInput === "" || mode === "thinking" || mode === "streaming"}
         text={currentInput}
         onInputText={setCurrentInput}
         images={currentImages}

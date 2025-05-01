@@ -3,6 +3,40 @@ import { Button } from "@/components/ui/button";
 import { useRef } from "react";
 import { useDropzone } from "react-dropzone";
 
+const DisplayFileImagePreview = (p: { file: File }) => {
+  return (
+    <img
+      src={URL.createObjectURL(p.file)}
+      alt={`Preview ${p.file.name}`}
+      className="h-full w-full rounded-md object-cover"
+    />
+  );
+};
+
+const DisplayFilePdfPreview = (p: { file: File }) => {
+  return (
+    <object
+      data={URL.createObjectURL(p.file)}
+      type="application/pdf"
+      className="h-full w-full rounded-md"
+    >
+      <div className="flex h-full w-full flex-col items-center justify-center rounded-md border border-input bg-muted p-2">
+        <CustomIcon iconName="file" size="lg" />
+        <span className="mt-1 truncate text-xs">{p.file.name}</span>
+      </div>
+    </object>
+  );
+};
+
+const DisplayFileOtherPreview = (p: { file: File }) => {
+  return (
+    <div className="flex h-full w-full flex-col items-center justify-center rounded-md border border-input bg-muted p-2">
+      <CustomIcon iconName="file" size="lg" />
+      <span className="mt-1 truncate text-xs">{p.file.name}</span>
+    </div>
+  );
+};
+
 export const AiInputTextAndImages = (p: {
   disabled: boolean;
   text: string;
@@ -17,9 +51,7 @@ export const AiInputTextAndImages = (p: {
       "image/*": [".png", ".jpg", ".jpeg", ".gif"],
       "application/pdf": [".pdf"],
     },
-    onDrop: (acceptedFiles) => {
-      p.onInputImages([...p.images, ...acceptedFiles]);
-    },
+    onDrop: (acceptedFiles) => p.onInputImages([...p.images, ...acceptedFiles]),
     noClick: true,
   });
 
@@ -36,6 +68,7 @@ export const AiInputTextAndImages = (p: {
 
     if (!e.metaKey && !e.ctrlKey) {
       e.preventDefault();
+      if (p.disabled) return;
       return e.currentTarget.form?.requestSubmit();
     }
 
@@ -54,14 +87,15 @@ export const AiInputTextAndImages = (p: {
   return (
     <div>
       {p.images.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto py-2">
+        <div className="flex gap-4 overflow-x-auto">
           {p.images.map((file, index) => (
             <div key={index} className="relative h-20 w-20 flex-shrink-0">
-              <img
-                src={URL.createObjectURL(file)}
-                alt={`Preview ${index + 1}`}
-                className="h-full w-full rounded-md object-cover"
-              />
+              {(() => {
+                if (file.type.startsWith("image/")) return <DisplayFileImagePreview file={file} />;
+                if (file.type === "application/pdf") return <DisplayFilePdfPreview file={file} />;
+                return <DisplayFileOtherPreview file={file} />;
+              })()}
+
               <button
                 type="button"
                 onClick={() => p.onInputImages(p.images.filter((_, i) => i !== index))}
