@@ -1,5 +1,7 @@
 import { CustomIcon } from "@/components/CustomIcon";
 import { Card, CardContent } from "@/components/ui/card";
+import { TChatMessage } from "@/modules/aiChat/anthropicApi";
+import React from "react";
 import Markdown from "react-markdown";
 
 export const AssistantMessage = (p: { children: string }) => {
@@ -48,3 +50,38 @@ export const ErrorMessage = () => {
     </div>
   );
 };
+
+export const DisplayChatMessages = React.memo((p: { messages: TChatMessage[] }) => {
+  return (
+    <>
+      {p.messages.map((x) => {
+        if (x.role === "assistant")
+          return x.content.map((content, j) => {
+            return (
+              <AssistantMessage key={`${x.id}-${j}`}>
+                {content.type === "text" ? content.text : ""}
+              </AssistantMessage>
+            );
+          });
+
+        const textContent = x.content.filter((x) => x.type === "text");
+        const imageContent = x.content.filter((x) => x.type === "image");
+
+        return (
+          <React.Fragment key={x.id}>
+            {textContent.map((content, j) => {
+              return <UserMessageText key={`${x.id}-${j}`}>{content.text}</UserMessageText>;
+            })}
+            <div className="flex items-start gap-2">
+              {imageContent.map((content, j) => {
+                return (
+                  <UserMessageImage key={`${x.id}-${j}`}>{content.source.data}</UserMessageImage>
+                );
+              })}
+            </div>
+          </React.Fragment>
+        );
+      })}
+    </>
+  );
+});

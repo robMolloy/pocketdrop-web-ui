@@ -7,11 +7,10 @@ import {
 import { AiInputTextAndImages } from "@/modules/aiChat/components/AiInputTextAndImages";
 import {
   AssistantMessage,
+  DisplayChatMessages,
   ErrorMessage,
-  UserMessageText as UserMessageText,
-  UserMessageImage,
 } from "@/modules/aiChat/components/Messages";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 const uuid = () => crypto.randomUUID();
@@ -51,45 +50,6 @@ const convertFilesToFileDetails = async (files: File[]) => {
   return (await Promise.all(files.map(convertFileToFileDetails)))
     .filter((x) => x.success)
     .map((x) => x.data);
-};
-
-const DisplayChatMessages = (p: { messages: TChatMessage[] }) => {
-  return (
-    <>
-      {p.messages.map((x) => {
-        if (x.role === "assistant")
-          return x.content.map((content, j) => {
-            const key = `${x.id}-${j}`;
-            console.log(`ai-chat.tsx:${/*LL*/ 78}`, key);
-            return (
-              <AssistantMessage key={key}>
-                {content.type === "text" ? content.text : ""}
-              </AssistantMessage>
-            );
-          });
-
-        const textContent = x.content.filter((x) => x.type === "text");
-        const imageContent = x.content.filter((x) => x.type === "image");
-
-        return (
-          <React.Fragment key={x.id}>
-            {textContent.map((content, j) => {
-              const key = `${x.id}-text-${j}`;
-              console.log(`ai-chat.tsx:${/*LL*/ 93}`, key);
-              return <UserMessageText key={key}>{content.text}</UserMessageText>;
-            })}
-            <div className="flex items-start gap-2">
-              {imageContent.map((content, j) => {
-                const key = `${x.id}-image-${j}`;
-                console.log(`ai-chat.tsx:${/*LL*/ 93}`, key);
-                return <UserMessageImage key={key}>{content.source.data}</UserMessageImage>;
-              })}
-            </div>
-          </React.Fragment>
-        );
-      })}
-    </>
-  );
 };
 
 const AiChat = () => {
