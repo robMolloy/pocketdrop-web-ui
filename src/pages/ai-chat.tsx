@@ -1,96 +1,26 @@
 import { CustomIcon } from "@/components/CustomIcon";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import Anthropic from "@anthropic-ai/sdk";
+import { callClaude, TChatMessage } from "@/modules/aiChat/anthropicApi";
+import { AssistantMessage, ErrorMessage, UserMessage } from "@/modules/aiChat/components/Messages";
 import { useEffect, useRef, useState } from "react";
-import Markdown from "react-markdown";
+import { useDropzone } from "react-dropzone";
 
 const uuid = () => crypto.randomUUID();
-
-const callClaude = async (p: {
-  messages: Omit<TChatMessage, "id">[];
-  onFirstStream: () => void;
-  onStream: (text: string) => void;
-}) => {
-  let firstStream = true;
-  try {
-    const anthropic = new Anthropic({
-      apiKey: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
-      dangerouslyAllowBrowser: true,
-    });
-
-    const stream = await anthropic.messages.create({
-      model: "claude-3-5-haiku-20241022",
-      // model: "claude-3-7-sonnet-20250219",
-      max_tokens: 1000,
-      messages: p.messages,
-      stream: true,
-    });
-
-    let fullResponse = "";
-    for await (const message of stream) {
-      if (firstStream) {
-        p.onFirstStream();
-        firstStream = false;
-      }
-      if (message.type === "content_block_delta" && "text" in message.delta) {
-        fullResponse += message.delta.text;
-        p.onStream(fullResponse);
-      }
-    }
-
-    return { success: true, data: fullResponse } as const;
-  } catch (error) {
-    return { success: false, error: error } as const;
-  }
-};
-
-const UserMessage = (p: { children: string }) => {
-  return (
-    <div className="flex items-start">
-      <Card>
-        <CardContent className="p-4">
-          <p className="text-foreground">{p.children}</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-const ErrorMessage = () => {
-  return (
-    <div className="flex items-center justify-center p-4">
-      <Card className="/10 w-full max-w-md border-destructive">
-        <CardContent className="flex items-center gap-3 p-4">
-          <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-destructive text-destructive-foreground">
-            <CustomIcon iconName="x" size="sm" />
-          </div>
-          <p className="font-medium">There has been an error processing your request.</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
-const AssistantMessage = (p: { children: string }) => {
-  return (
-    <div className="react-markdown">
-      <Markdown>{p.children}</Markdown>
-    </div>
-  );
-};
-
-type TChatMessage = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-};
 
 const AiChat = () => {
   const [mode, setMode] = useState<"ready" | "thinking" | "streaming" | "error">("ready");
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<TChatMessage[]>([]);
   const [streamedResponse, setStreamedResponse] = useState("");
+  const [images, setImages] = useState<File[]>([]);
   const scrollContainer = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: { "image/*": [".png", ".jpg", ".jpeg", ".gif"] },
+    onDrop: (acceptedFiles) => setImages((prev) => [...prev, ...acceptedFiles]),
+    noClick: true,
+  });
 
   useEffect(() => {
     if (!scrollContainer.current) return;
@@ -106,27 +36,25 @@ const AiChat = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      if (e.metaKey || e.ctrlKey) {
-        const cursorPosition = e.currentTarget.selectionStart;
-        const textBefore = input.substring(0, cursorPosition);
-        const textAfter = input.substring(cursorPosition);
-        setInput(textBefore + "\n" + textAfter);
-        setTimeout(() => {
-          if (textareaRef.current) {
-            textareaRef.current.selectionStart = cursorPosition + 1;
-            textareaRef.current.selectionEnd = cursorPosition + 1;
-          }
-        }, 0);
-      } else {
-        // Regular Enter - submit form
-        e.preventDefault();
-        const form = e.currentTarget.form;
-        if (form) {
-          form.requestSubmit();
+    if (!(e.key === "Enter" && !e.shiftKey)) return;
+    if (e.metaKey || e.ctrlKey) {
+      const cursorPosition = e.currentTarget.selectionStart;
+      const textBefore = input.substring(0, cursorPosition);
+      const textAfter = input.substring(cursorPosition);
+      setInput(textBefore + "\n" + textAfter);
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.selectionStart = cursorPosition + 1;
+          textareaRef.current.selectionEnd = cursorPosition + 1;
         }
-      }
+      }, 0);
+      return;
     }
+
+    // Regular Enter - submit form
+    e.preventDefault();
+    const form = e.currentTarget.form;
+    if (form) form.requestSubmit();
   };
 
   return (
@@ -136,7 +64,9 @@ const AiChat = () => {
 
         {messages.map((x) => {
           const Comp = x.role === "user" ? UserMessage : AssistantMessage;
-          return <Comp key={x.id}>{x.content}</Comp>;
+          return x.content
+            .filter((content) => content.type === "text")
+            .map((content) => <Comp key={x.id}>{content.text}</Comp>);
         })}
         {mode === "thinking" && <p>Thinking...</p>}
         {mode === "streaming" && <AssistantMessage>{streamedResponse}</AssistantMessage>}
@@ -153,8 +83,24 @@ const AiChat = () => {
             onFirstStream: () => setMode("streaming"),
             onStream: (text) => setStreamedResponse(text),
           });
-          setMessages((x) => [...x, { id: uuid(), role: "user", content: input }]);
+          setMessages((x: TChatMessage[]) => [
+            ...x,
+            {
+              id: uuid(),
+              role: "user",
+              content: [
+                { type: "text", text: input },
+                ...images.map((x) => {
+                  return {
+                    type: "image",
+                    source: { type: "base64", media_type: "image/png", data: x.name },
+                  };
+                }),
+              ],
+            } as TChatMessage,
+          ]);
           setInput("");
+          setImages([]);
           if (textareaRef.current) {
             textareaRef.current.style.height = "auto";
           }
@@ -162,20 +108,26 @@ const AiChat = () => {
           const resp = await claudeRtn;
           if (!resp.success) return setMode("error");
 
-          if (resp.success)
-            setMessages((x) => [...x, { id: uuid(), role: "assistant", content: resp.data }]);
+          const newMsg: TChatMessage = {
+            id: uuid(),
+            role: "assistant",
+            content: [{ type: "text", text: resp.data }],
+          };
+
+          setMessages((x) => [...x, newMsg]);
           setMode("ready");
         }}
       >
         <div className="flex items-start">
-          <div className="relative flex-1">
+          <div className="relative flex-1" {...getRootProps()}>
+            <input {...getInputProps()} />
             <textarea
               ref={textareaRef}
               value={input}
               onChange={handleTextareaChange}
               onKeyDown={handleKeyDown}
-              placeholder="Type your message..."
-              className="w-full resize-none rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder={isDragActive ? "Drop images here..." : "Type your message..."}
+              className={`w-full resize-none rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${isDragActive ? "border-primary" : ""}`}
               rows={1}
               style={{ minHeight: "80px", maxHeight: "200px" }}
             />
@@ -188,6 +140,26 @@ const AiChat = () => {
             </Button>
           </div>
         </div>
+        {images.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto py-2">
+            {images.map((file, index) => (
+              <div key={index} className="relative h-20 w-20 flex-shrink-0">
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt={`Preview ${index + 1}`}
+                  className="h-full w-full rounded-md object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => setImages((prev) => prev.filter((_, i) => i !== index))}
+                  className="absolute -right-2 -top-2 rounded-full bg-destructive p-1 text-destructive-foreground"
+                >
+                  <CustomIcon iconName="x" size="xs" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </form>
     </div>
   );
