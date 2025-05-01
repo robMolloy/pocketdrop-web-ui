@@ -1,19 +1,20 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { z } from "zod";
+
+export const TChatMessageContentImageSchema = z.object({
+  type: z.literal("image"),
+  source: z.object({
+    type: z.literal("base64"),
+    media_type: z.enum(["image/png", "image/jpeg", "image/webp", "image/gif"]),
+    data: z.string(),
+  }),
+});
 
 export type TChatMessageContentText = { type: "text"; text: string };
-export type TChatMessageContentImage = {
-  type: "image";
-  source: { type: "base64"; media_type: "image/png"; data: string };
-};
-export type TChatMessageContentMedia = {
-  type: "image";
-  source: { type: "base64"; media_type: "image/png"; data: string };
-};
-export type TChatMessage = {
-  id: string;
-  role: "user" | "assistant";
-  content: (TChatMessageContentText | TChatMessageContentImage)[];
-};
+export type TChatMessageContentImage = z.infer<typeof TChatMessageContentImageSchema>;
+export type TChatMessageContent = (TChatMessageContentText | TChatMessageContentImage)[];
+export type TChatMessage = { id: string; role: "user" | "assistant"; content: TChatMessageContent };
+
 export const callClaude = async (p: {
   messages: Omit<TChatMessage, "id">[];
   onFirstStream: () => void;

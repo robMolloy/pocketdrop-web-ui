@@ -1,36 +1,44 @@
-import { callClaude, TChatMessage, TChatMessageContentImage } from "@/modules/aiChat/anthropicApi";
+import {
+  callClaude,
+  TChatMessageContentImageSchema as chatMessageContentImageSchema,
+  TChatMessage,
+  TChatMessageContent,
+} from "@/modules/aiChat/anthropicApi";
 import { AiInputTextAndImages } from "@/modules/aiChat/components/AiInputTextAndImages";
 import { AssistantMessage, ErrorMessage, UserMessage } from "@/modules/aiChat/components/Messages";
 import { useEffect, useRef, useState } from "react";
+import { z } from "zod";
 
 const uuid = () => crypto.randomUUID();
-
-const convertFileToFileDetails = async (file: File): Promise<TChatMessageContentImage> => {
-  const data = await convertFileToBase64(file);
-
-  const media_type = file.type;
-  const type = media_type.split("/")[0] as string;
-
-  const rtn = { type, source: { type: "base64", media_type, data } } as TChatMessageContentImage;
-
-  return rtn;
-};
 
 const convertFileToBase64 = async (file: File) => {
   const resp = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
+    reader.onloadend = () => resolve((reader.result ?? "") as string);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
 
-  return resp.split(";base64,")[1] as string;
+  return z.string().safeParse(resp.split(";base64,")[1]);
 };
 
-const convertFileToImagePngChatMessage = async (file: File) => {
-  const resp = await convertFileToFileDetails(file);
-  return resp as TChatMessageContentImage;
+const convertFileToFileDetails = async (file: File) => {
+  const base64Resp = await convertFileToBase64(file);
+  if (!base64Resp.success) return base64Resp;
+
+  const media_type = file.type;
+  const type = media_type.split("/")[0];
+
+  return chatMessageContentImageSchema.safeParse({
+    type,
+    source: { type: "base64", media_type, data: base64Resp.data },
+  });
 };
+
+// const convertFileToImagePngChatMessage = async (file: File) => {
+//   const resp = await convertFileToFileDetails(file);
+//   return resp as TChatMessageContentImage;
+// };
 
 const AiChat = () => {
   const [mode, setMode] = useState<"ready" | "thinking" | "streaming" | "error">("ready");
@@ -46,15 +54,6 @@ const AiChat = () => {
     scrollContainer.current.scrollTop = scrollContainer.current.scrollHeight;
   }, [messages, streamedResponse]);
 
-  useEffect(() => {
-    (async () => {
-      for (const image of currentImages) {
-        const resp = await convertFileToImagePngChatMessage(image);
-        console.log(`ai-chat.tsx:${/*LL*/ 41}`, { resp });
-      }
-    })();
-  }, [currentImages]);
-
   return (
     <div className="flex h-full flex-col gap-4">
       <div className="flex flex-1 flex-col gap-4 overflow-y-auto" ref={scrollContainer}>
@@ -66,6 +65,7 @@ const AiChat = () => {
             .filter((content) => content.type === "text")
             .map((content) => <Comp key={x.id}>{content.text}</Comp>);
         })}
+
         {mode === "thinking" && <p>Thinking...</p>}
         {mode === "streaming" && <AssistantMessage>{streamedResponse}</AssistantMessage>}
         {mode === "error" && <ErrorMessage />}
@@ -75,49 +75,38 @@ const AiChat = () => {
         onSubmit={async (e) => {
           e.preventDefault();
           setMode("thinking");
-          const convertedImages = await Promise.all(
-            currentImages.map(convertFileToImagePngChatMessage),
-          );
-          const newMessages: TChatMessage[] = [
-            ...messages,
-            {
-              id: uuid(),
-              role: "user",
-              content: [{ type: "text", text: currentInput }, ...convertedImages],
-            },
+
+          const convertedImages = (await Promise.all(currentImages.map(convertFileToFileDetails)))
+            .filter((x) => x.success)
+            .map((x) => x.data);
+
+          const content: TChatMessageContent = [
+            { type: "text", text: currentInput },
+            ...convertedImages,
           ];
 
-          console.log(`ai-chat.tsx:${/*LL*/ 78}`, { newMessages });
+          const newMessages: TChatMessage[] = [...messages, { id: uuid(), role: "user", content }];
+
           const claudeRtn = callClaude({
             messages: newMessages.map((x) => ({ role: x.role, content: x.content })),
             onFirstStream: () => setMode("streaming"),
             onStream: (text) => setStreamedResponse(text),
           });
-          setMessages((x: TChatMessage[]) => [
-            ...x,
-            {
-              id: uuid(),
-              role: "user",
-              content: [{ type: "text", text: currentInput }, ...convertedImages],
-            } as TChatMessage,
-          ]);
+
+          setMessages(newMessages);
           setCurrentInput("");
           setCurrentImages([]);
-          if (textareaRef.current) {
-            textareaRef.current.style.height = "auto";
-          }
+
+          if (textareaRef.current) textareaRef.current.style.height = "auto";
 
           const resp = await claudeRtn;
-          console.log(`ai-chat.tsx:${/*LL*/ 98}`, { resp });
           if (!resp.success) return setMode("error");
 
-          const newMsg: TChatMessage = {
-            id: uuid(),
-            role: "assistant",
-            content: [{ type: "text", text: resp.data }],
-          };
+          setMessages((x) => [
+            ...x,
+            { id: uuid(), role: "assistant", content: [{ type: "text", text: resp.data }] },
+          ]);
 
-          setMessages((x) => [...x, newMsg]);
           setMode("ready");
         }}
       >
