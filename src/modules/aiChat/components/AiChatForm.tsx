@@ -1,4 +1,4 @@
-import { callClaude, TChatMessage } from "../anthropicApi";
+import { callClaude, TChatMessage, TChatMessageContent } from "../anthropicApi";
 import { convertFilesToFileDetails } from "../utils";
 import { AiInputTextAndImages } from "./AiInputTextAndImages";
 import { useEffect, useState } from "react";
@@ -7,6 +7,10 @@ const uuid = () => crypto.randomUUID();
 
 const createAssistantMessage = (text: string): TChatMessage => {
   return { id: uuid(), role: "assistant", content: [{ type: "text", text }] };
+};
+
+const createUserMessage = (content: TChatMessageContent): TChatMessage => {
+  return { id: uuid(), role: "user", content };
 };
 
 export const AiChatForm = (p: {
@@ -27,14 +31,10 @@ export const AiChatForm = (p: {
     if (mode === "thinking" || mode === "streaming") return;
     setMode("thinking");
 
-    const newUserMessage: TChatMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: [
-        { type: "text", text: currentInput },
-        ...(await convertFilesToFileDetails(currentImages)),
-      ],
-    };
+    const newUserMessage = createUserMessage([
+      { type: "text", text: currentInput },
+      ...(await convertFilesToFileDetails(currentImages)),
+    ]);
 
     const updatedMessages = [...p.messages, newUserMessage];
 
