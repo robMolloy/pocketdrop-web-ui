@@ -5,11 +5,24 @@ import {
   TChatMessageContent,
 } from "@/modules/aiChat/anthropicApi";
 import { AiInputTextAndImages } from "@/modules/aiChat/components/AiInputTextAndImages";
-import { AssistantMessage, ErrorMessage, UserMessage } from "@/modules/aiChat/components/Messages";
+import {
+  AssistantMessage,
+  ErrorMessage,
+  UserMessageText as UserMessageText,
+  UserMessageImage,
+} from "@/modules/aiChat/components/Messages";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 const uuid = () => crypto.randomUUID();
+
+const createAssistantMessage = (text: string): TChatMessage => {
+  return { id: uuid(), role: "assistant", content: [{ type: "text", text }] };
+};
+
+const createUserMessage = (content: TChatMessageContent): TChatMessage => {
+  return { id: uuid(), role: "user", content };
+};
 
 const convertFileToBase64 = async (file: File) => {
   const resp = await new Promise<string>((resolve, reject) => {
@@ -34,11 +47,11 @@ const convertFileToFileDetails = async (file: File) => {
     source: { type: "base64", media_type, data: base64Resp.data },
   });
 };
-
-// const convertFileToImagePngChatMessage = async (file: File) => {
-//   const resp = await convertFileToFileDetails(file);
-//   return resp as TChatMessageContentImage;
-// };
+const convertFilesToFileDetails = async (files: File[]) => {
+  return (await Promise.all(files.map(convertFileToFileDetails)))
+    .filter((x) => x.success)
+    .map((x) => x.data);
+};
 
 const AiChat = () => {
   const [mode, setMode] = useState<"ready" | "thinking" | "streaming" | "error">("ready");
@@ -47,7 +60,6 @@ const AiChat = () => {
   const [currentInput, setCurrentInput] = useState("");
   const [currentImages, setCurrentImages] = useState<File[]>([]);
   const scrollContainer = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (!scrollContainer.current) return;
@@ -60,15 +72,20 @@ const AiChat = () => {
         <AssistantMessage>Hello! How can I help you today?</AssistantMessage>
 
         {messages.map((x) => {
-          const Comp = x.role === "user" ? UserMessage : AssistantMessage;
-          return x.content
-            .filter((content) => content.type === "text")
-            .map((content) => <Comp key={x.id}>{content.text}</Comp>);
+          const Comp = x.role === "user" ? UserMessageText : AssistantMessage;
+          return x.content.map((content) => {
+            if (content.type === "text") return <Comp key={x.id}>{content.text}</Comp>;
+            if (content.type === "image")
+              return <UserMessageImage key={x.id}>{content.source.data}</UserMessageImage>;
+
+            return <></>;
+          });
         })}
 
         {mode === "thinking" && <p>Thinking...</p>}
         {mode === "streaming" && <AssistantMessage>{streamedResponse}</AssistantMessage>}
         {mode === "error" && <ErrorMessage />}
+        <pre>{JSON.stringify(messages, undefined, 2)}</pre>
       </div>
 
       <form
@@ -76,16 +93,12 @@ const AiChat = () => {
           e.preventDefault();
           setMode("thinking");
 
-          const convertedImages = (await Promise.all(currentImages.map(convertFileToFileDetails)))
-            .filter((x) => x.success)
-            .map((x) => x.data);
-
-          const content: TChatMessageContent = [
+          const newUserMessage = createUserMessage([
             { type: "text", text: currentInput },
-            ...convertedImages,
-          ];
+            ...(await convertFilesToFileDetails(currentImages)),
+          ]);
 
-          const newMessages: TChatMessage[] = [...messages, { id: uuid(), role: "user", content }];
+          const newMessages = [...messages, newUserMessage];
 
           const claudeRtn = callClaude({
             messages: newMessages.map((x) => ({ role: x.role, content: x.content })),
@@ -97,15 +110,10 @@ const AiChat = () => {
           setCurrentInput("");
           setCurrentImages([]);
 
-          if (textareaRef.current) textareaRef.current.style.height = "auto";
-
           const resp = await claudeRtn;
           if (!resp.success) return setMode("error");
 
-          setMessages((x) => [
-            ...x,
-            { id: uuid(), role: "assistant", content: [{ type: "text", text: resp.data }] },
-          ]);
+          setMessages((x) => [...x, createAssistantMessage(resp.data)]);
 
           setMode("ready");
         }}

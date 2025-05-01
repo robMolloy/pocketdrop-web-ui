@@ -10,17 +10,30 @@ export const AssistantMessage = (p: { children: string }) => {
   );
 };
 
-export const UserMessage = (p: { children: string }) => {
+export const UserMessageText = (p: { children: string }) => {
   return (
     <div className="flex items-start">
       <Card>
-        <CardContent className="p-4">
+        <CardContent className="p-2">
           <p className="text-foreground">{p.children}</p>
         </CardContent>
       </Card>
     </div>
   );
 };
+
+export const UserMessageImage = (p: { children: string }) => {
+  return (
+    <div className="flex items-start">
+      <img
+        src={`data:image/jpeg;base64,${p.children}`}
+        alt="User uploaded image"
+        className="max-h-64 rounded-md object-contain"
+      />
+    </div>
+  );
+};
+
 export const ErrorMessage = () => {
   return (
     <div className="flex items-center justify-center p-4">
