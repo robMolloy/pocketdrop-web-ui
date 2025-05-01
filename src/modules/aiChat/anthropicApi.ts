@@ -1,12 +1,14 @@
 import Anthropic from "@anthropic-ai/sdk";
 
+export type TChatMessageContentText = { type: "text"; text: string };
+export type TChatMessageContentImage = {
+  type: "image";
+  source: { type: "base64"; media_type: "image/png"; data: string };
+};
 export type TChatMessage = {
   id: string;
   role: "user" | "assistant";
-  content: (
-    | { type: "text"; text: string }
-    | { type: "image"; source: { type: "base64"; media_type: "image/png"; data: string } }
-  )[];
+  content: (TChatMessageContentText | TChatMessageContentImage)[];
 };
 export const callClaude = async (p: {
   messages: Omit<TChatMessage, "id">[];
