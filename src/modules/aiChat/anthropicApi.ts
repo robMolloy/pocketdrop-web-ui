@@ -15,6 +15,16 @@ export type TChatMessageContentImage = z.infer<typeof TChatMessageContentImageSc
 export type TChatMessageContent = (TChatMessageContentText | TChatMessageContentImage)[];
 export type TChatMessage = { id: string; role: "user" | "assistant"; content: TChatMessageContent };
 
+const uuid = () => crypto.randomUUID();
+
+export const createAssistantMessage = (text: string): TChatMessage => {
+  return { id: uuid(), role: "assistant", content: [{ type: "text", text }] };
+};
+
+export const createUserMessage = (content: TChatMessageContent): TChatMessage => {
+  return { id: uuid(), role: "user", content };
+};
+
 export const callClaude = async (p: {
   messages: Omit<TChatMessage, "id">[];
   onFirstStream: () => void;

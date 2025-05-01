@@ -1,17 +1,12 @@
-import { callClaude, TChatMessage, TChatMessageContent } from "../anthropicApi";
+import { useEffect, useState } from "react";
+import {
+  callClaude,
+  createAssistantMessage,
+  createUserMessage,
+  TChatMessage,
+} from "../anthropicApi";
 import { convertFilesToFileDetails } from "../utils";
 import { AiInputTextAndImages } from "./AiInputTextAndImages";
-import { useEffect, useState } from "react";
-
-const uuid = () => crypto.randomUUID();
-
-const createAssistantMessage = (text: string): TChatMessage => {
-  return { id: uuid(), role: "assistant", content: [{ type: "text", text }] };
-};
-
-const createUserMessage = (content: TChatMessageContent): TChatMessage => {
-  return { id: uuid(), role: "user", content };
-};
 
 export const AiChatForm = (p: {
   messages: TChatMessage[];
