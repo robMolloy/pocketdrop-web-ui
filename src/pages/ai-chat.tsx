@@ -11,7 +11,7 @@ import {
   UserMessageText as UserMessageText,
   UserMessageImage,
 } from "@/modules/aiChat/components/Messages";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 const uuid = () => crypto.randomUUID();
@@ -53,6 +53,45 @@ const convertFilesToFileDetails = async (files: File[]) => {
     .map((x) => x.data);
 };
 
+const DisplayChatMessages = (p: { messages: TChatMessage[] }) => {
+  return (
+    <>
+      {p.messages.map((x) => {
+        if (x.role === "assistant")
+          return x.content.map((content, j) => {
+            const key = `${x.id}-${j}`;
+            console.log(`ai-chat.tsx:${/*LL*/ 78}`, key);
+            return (
+              <AssistantMessage key={key}>
+                {content.type === "text" ? content.text : ""}
+              </AssistantMessage>
+            );
+          });
+
+        const textContent = x.content.filter((x) => x.type === "text");
+        const imageContent = x.content.filter((x) => x.type === "image");
+
+        return (
+          <React.Fragment key={x.id}>
+            {textContent.map((content, j) => {
+              const key = `${x.id}-text-${j}`;
+              console.log(`ai-chat.tsx:${/*LL*/ 93}`, key);
+              return <UserMessageText key={key}>{content.text}</UserMessageText>;
+            })}
+            <div className="flex items-start gap-2">
+              {imageContent.map((content, j) => {
+                const key = `${x.id}-image-${j}`;
+                console.log(`ai-chat.tsx:${/*LL*/ 93}`, key);
+                return <UserMessageImage key={key}>{content.source.data}</UserMessageImage>;
+              })}
+            </div>
+          </React.Fragment>
+        );
+      })}
+    </>
+  );
+};
+
 const AiChat = () => {
   const [mode, setMode] = useState<"ready" | "thinking" | "streaming" | "error">("ready");
   const [messages, setMessages] = useState<TChatMessage[]>([]);
@@ -71,40 +110,7 @@ const AiChat = () => {
       <div className="flex flex-1 flex-col gap-4 overflow-y-auto" ref={scrollContainer}>
         <AssistantMessage>Hello! How can I help you today?</AssistantMessage>
 
-        {messages.map((x) => {
-          if (x.role === "assistant")
-            return x.content.map((content, j) => {
-              const key = `${x.id}-${j}`;
-              console.log(`ai-chat.tsx:${/*LL*/ 78}`, key);
-              return (
-                <AssistantMessage key={key}>
-                  {content.type === "text" ? content.text : ""}
-                </AssistantMessage>
-              );
-            });
-
-          if (x.role === "user")
-            return (
-              <>
-                {x.content
-                  .filter((x) => x.type === "text")
-                  .map((content, j) => {
-                    const key = `${x.id}-text-${j}`;
-                    console.log(`ai-chat.tsx:${/*LL*/ 93}`, key);
-                    return <UserMessageText key={key}>{content.text}</UserMessageText>;
-                  })}
-                <div className="flex items-start gap-2">
-                  {x.content
-                    .filter((x) => x.type === "image")
-                    .map((content, j) => {
-                      const key = `${x.id}-image-${j}`;
-                      console.log(`ai-chat.tsx:${/*LL*/ 93}`, key);
-                      return <UserMessageImage key={key}>{content.source.data}</UserMessageImage>;
-                    })}
-                </div>
-              </>
-            );
-        })}
+        <DisplayChatMessages messages={messages} />
 
         {mode === "thinking" && <p>Thinking...</p>}
         {mode === "streaming" && <AssistantMessage>{streamedResponse}</AssistantMessage>}
