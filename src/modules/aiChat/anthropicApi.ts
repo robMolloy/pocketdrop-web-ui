@@ -1,7 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 
-export const TChatMessageContentImageSchema = z.object({
+export const chatMessageContentTextSchema = z.object({ type: z.literal("text"), text: z.string() });
+export const chatMessageContentImageSchema = z.object({
   type: z.literal("image"),
   source: z.object({
     type: z.literal("base64"),
@@ -9,7 +10,7 @@ export const TChatMessageContentImageSchema = z.object({
     data: z.string(),
   }),
 });
-export const TChatMessageContentDocSchema = z.object({
+export const chatMessageContentDocSchema = z.object({
   type: z.literal("document"),
   source: z.object({
     type: z.literal("base64"),
@@ -18,19 +19,12 @@ export const TChatMessageContentDocSchema = z.object({
   }),
 });
 
-export const chatMessageContentMediaSchema = z.union([
-  TChatMessageContentDocSchema,
-  TChatMessageContentImageSchema,
+export const chatMessageContentSchema = z.union([
+  chatMessageContentTextSchema,
+  chatMessageContentImageSchema,
+  chatMessageContentDocSchema,
 ]);
-
-export type TChatMessageContentText = { type: "text"; text: string };
-export type TChatMessageContentImage = z.infer<typeof TChatMessageContentImageSchema>;
-export type TChatMessageContentDoc = z.infer<typeof TChatMessageContentDocSchema>;
-export type TChatMessageContent = (
-  | TChatMessageContentText
-  | TChatMessageContentImage
-  | TChatMessageContentDoc
-)[];
+export type TChatMessageContent = z.infer<typeof chatMessageContentSchema>[];
 export type TChatMessage = { id: string; role: "user" | "assistant"; content: TChatMessageContent };
 
 const uuid = () => crypto.randomUUID();
