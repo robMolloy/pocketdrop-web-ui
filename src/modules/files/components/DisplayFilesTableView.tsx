@@ -34,13 +34,10 @@ export const DisplayFileThumbnailOrIcon = (p: {
     if (!imageExtensions.includes(extension)) return;
 
     (async () => {
-      console.log(`DisplayFilesTableView.tsx:${/*LL*/ 37}`, {});
       const resp = await getFileFromFileRecord({ pb, isThumb: true, data: p.file });
-      console.log(`DisplayFilesTableView.tsx:${/*LL*/ 39}`, {});
+
       if (resp.success) {
-        console.log(`DisplayFilesTableView.tsx:${/*LL*/ 41}`, {});
         const url = URL.createObjectURL(resp.data.file);
-        console.log(`DisplayFilesTableView.tsx:${/*LL*/ 43}`, { url });
         setThumbnailUrl(url);
         return () => URL.revokeObjectURL(url);
       }

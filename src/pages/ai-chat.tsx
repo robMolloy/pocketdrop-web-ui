@@ -1,4 +1,6 @@
+import { CustomIcon } from "@/components/CustomIcon";
 import { MainLayout } from "@/components/Layout";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TChatMessage } from "@/modules/aiChat/anthropicApi";
 import { AiChatForm } from "@/modules/aiChat/components/AiChatForm";
@@ -14,16 +16,47 @@ const ScrollContainer = (p: {
   deps: DependencyList;
   className?: string;
 }) => {
+  const [isAtBottom, setIsAtBottom] = useState(false);
   const scrollContainer = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const checkIfAtBottom = () => {
+    if (!scrollContainer.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainer.current;
+    const isBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 30;
+    setIsAtBottom(isBottom);
+  };
+
+  const scrollToBottom = () => {
     if (!scrollContainer.current) return;
     scrollContainer.current.scrollTop = scrollContainer.current.scrollHeight;
+  };
+
+  useEffect(() => {
+    if (isAtBottom) scrollToBottom();
   }, p.deps);
 
+  useEffect(() => {
+    const container = scrollContainer.current;
+    if (!container) return;
+
+    container.addEventListener("scroll", () => checkIfAtBottom());
+    return () => container.removeEventListener("scroll", () => checkIfAtBottom());
+  }, []);
+
+  useEffect(() => checkIfAtBottom(), [p.children]);
+
   return (
-    <div className={cn("overflow-y-auto", p.className)} ref={scrollContainer}>
+    <div className={cn("relative overflow-y-auto", p.className)} ref={scrollContainer}>
       {p.children}
+      {!isAtBottom && (
+        <Button
+          onClick={scrollToBottom}
+          className="absolute bottom-2 right-4 h-10 w-10 rounded-full shadow-lg transition-colors hover:bg-gray-100"
+          aria-label="Scroll to bottom"
+        >
+          <CustomIcon iconName="chevronDown" size="lg" />
+        </Button>
+      )}
     </div>
   );
 };
