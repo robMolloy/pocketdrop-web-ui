@@ -1,12 +1,14 @@
+import { MainLayout } from "@/components/Layout";
+import { H1 } from "@/components/ui/defaultComponents";
 
 export default function Home() {
   return (
-
-    <div className="space-y-4">
-      <h1 className="text-3xl font-bold">Welcome to PocketDrop</h1>
+    <MainLayout>
+      <H1>Welcome to PocketDrop</H1>
+      <br />
       <p className="text-muted-foreground">
         This is your dashboard. Start adding your content here.
       </p>
-    </div>
-  )
+    </MainLayout>
+  );
 }

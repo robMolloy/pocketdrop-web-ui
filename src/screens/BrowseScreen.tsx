@@ -1,5 +1,7 @@
 import { CreateDirectoryInModalButton } from "@/components/CreateDirectoryForm";
 import { CustomIcon } from "@/components/CustomIcon";
+import { MainLayout } from "@/components/Layout";
+import { H1 } from "@/components/ui/defaultComponents";
 import { DisplayDirectoriesAndFilesIconView } from "@/modules/directories/components/DisplayDirectoriesAndFilesIconView";
 import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/components/DisplayFilesTableView";
 import { FileUploader } from "@/modules/files/components/FileUploader";
@@ -65,10 +67,10 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
     : [];
 
   return (
-    <>
+    <MainLayout>
       <div className="flex items-end justify-between">
         <div className="flex items-end gap-2">
-          <h1 className="mb-0 text-2xl font-bold">Current Path:</h1>
+          <H1>Current Path:</H1>
           <Breadcrumbs path={p.browsePath} />
         </div>
 
@@ -107,6 +109,6 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
           parentDirectories={[p.directory]}
         />
       )}
-    </>
+    </MainLayout>
   );
 };

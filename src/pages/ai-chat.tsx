@@ -1,3 +1,4 @@
+import { MainLayout } from "@/components/Layout";
 import { cn } from "@/lib/utils";
 import { TChatMessage } from "@/modules/aiChat/anthropicApi";
 import { AiChatForm } from "@/modules/aiChat/components/AiChatForm";
@@ -33,31 +34,37 @@ const AiChat = () => {
   const [streamedResponse, setStreamedResponse] = useState("");
 
   return (
-    <div className="flex h-full flex-col gap-4">
-      <ScrollContainer
-        deps={[messages, streamedResponse, mode]}
-        className="flex flex-1 flex-col gap-4"
-      >
-        <AssistantMessage>Hello! How can I help you today?</AssistantMessage>
+    <MainLayout fillPageExactly padding={false}>
+      <div className="flex h-full flex-col gap-4">
+        <ScrollContainer
+          deps={[messages, streamedResponse, mode]}
+          className="flex flex-1 flex-col gap-4"
+        >
+          <div className="p-4 pb-0">
+            <AssistantMessage>Hello! How can I help you today?</AssistantMessage>
 
-        <DisplayChatMessages messages={messages} />
+            <DisplayChatMessages messages={messages} />
 
-        {mode === "thinking" && <p>Thinking...</p>}
-        {mode === "streaming" && <AssistantMessage>{streamedResponse}</AssistantMessage>}
-        {mode === "error" && <ErrorMessage />}
-      </ScrollContainer>
+            {mode === "thinking" && <p>Thinking...</p>}
+            {mode === "streaming" && <AssistantMessage>{streamedResponse}</AssistantMessage>}
+            {mode === "error" && <ErrorMessage />}
+          </div>
+        </ScrollContainer>
 
-      <AiChatForm
-        messages={messages}
-        onModeChange={setMode}
-        onUpdatedMessages={setMessages}
-        onStream={(text) => setStreamedResponse(text)}
-        onComplete={(messages) => {
-          setMessages(messages);
-          setStreamedResponse("");
-        }}
-      />
-    </div>
+        <div className="p-4 pt-1">
+          <AiChatForm
+            messages={messages}
+            onModeChange={setMode}
+            onUpdatedMessages={setMessages}
+            onStream={(text) => setStreamedResponse(text)}
+            onComplete={(messages) => {
+              setMessages(messages);
+              setStreamedResponse("");
+            }}
+          />
+        </div>
+      </div>
+    </MainLayout>
   );
 };
 

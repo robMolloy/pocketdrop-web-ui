@@ -22,6 +22,8 @@ import { useUsersStore } from "@/modules/users/usersStore";
 import { useCurrentUserStore } from "@/stores/authDataStore";
 import { useModalStore } from "@/stores/modalStore";
 import { CustomIcon } from "@/components/CustomIcon";
+import { MainLayout } from "@/components/Layout";
+import { H1 } from "@/components/ui/defaultComponents";
 
 type TUserStatus = TUser["status"];
 const statusColorClassMap: { [k in TUserStatus]: string } = {
@@ -63,8 +65,9 @@ const UsersPage = () => {
   const userStore = useCurrentUserStore();
 
   return (
-    <div>
-      <h1 className="m-0 text-3xl font-bold">Users</h1>
+    <MainLayout>
+      <H1>Users</H1>
+      <br />
       <Table>
         <TableHeader>
           <TableHeaderRow>
@@ -122,7 +125,7 @@ const UsersPage = () => {
           })}
         </TableBody>
       </Table>
-    </div>
+    </MainLayout>
   );
 };
 

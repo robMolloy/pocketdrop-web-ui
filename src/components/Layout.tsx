@@ -4,6 +4,19 @@ import { RightSidebar } from "./RightSidebar";
 import { LeftSidebar } from "./LeftSidebar";
 import { Modal } from "./Modal";
 
+export const MainLayout = (p: {
+  children: React.ReactNode;
+  padding?: boolean;
+  fillPageExactly?: boolean;
+}) => {
+  const padding = p.padding ?? true;
+  return (
+    <div className={`${p.fillPageExactly ? "h-full" : "min-h-full"} ${padding ? "p-6" : ""}`}>
+      {p.children}
+    </div>
+  );
+};
+
 export function Layout(p: { children: React.ReactNode; showLeftSidebar: boolean }) {
   const rightSidebarStore = useRightSidebarStore();
 
@@ -16,9 +29,7 @@ export function Layout(p: { children: React.ReactNode; showLeftSidebar: boolean 
             <LeftSidebar />
           </aside>
         )}
-        <main className="h-[calc(100vh-3.5rem)] w-full overflow-y-auto">
-          <div className="h-full p-6">{p.children}</div>
-        </main>
+        <main className="h-[calc(100vh-3.5rem)] w-full">{p.children}</main>
       </div>
       <RightSidebar
         isOpen={rightSidebarStore.data !== null}

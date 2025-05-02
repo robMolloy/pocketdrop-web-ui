@@ -39,7 +39,7 @@ const SearchInput = () => {
         onBlur={() => setTimeout(() => setShowSuggestionsDropdown(false), 250)}
       />
       <div
-        className={`absolute z-50 mt-1 w-full rounded-md border bg-background shadow-lg ${isSuggestionsDropdownShown ? "" : "hidden"}`}
+        className={`absolute z-50 mt-1 max-h-96 w-full overflow-y-scroll rounded-md border bg-background shadow-lg ${isSuggestionsDropdownShown ? "" : "hidden"}`}
       >
         {suggestedFiles.map((file) =>
           (() => {

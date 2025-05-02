@@ -4,6 +4,8 @@ import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/components/
 import { useFilesStore } from "@/modules/files/filesStore";
 import { ViewTypeToggleButton } from "@/modules/viewType/components/ViewTypeToggleButton";
 import { useViewTypeStore } from "@/modules/viewType/viewTypeStore";
+import { MainLayout } from "@/components/Layout";
+import { H1 } from "@/components/ui/defaultComponents";
 
 const StarredPage = () => {
   const filesStore = useFilesStore();
@@ -13,9 +15,9 @@ const StarredPage = () => {
   const viewTypeStore = useViewTypeStore();
 
   return (
-    <div>
+    <MainLayout>
       <div className="flex items-end justify-between">
-        <h1 className="mb-0 text-2xl font-bold">Starred Files</h1>
+        <H1>Starred Files</H1>
         <ViewTypeToggleButton />
       </div>
 
@@ -35,7 +37,7 @@ const StarredPage = () => {
           parentDirectories={directoriesStore.fullPaths ?? []}
         />
       )}
-    </div>
+    </MainLayout>
   );
 };
 

@@ -3,6 +3,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { pb } from "@/config/pocketbaseConfig";
 import { createSetting, updateSetting } from "@/modules/settings/dbSettingsUtils";
 import { useSettingsStore } from "../modules/settings/settingsStore";
+import { MainLayout } from "@/components/Layout";
+import { H1 } from "@/components/ui/defaultComponents";
 
 export const SettingItem = (p: {
   title: string;
@@ -50,8 +52,8 @@ const SettingsPage = () => {
   const aiChatSetting = settingsStore.data?.find((x) => x.settingName === "aiChat");
 
   return (
-    <>
-      <h1 className="text-2xl font-bold">Settings</h1>
+    <MainLayout>
+      <H1>Settings</H1>
 
       <br />
 
@@ -107,7 +109,7 @@ const SettingsPage = () => {
           />
         </SettingItem>
       </div>
-    </>
+    </MainLayout>
   );
 };
 
