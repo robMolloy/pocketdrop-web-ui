@@ -1,19 +1,23 @@
+import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
+import { useFilesStore } from "@/modules/files/filesStore";
+import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
 import { CustomIcon } from "./CustomIcon";
 import { ThemeToggle } from "./ThemeToggle";
 import { Input } from "./ui/input";
-import React, { useState } from "react";
-import { useFilesStore } from "@/modules/files/filesStore";
-import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
-import { useRouter } from "next/router";
+import { FileDetails } from "./FileDetails";
+import { RightSidebarContent } from "./RightSidebar";
 
 const SearchInput = () => {
+  const rightSidebarStore = useRightSidebarStore();
   const filesStore = useFilesStore();
   const { fullPaths: directoriesStore } = useDirectoryTreeStore();
   const router = useRouter();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showSuggestionsDropdown, setShowSuggestionsDropdown] = useState(false);
 
   const suggestedFiles =
     filesStore.data?.filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) ??
@@ -28,12 +32,12 @@ const SearchInput = () => {
         value={searchTerm}
         onChange={(e) => {
           setSearchTerm(e.target.value);
-          setShowSuggestions(true);
+          setShowSuggestionsDropdown(true);
         }}
-        onFocus={() => setShowSuggestions(true)}
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 100000)}
+        onFocus={() => setShowSuggestionsDropdown(true)}
+        onBlur={() => setTimeout(() => setShowSuggestionsDropdown(false), 250)}
       />
-      {showSuggestions && searchTerm && suggestedFiles.length > 0 && (
+      {showSuggestionsDropdown && searchTerm && suggestedFiles.length > 0 && (
         <div className="absolute z-50 mt-1 w-full rounded-md border bg-background shadow-lg">
           {suggestedFiles.map((file) =>
             (() => {
@@ -45,8 +49,17 @@ const SearchInput = () => {
                   className="flex cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-accent hover:text-accent-foreground"
                   onClick={() => {
                     router.push(`/browse${directory.fullPath}`);
+                    rightSidebarStore.setData(
+                      <RightSidebarContent title="File Details">
+                        <FileDetails
+                          file={file}
+                          parentDirectory={directory}
+                          onDelete={() => rightSidebarStore.close()}
+                        />
+                      </RightSidebarContent>,
+                    );
                     setSearchTerm(file.name);
-                    setShowSuggestions(false);
+                    setShowSuggestionsDropdown(false);
                   }}
                 >
                   <div className="flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap text-sm">
