@@ -18,7 +18,7 @@ const DisplayDirectoryIconView = (p: { directory: TDirectoryWithFullPath }) => {
         <ToggleableDirectoryStar directory={p.directory} size="sm" />
       </div>
       <span className="mb-2">
-        <CustomIcon iconName="folder" size="2xl" />
+        <CustomIcon iconName="folder" size="3xl" />
       </span>
       <span className="break-all text-center text-sm">{p.directory.name}</span>
       <div className="absolute left-2 top-2 opacity-40 group-hover:opacity-100">

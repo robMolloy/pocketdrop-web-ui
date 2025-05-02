@@ -1,5 +1,3 @@
-import { FileDetails } from "@/components/FileDetails";
-import { RightSidebarContent } from "@/components/RightSidebar";
 import { ToggleableStar } from "@/components/ToggleableStar";
 import { FileActionsDropdownMenu } from "@/modules/files/components/FileActionsDropdownMenu";
 import { TFileRecord } from "@/modules/files/dbFilesUtils";
@@ -37,17 +35,13 @@ export const DisplayFileIconView = (p: {
 
   return (
     <div
-      onClick={async () => {
-        rightSidebarStore.setData(
-          <RightSidebarContent title="File Details">
-            <FileDetails
-              file={p.file}
-              parentDirectory={p.parentDirectory}
-              onDelete={() => rightSidebarStore.close()}
-            />
-          </RightSidebarContent>,
-        );
-      }}
+      onClick={() =>
+        rightSidebarStore.showFileDetails({
+          file: p.file,
+          parentDirectory: p.parentDirectory,
+          onDelete: () => rightSidebarStore.close(),
+        })
+      }
       className="group relative flex h-full cursor-pointer flex-col items-center overflow-hidden rounded-lg border p-4 hover:bg-accent"
     >
       <div className={`absolute inset-0 bg-foreground opacity-0 ${flashClass}`} />

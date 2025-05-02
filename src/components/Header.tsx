@@ -7,8 +7,6 @@ import React, { useState } from "react";
 import { CustomIcon } from "./CustomIcon";
 import { ThemeToggle } from "./ThemeToggle";
 import { Input } from "./ui/input";
-import { FileDetails } from "./FileDetails";
-import { RightSidebarContent } from "./RightSidebar";
 
 const SearchInput = () => {
   const rightSidebarStore = useRightSidebarStore();
@@ -49,15 +47,11 @@ const SearchInput = () => {
                   className="flex cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-accent hover:text-accent-foreground"
                   onClick={() => {
                     router.push(`/browse${directory.fullPath}`);
-                    rightSidebarStore.setData(
-                      <RightSidebarContent title="File Details">
-                        <FileDetails
-                          file={file}
-                          parentDirectory={directory}
-                          onDelete={() => rightSidebarStore.close()}
-                        />
-                      </RightSidebarContent>,
-                    );
+                    rightSidebarStore.showFileDetails({
+                      file: file,
+                      parentDirectory: directory,
+                      onDelete: () => rightSidebarStore.close(),
+                    });
                     setSearchTerm(file.name);
                     setShowSuggestionsDropdown(false);
                   }}

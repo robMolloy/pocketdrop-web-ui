@@ -1,7 +1,5 @@
 import { CustomIcon, iconSizeClass } from "@/components/CustomIcon";
-import { FileDetails } from "@/components/FileDetails";
 import { FileIcon, getFileExtension, imageExtensions } from "@/components/FileIcon";
-import { RightSidebarContent } from "@/components/RightSidebar";
 import { ToggleableDirectoryStar } from "@/components/ToggleableDirectoryStar";
 import { ToggleableStar } from "@/components/ToggleableStar";
 import {
@@ -16,7 +14,7 @@ import {
 import { pb } from "@/config/pocketbaseConfig";
 import { DirectoryActionsDropdownMenu } from "@/modules/directories/components/DirectoryActionsDropdownMenu";
 import { FileActionsDropdownMenu } from "@/modules/files/components/FileActionsDropdownMenu";
-import { getFile, TFileRecord } from "@/modules/files/dbFilesUtils";
+import { getFileFromFileRecord, TFileRecord } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import { formatDate } from "@/utils/dateUtils";
@@ -36,9 +34,13 @@ export const DisplayFileThumbnailOrIcon = (p: {
     if (!imageExtensions.includes(extension)) return;
 
     (async () => {
-      const resp = await getFile({ pb, id: p.file.id, isThumb: true });
+      console.log(`DisplayFilesTableView.tsx:${/*LL*/ 37}`, {});
+      const resp = await getFileFromFileRecord({ pb, isThumb: true, data: p.file });
+      console.log(`DisplayFilesTableView.tsx:${/*LL*/ 39}`, {});
       if (resp.success) {
+        console.log(`DisplayFilesTableView.tsx:${/*LL*/ 41}`, {});
         const url = URL.createObjectURL(resp.data.file);
+        console.log(`DisplayFilesTableView.tsx:${/*LL*/ 43}`, { url });
         setThumbnailUrl(url);
         return () => URL.revokeObjectURL(url);
       }
@@ -66,17 +68,13 @@ const DisplayFileTableView = (p: { file: TFileRecord; directory: TDirectoryWithF
   return (
     <TableRow
       className="cursor-pointer"
-      onClick={() => {
-        rightSidebarStore.setData(
-          <RightSidebarContent title="File Details">
-            <FileDetails
-              file={p.file}
-              parentDirectory={p.directory}
-              onDelete={() => rightSidebarStore.close()}
-            />
-          </RightSidebarContent>,
-        );
-      }}
+      onClick={() =>
+        rightSidebarStore.showFileDetails({
+          file: p.file,
+          parentDirectory: p.directory,
+          onDelete: () => rightSidebarStore.close(),
+        })
+      }
     >
       <TableCell>
         <DisplayFileThumbnailOrIcon file={p.file} size="lg" />

@@ -1,13 +1,13 @@
-import { FileIcon, getFileExtension, imageExtensions } from "@/components/FileIcon";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { pb } from "@/config/pocketbaseConfig";
+import { DisplayFileThumbnailOrIcon } from "@/modules/files/components/DisplayFilesTableView";
 import { TFileRecord, deleteFile, downloadFile, getFile } from "@/modules/files/dbFilesUtils";
-import React, { useEffect, useState } from "react";
+import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
+import { formatDate } from "@/utils/dateUtils";
+import React from "react";
+import { CustomIcon } from "./CustomIcon";
 import { ToggleableStar } from "./ToggleableStar";
 import { Button } from "./ui/button";
-import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
-import { CustomIcon } from "./CustomIcon";
-import { formatDate } from "@/utils/dateUtils";
 
 const DetailsLine = (p: {
   iconName: React.ComponentProps<typeof CustomIcon>["iconName"];
@@ -30,41 +30,16 @@ export function FileDetails(p: {
   parentDirectory: TDirectoryWithFullPath;
   onDelete: () => void;
 }) {
-  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const extension = getFileExtension(p.file);
-    if (!imageExtensions.includes(extension ?? "")) return;
-
-    (async () => {
-      const resp = await getFile({ pb, id: p.file.id, isThumb: true });
-      if (resp.success) {
-        const url = URL.createObjectURL(resp.data.file);
-        setThumbnailUrl(url);
-        return () => URL.revokeObjectURL(url);
-      }
-    })();
-  }, [p.file.id]);
-
   return (
     <>
       <Card>
         <CardHeader className="p-4">
           <CardTitle className="flex flex-col items-center gap-4 text-xl">
-            {thumbnailUrl ? (
-              <img
-                src={thumbnailUrl}
-                alt={p.file.name}
-                className="h-[120px] w-[120px] object-contain"
-              />
-            ) : (
-              <FileIcon extension={getFileExtension(p.file)} size="2xl" />
-            )}
+            <DisplayFileThumbnailOrIcon file={p.file} size="3xl" />
             <div className="flex items-center gap-2 text-center text-xl">
               {p.file.name}
               <ToggleableStar file={p.file} />
             </div>
-
             <div className="mt-2 flex gap-2">
               <Button
                 className="flex-1"
