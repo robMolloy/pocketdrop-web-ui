@@ -2,19 +2,25 @@ import Link from "next/link";
 import { CustomIcon } from "./CustomIcon";
 import { ThemeToggle } from "./ThemeToggle";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useFilesStore } from "@/modules/files/filesStore";
+import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
+import { useRouter } from "next/router";
 
 const SearchInput = () => {
-  const { data } = useFilesStore();
+  const filesStore = useFilesStore();
+  const { fullPaths: directoriesStore } = useDirectoryTreeStore();
+  const router = useRouter();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const filteredSuggestions =
-    data?.filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) ?? [];
+  const suggestedFiles =
+    filesStore.data?.filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) ??
+    [];
 
   return (
-    <div className="min-w-lg relative mx-4">
+    <div className="relative mx-4 w-96">
       <Input
         type="search"
         placeholder="Search..."
@@ -25,22 +31,34 @@ const SearchInput = () => {
           setShowSuggestions(true);
         }}
         onFocus={() => setShowSuggestions(true)}
-        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 100000)}
       />
-      {showSuggestions && searchTerm && filteredSuggestions.length > 0 && (
+      {showSuggestions && searchTerm && suggestedFiles.length > 0 && (
         <div className="absolute z-50 mt-1 w-full rounded-md border bg-background shadow-lg">
-          {filteredSuggestions.map((suggestion, index) => (
-            <div
-              key={index}
-              className="cursor-pointer px-4 py-2 hover:bg-accent hover:text-accent-foreground"
-              onClick={() => {
-                setSearchTerm(suggestion.name);
-                setShowSuggestions(false);
-              }}
-            >
-              {suggestion.name}
-            </div>
-          ))}
+          {suggestedFiles.map((file) =>
+            (() => {
+              const directory = directoriesStore?.find((x) => x.id === file.directoryRelationId);
+              if (!directory) return <React.Fragment key={file.id}></React.Fragment>;
+              return (
+                <div
+                  key={file.id}
+                  className="flex cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-accent hover:text-accent-foreground"
+                  onClick={() => {
+                    router.push(`/browse${directory.fullPath}`);
+                    setSearchTerm(file.name);
+                    setShowSuggestions(false);
+                  }}
+                >
+                  <div className="flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap text-sm">
+                    {file.name}
+                  </div>
+                  <div className="w-32 shrink-0 overflow-hidden overflow-ellipsis whitespace-nowrap text-right text-xs text-muted-foreground">
+                    {directory.fullPath}
+                  </div>
+                </div>
+              );
+            })(),
+          )}
         </div>
       )}
     </div>
