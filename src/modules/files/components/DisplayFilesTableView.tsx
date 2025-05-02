@@ -79,8 +79,8 @@ const DisplayFileTableView = (p: { file: TFileRecord; directory: TDirectoryWithF
       <TableCell>
         <DisplayFileThumbnailOrIcon file={p.file} size="lg" />
       </TableCell>
-      <TableCell>
-        <span className="whitespace-nowrap">{p.file.name}</span>
+      <TableCell className="max-w-[200px]">
+        <span className="block overflow-hidden text-ellipsis whitespace-nowrap">{p.file.name}</span>
       </TableCell>
       <TableCell>
         <Link
@@ -146,7 +146,7 @@ export const DisplayDirectoriesAndFilesTableView = (p: {
   parentDirectories: TDirectoryWithFullPath[];
 }) => {
   return (
-    <Table>
+    <Table className="w-full">
       <TableHeader>
         <TableHeaderRow>
           <TableHead></TableHead>
