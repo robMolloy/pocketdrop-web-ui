@@ -1,6 +1,8 @@
+import { CustomIcon, iconSizeClass } from "@/components/CustomIcon";
 import { FileDetails } from "@/components/FileDetails";
 import { FileIcon, getFileExtension, imageExtensions } from "@/components/FileIcon";
 import { RightSidebarContent } from "@/components/RightSidebar";
+import { ToggleableDirectoryStar } from "@/components/ToggleableDirectoryStar";
 import { ToggleableStar } from "@/components/ToggleableStar";
 import {
   Table,
@@ -12,20 +14,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { pb } from "@/config/pocketbaseConfig";
+import { DirectoryActionsDropdownMenu } from "@/modules/directories/components/DirectoryActionsDropdownMenu";
+import { FileActionsDropdownMenu } from "@/modules/files/components/FileActionsDropdownMenu";
 import { getFile, TFileRecord } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
-import { FileActionsDropdownMenu } from "@/modules/files/components/FileActionsDropdownMenu";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { CustomIcon } from "@/components/CustomIcon";
-import { ToggleableDirectoryStar } from "@/components/ToggleableDirectoryStar";
-import { DirectoryActionsDropdownMenu } from "@/modules/directories/components/DirectoryActionsDropdownMenu";
 import { formatDate } from "@/utils/dateUtils";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
 import { formatFileSize } from "../fileUtils";
 
-export const DisplayFileThumbnail = (p: { file: TFileRecord }) => {
+export const DisplayFileThumbnailOrIcon = (p: {
+  file: TFileRecord;
+  size: React.ComponentProps<typeof CustomIcon>["size"];
+}) => {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,9 +48,13 @@ export const DisplayFileThumbnail = (p: { file: TFileRecord }) => {
   return (
     <span className="flex items-center justify-center">
       {thumbnailUrl ? (
-        <img src={thumbnailUrl} alt={p.file.name} className="h-6 w-6 object-contain" />
+        <img
+          src={thumbnailUrl}
+          alt={p.file.name}
+          className={`${iconSizeClass[p.size]} object-contain`}
+        />
       ) : (
-        <FileIcon extension={getFileExtension(p.file)} size="lg" />
+        <FileIcon extension={getFileExtension(p.file)} size={p.size} />
       )}
     </span>
   );
@@ -72,7 +79,7 @@ const DisplayFileTableView = (p: { file: TFileRecord; directory: TDirectoryWithF
       }}
     >
       <TableCell>
-        <DisplayFileThumbnail file={p.file} />
+        <DisplayFileThumbnailOrIcon file={p.file} size="lg" />
       </TableCell>
       <TableCell>
         <span className="whitespace-nowrap">{p.file.name}</span>

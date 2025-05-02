@@ -6,7 +6,7 @@ import { TFileRecord } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import { useEffect, useRef, useState } from "react";
-import { DisplayFileThumbnail } from "./DisplayFilesTableView";
+import { DisplayFileThumbnailOrIcon } from "./DisplayFilesTableView";
 
 const useFlash = (file: TFileRecord) => {
   const [shouldFlash, setShouldFlash] = useState(false);
@@ -56,7 +56,7 @@ export const DisplayFileIconView = (p: {
         <ToggleableStar file={p.file} size="sm" />
       </div>
       <span className="mb-2">
-        <DisplayFileThumbnail file={p.file} />
+        <DisplayFileThumbnailOrIcon file={p.file} size="3xl" />
       </span>
       <span className="break-all text-center text-sm">{p.file.name}</span>
       <div className="absolute left-2 top-2 opacity-40 group-hover:opacity-100">
