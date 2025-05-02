@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 type TState = "icon" | "table";
 type TStore = {
@@ -6,10 +7,17 @@ type TStore = {
   setData: (data: TState) => void;
 };
 
-const useInitViewTypeStore = create<TStore>()((set) => ({
-  data: "icon",
-  setData: (data) => set({ data }),
-}));
+const useInitViewTypeStore = create<TStore>()(
+  persist(
+    (set) => ({
+      data: "icon",
+      setData: (data) => set({ data }),
+    }),
+    {
+      name: "pocketdrop-view-type-storage",
+    },
+  ),
+);
 
 export const useViewTypeStore = () => {
   const { data, setData } = useInitViewTypeStore();
