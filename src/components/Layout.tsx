@@ -29,7 +29,7 @@ export function Layout(p: { children: React.ReactNode; showLeftSidebar: boolean 
             <LeftSidebar />
           </aside>
         )}
-        <main className="h-[calc(100vh-3.5rem)] w-full">{p.children}</main>
+        <main className="h-[calc(100vh-3.5rem)] w-full overflow-y-auto">{p.children}</main>
       </div>
       <RightSidebar
         isOpen={rightSidebarStore.data !== null}
