@@ -73,3 +73,27 @@
     font-family: Arial, Helvetica, sans-serif;
   }
 }
+
+/* Custom Scrollbar Styling */
+*::-webkit-scrollbar {
+  width: 8px; /* Thin scrollbar */
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(100, 100, 100, 0.1); /* Light background */
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(150, 150, 150, 0.5); /* Subtle gray scrollbar */
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(150, 150, 150, 0.7); /* Slightly darker on hover */
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(150, 150, 150, 0.5) rgba(100, 100, 100, 0.1);
+}
