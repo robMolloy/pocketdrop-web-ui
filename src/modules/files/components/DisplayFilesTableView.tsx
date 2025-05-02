@@ -17,7 +17,7 @@ import { FileActionsDropdownMenu } from "@/modules/files/components/FileActionsD
 import { getFileFromFileRecord, TFileRecord } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
-import { formatDate } from "@/utils/dateUtils";
+import { formatDate } from "@/lib/dateUtils";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";

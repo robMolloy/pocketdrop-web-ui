@@ -3,7 +3,7 @@ import { pb } from "@/config/pocketbaseConfig";
 import { DisplayFileThumbnailOrIcon } from "@/modules/files/components/DisplayFilesTableView";
 import { TFileRecord, deleteFile, downloadFile, getFile } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
-import { formatDate } from "@/utils/dateUtils";
+import { formatDate } from "@/lib/dateUtils";
 import React from "react";
 import { CustomIcon } from "./CustomIcon";
 import { ToggleableStar } from "./ToggleableStar";
