@@ -21,6 +21,9 @@ const SearchInput = () => {
     filesStore.data?.filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) ??
     [];
 
+  const isSuggestionsDropdownShown =
+    showSuggestionsDropdown && searchTerm && suggestedFiles.length > 0;
+
   return (
     <div className="relative mx-4 w-96">
       <Input
@@ -35,39 +38,39 @@ const SearchInput = () => {
         onFocus={() => setShowSuggestionsDropdown(true)}
         onBlur={() => setTimeout(() => setShowSuggestionsDropdown(false), 250)}
       />
-      {showSuggestionsDropdown && searchTerm && suggestedFiles.length > 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-md border bg-background shadow-lg">
-          {suggestedFiles.map((file) =>
-            (() => {
-              const directory = directoriesStore?.find((x) => x.id === file.directoryRelationId);
-              if (!directory) return <React.Fragment key={file.id}></React.Fragment>;
-              return (
-                <div
-                  key={file.id}
-                  className="flex cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-accent hover:text-accent-foreground"
-                  onClick={() => {
-                    router.push(`/browse${directory.fullPath}`);
-                    rightSidebarStore.showFileDetails({
-                      file: file,
-                      parentDirectory: directory,
-                      onDelete: () => rightSidebarStore.close(),
-                    });
-                    setSearchTerm(file.name);
-                    setShowSuggestionsDropdown(false);
-                  }}
-                >
-                  <div className="flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap text-sm">
-                    {file.name}
-                  </div>
-                  <div className="w-32 shrink-0 overflow-hidden overflow-ellipsis whitespace-nowrap text-right text-xs text-muted-foreground">
-                    {directory.fullPath}
-                  </div>
+      <div
+        className={`absolute z-50 mt-1 w-full rounded-md border bg-background shadow-lg ${isSuggestionsDropdownShown ? "" : "hidden"}`}
+      >
+        {suggestedFiles.map((file) =>
+          (() => {
+            const directory = directoriesStore?.find((x) => x.id === file.directoryRelationId);
+            if (!directory) return <React.Fragment key={file.id}></React.Fragment>;
+            return (
+              <div
+                key={file.id}
+                className="flex cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-accent hover:text-accent-foreground"
+                onClick={() => {
+                  router.push(`/browse${directory.fullPath}`);
+                  rightSidebarStore.showFileDetails({
+                    file: file,
+                    parentDirectory: directory,
+                    onDelete: () => rightSidebarStore.close(),
+                  });
+                  setSearchTerm(file.name);
+                  setShowSuggestionsDropdown(false);
+                }}
+              >
+                <div className="flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap text-sm">
+                  {file.name}
                 </div>
-              );
-            })(),
-          )}
-        </div>
-      )}
+                <div className="w-32 shrink-0 overflow-hidden overflow-ellipsis whitespace-nowrap text-right text-xs text-muted-foreground">
+                  {directory.fullPath}
+                </div>
+              </div>
+            );
+          })(),
+        )}
+      </div>
     </div>
   );
 };
@@ -75,7 +78,7 @@ const SearchInput = () => {
 export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 flex-1 items-center justify-between px-8">
+      <div className="flex h-14 flex-1 items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
           <CustomIcon iconName="cloud" size="lg" />
           <span className="font-bold">PocketDrop</span>

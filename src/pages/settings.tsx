@@ -50,7 +50,7 @@ const SettingsPage = () => {
   const aiChatSetting = settingsStore.data?.find((x) => x.settingName === "aiChat");
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <>
       <h1 className="text-2xl font-bold">Settings</h1>
 
       <br />
@@ -107,7 +107,7 @@ const SettingsPage = () => {
           />
         </SettingItem>
       </div>
-    </div>
+    </>
   );
 };
 
