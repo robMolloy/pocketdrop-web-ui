@@ -25,9 +25,7 @@ import { formatDate } from "@/utils/dateUtils";
 import { useRouter } from "next/router";
 import { formatFileSize } from "../fileUtils";
 
-const DisplayFileTableView = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
-  const rightSidebarStore = useRightSidebarStore();
-
+export const DisplayFileThumbnail = (p: { file: TFileRecord }) => {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -45,6 +43,20 @@ const DisplayFileTableView = (p: { file: TFileRecord; directory: TDirectoryWithF
   }, [p.file.file]);
 
   return (
+    <span className="flex items-center justify-center">
+      {thumbnailUrl ? (
+        <img src={thumbnailUrl} alt={p.file.name} className="h-6 w-6 object-contain" />
+      ) : (
+        <FileIcon extension={getFileExtension(p.file)} size="lg" />
+      )}
+    </span>
+  );
+};
+
+const DisplayFileTableView = (p: { file: TFileRecord; directory: TDirectoryWithFullPath }) => {
+  const rightSidebarStore = useRightSidebarStore();
+
+  return (
     <TableRow
       className="cursor-pointer"
       onClick={() => {
@@ -60,13 +72,7 @@ const DisplayFileTableView = (p: { file: TFileRecord; directory: TDirectoryWithF
       }}
     >
       <TableCell>
-        <span className="flex items-center justify-center">
-          {thumbnailUrl ? (
-            <img src={thumbnailUrl} alt={p.file.name} className="h-6 w-6 object-contain" />
-          ) : (
-            <FileIcon extension={getFileExtension(p.file)} size="lg" />
-          )}
-        </span>
+        <DisplayFileThumbnail file={p.file} />
       </TableCell>
       <TableCell>
         <span className="whitespace-nowrap">{p.file.name}</span>
