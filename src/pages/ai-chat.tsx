@@ -9,20 +9,16 @@ import {
   DisplayChatMessages,
   ErrorMessage,
 } from "@/modules/aiChat/components/Messages";
-import { DependencyList, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-const ScrollContainer = (p: {
-  children: React.ReactNode;
-  deps: DependencyList;
-  className?: string;
-}) => {
+const ScrollContainer = (p: { children: React.ReactNode; className?: string }) => {
   const [isAtBottom, setIsAtBottom] = useState(false);
   const scrollContainer = useRef<HTMLDivElement>(null);
 
   const checkIfAtBottom = () => {
     if (!scrollContainer.current) return;
     const { scrollTop, scrollHeight, clientHeight } = scrollContainer.current;
-    const isBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 30;
+    const isBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 40;
     setIsAtBottom(isBottom);
   };
 
@@ -33,25 +29,27 @@ const ScrollContainer = (p: {
 
   useEffect(() => {
     if (isAtBottom) scrollToBottom();
-  }, p.deps);
+  }, [p.children]);
 
   useEffect(() => {
     const container = scrollContainer.current;
     if (!container) return;
 
-    container.addEventListener("scroll", () => checkIfAtBottom());
-    return () => container.removeEventListener("scroll", () => checkIfAtBottom());
+    container.addEventListener("scroll", checkIfAtBottom);
+    return () => container.removeEventListener("scroll", checkIfAtBottom);
   }, []);
 
-  useEffect(() => checkIfAtBottom(), [p.children]);
+  useEffect(() => checkIfAtBottom(), []);
 
   return (
-    <div className={cn("relative overflow-y-auto", p.className)} ref={scrollContainer}>
-      {p.children}
+    <div className="relative flex-1">
+      <div className={cn("absolute inset-0 overflow-y-auto", p.className)} ref={scrollContainer}>
+        {p.children}
+      </div>
       {!isAtBottom && (
         <Button
           onClick={scrollToBottom}
-          className="absolute bottom-2 right-4 h-10 w-10 rounded-full shadow-lg transition-colors hover:bg-gray-100"
+          className="absolute bottom-4 right-8 h-10 w-10 rounded-full shadow-lg transition-colors hover:bg-gray-100"
           aria-label="Scroll to bottom"
         >
           <CustomIcon iconName="chevronDown" size="lg" />
@@ -68,11 +66,8 @@ const AiChat = () => {
 
   return (
     <MainLayout fillPageExactly padding={false}>
-      <div className="flex h-full flex-col gap-4">
-        <ScrollContainer
-          deps={[messages, streamedResponse, mode]}
-          className="flex flex-1 flex-col gap-4"
-        >
+      <div className="flex h-full flex-col">
+        <ScrollContainer>
           <div className="p-4 pb-0">
             <AssistantMessage>Hello! How can I help you today?</AssistantMessage>
 
