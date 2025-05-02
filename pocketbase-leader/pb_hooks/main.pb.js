@@ -99,58 +99,40 @@ onRecordAfterCreateSuccess((e) => {
 console.log("after successful file updated");
 onRecordAfterUpdateSuccess((e) => {
   console.log(/*LL*/ 101);
-  // // hardcoded for dev (to avoid race conditions / async issues)
-  // const id = "800w51c58qad2t7";
-  const id = e.record.id;
-  // console.log(/*LL*/ 106);
-  const initRecord = $app.findRecordById("files", id); // just use e.record
 
-  // const fullPath = initRecord.baseFilesPath() + "/" + initRecord.get("file");
+  const id = e.record.id;
+
   const fullPath =
     $app.dataDir() + "/storage/" + e.record.baseFilesPath() + "/" + e.record.get("file");
-  // console.log(/*LL*/ 111, fullPath);
 
-  // pb_data/storage/pbc_3446931122/n0phy85ui699ud6/test1_avzv25fcbj.png
+  const getFileFromPath = (path) => {
+    let fsys, file;
+    try {
+      fsys = $app.newFilesystem();
+      file = $filesystem.fileFromPath(path);
+    } catch (error) {
+      console.log(/*LL*/ 151, error);
+    }
+    fsys?.close();
+    return file;
+  };
 
-  let fsys, file, content;
-  try {
-    // initialize the filesystem
-    // console.log(/*LL*/ 118);
-    fsys = $app.newFilesystem();
+  const file = getFileFromPath(fullPath);
 
-    // console.log(/*LL*/ 121);
+  if (!file) return e.next();
 
-    // retrieve a file reader for the avatar key
-    // file = fsys.getFile(fullPath);
-    file = $filesystem.fileFromPath(fullPath);
-    // console.log(/*LL*/ 125);
+  const collection = $app.findCollectionByNameOrId("filesVersionHistory");
+  const record = new Record(collection);
 
-    // content = file.read();
-    // $filesystem.fileFromBytes(content, "randomName");
+  record.set("file", file);
 
-    // console.log(/*LL*/ 130.5, content);
-    // console.log(/*LL*/ 131);
+  record.set("fileRelationId", id);
+  record.set("directoryRelationId", e.record.get("directoryRelationId"));
+  record.set("isStarred", e.record.get("isStarred"));
+  record.set("name", e.record.get("name"));
+  record.set("size", e.record.get("size"));
 
-    const collection = $app.findCollectionByNameOrId("filesVersionHistory");
-    // console.log(/*LL*/ 134);
-
-    const record = new Record(collection);
-    // console.log(/*LL*/ 137);
-
-    record.set("file", file);
-    // console.log(/*LL*/ 140);
-    record.set("fileRelationId", id);
-    record.set("directoryRelationId", e.record.get("directoryRelationId"));
-    record.set("isStarred", e.record.get("isStarred"));
-    record.set("name", e.record.get("name"));
-    record.set("size", e.record.get("size"));
-    console.log(/*LL*/ 146);
-
-    $app.save(record);
-    console.log(/*LL*/ 149);
-  } catch (error) {
-    console.log(/*LL*/ 151, error);
-  }
+  $app.save(record);
 
   e.next();
 }, "files");
