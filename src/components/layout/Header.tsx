@@ -4,9 +4,9 @@ import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { CustomIcon } from "./CustomIcon";
-import { ThemeToggle } from "./ThemeToggle";
-import { Input } from "./ui/input";
+import { CustomIcon } from "../CustomIcon";
+import { ThemeToggle } from "../ThemeToggle";
+import { Input } from "../ui/input";
 
 const SearchInput = () => {
   const rightSidebarStore = useRightSidebarStore();

@@ -1,5 +1,5 @@
 import { FileDetails } from "@/components/FileDetails";
-import { RightSidebarContent } from "@/components/RightSidebar";
+import { RightSidebarContent } from "@/components/layout/RightSidebar";
 import { TFileRecord } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { ReactNode } from "react";

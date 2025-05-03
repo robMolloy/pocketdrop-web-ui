@@ -3,7 +3,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { pb } from "@/config/pocketbaseConfig";
 import { createSetting, updateSetting } from "@/modules/settings/dbSettingsUtils";
 import { useSettingsStore } from "../modules/settings/settingsStore";
-import { MainLayout } from "@/components/Layout";
+import { MainLayout } from "@/components/layout/Layout";
 import { H1 } from "@/components/ui/defaultComponents";
 
 export const SettingItem = (p: {

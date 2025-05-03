@@ -2,7 +2,7 @@ import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import { Header } from "./Header";
 import { RightSidebar } from "./RightSidebar";
 import { LeftSidebar } from "./LeftSidebar";
-import { Modal } from "./Modal";
+import { Modal } from "../Modal";
 
 export const MainLayout = (p: {
   children: React.ReactNode;

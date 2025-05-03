@@ -22,7 +22,7 @@ import { useUsersStore } from "@/modules/users/usersStore";
 import { useCurrentUserStore } from "@/stores/authDataStore";
 import { useModalStore } from "@/stores/modalStore";
 import { CustomIcon } from "@/components/CustomIcon";
-import { MainLayout } from "@/components/Layout";
+import { MainLayout } from "@/components/layout/Layout";
 import { H1 } from "@/components/ui/defaultComponents";
 
 type TUserStatus = TUser["status"];

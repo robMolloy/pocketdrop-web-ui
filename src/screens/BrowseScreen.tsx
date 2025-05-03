@@ -1,6 +1,6 @@
 import { CreateDirectoryInModalButton } from "@/components/CreateDirectoryForm";
 import { CustomIcon } from "@/components/CustomIcon";
-import { MainLayout } from "@/components/Layout";
+import { MainLayout } from "@/components/layout/Layout";
 import { H1 } from "@/components/ui/defaultComponents";
 import { DisplayDirectoriesAndFilesIconView } from "@/modules/directories/components/DisplayDirectoriesAndFilesIconView";
 import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/components/DisplayFilesTableView";

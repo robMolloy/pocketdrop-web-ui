@@ -7,8 +7,8 @@ import { useCurrentUserStore } from "@/stores/authDataStore";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import { DirectoryTree } from "./DirectoryTree";
-import { CustomIcon } from "./CustomIcon";
+import { DirectoryTree } from "../DirectoryTree";
+import { CustomIcon } from "../CustomIcon";
 import { useSettingsStore } from "@/modules/settings/settingsStore";
 
 const SidebarButtonWrapper = (p: { children: ReactNode; href?: string }) =>

@@ -4,7 +4,7 @@ import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/components/
 import { useFilesStore } from "@/modules/files/filesStore";
 import { ViewTypeToggleButton } from "@/modules/viewType/components/ViewTypeToggleButton";
 import { useViewTypeStore } from "@/modules/viewType/viewTypeStore";
-import { MainLayout } from "@/components/Layout";
+import { MainLayout } from "@/components/layout/Layout";
 import { H1 } from "@/components/ui/defaultComponents";
 
 const StarredPage = () => {

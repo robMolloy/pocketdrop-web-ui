@@ -1,5 +1,5 @@
 import { CustomIcon } from "@/components/CustomIcon";
-import { MainLayout } from "@/components/Layout";
+import { MainLayout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TChatMessage } from "@/modules/aiChat/anthropicApi";
