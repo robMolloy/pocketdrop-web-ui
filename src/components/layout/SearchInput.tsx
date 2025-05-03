@@ -2,9 +2,11 @@ import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import { useRouter } from "next/router";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import type { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
+import type { TFileRecord } from "@/modules/files/dbFilesUtils";
 
 const SearchInput = () => {
   const rightSidebarStore = useRightSidebarStore();
@@ -12,6 +14,7 @@ const SearchInput = () => {
   const { fullPaths: directoriesStore } = useDirectoryTreeStore();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [open, setOpen] = useState(false);
@@ -19,6 +22,36 @@ const SearchInput = () => {
   const suggestedFiles =
     filesStore.data?.filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) ??
     [];
+
+  useEffect(() => setSelectedIndex(-1), [searchTerm]);
+
+  const handleSelectFile = (file: TFileRecord, directory: TDirectoryWithFullPath) => {
+    router.push(`/browse${directory.fullPath}`);
+    rightSidebarStore.showFileDetails({
+      file: file,
+      parentDirectory: directory,
+      onDelete: () => rightSidebarStore.close(),
+    });
+    setSearchTerm(file.name);
+    setOpen(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!open || suggestedFiles.length === 0) return;
+    e.preventDefault();
+
+    if (e.key === "Escape") setOpen(false);
+    if (e.key === "ArrowDown")
+      setSelectedIndex((prev) => (prev < suggestedFiles.length - 1 ? prev + 1 : prev));
+    if (e.key === "ArrowUp") setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+    if (e.key === "Enter") {
+      const file = suggestedFiles[selectedIndex];
+      if (!file) return; // must be last case
+
+      const directory = directoriesStore?.find((x) => x.id === file.directoryRelationId);
+      if (directory) handleSelectFile(file, directory);
+    }
+  };
 
   return (
     <div className="relative mx-4 w-96">
@@ -35,10 +68,8 @@ const SearchInput = () => {
                 setSearchTerm(e.target.value);
                 setOpen(true);
               }}
-              onFocus={() => {
-                // setOpen(true);
-                inputRef.current?.focus();
-              }}
+              onFocus={() => inputRef.current?.focus()}
+              onKeyDown={handleKeyDown}
             />
           </div>
         </PopoverTrigger>
@@ -51,24 +82,18 @@ const SearchInput = () => {
           }}
         >
           <div className="max-h-96 overflow-y-auto">
-            {suggestedFiles.map((file) =>
+            {suggestedFiles.map((file, index) =>
               (() => {
                 const directory = directoriesStore?.find((x) => x.id === file.directoryRelationId);
                 if (!directory) return <React.Fragment key={file.id}></React.Fragment>;
                 return (
                   <div
                     key={file.id}
-                    className="flex cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-accent hover:text-accent-foreground"
-                    onClick={() => {
-                      router.push(`/browse${directory.fullPath}`);
-                      rightSidebarStore.showFileDetails({
-                        file: file,
-                        parentDirectory: directory,
-                        onDelete: () => rightSidebarStore.close(),
-                      });
-                      setSearchTerm(file.name);
-                      setOpen(false);
-                    }}
+                    className={`flex cursor-pointer items-center justify-between gap-4 px-4 py-2 hover:bg-accent hover:text-accent-foreground ${
+                      selectedIndex === index ? "bg-accent text-accent-foreground" : ""
+                    }`}
+                    onClick={() => handleSelectFile(file, directory)}
+                    onMouseEnter={() => setSelectedIndex(index)}
                   >
                     <div className="flex-1 overflow-hidden overflow-ellipsis whitespace-nowrap text-sm">
                       {file.name}
