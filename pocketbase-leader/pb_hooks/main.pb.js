@@ -98,8 +98,14 @@ onRecordAfterCreateSuccess((e) => {
 
 console.log("after successful file updated");
 onRecordAfterUpdateSuccess((e) => {
-  console.log(/*LL*/ 101);
+  let versionHistorySettingRecord = $app.findFirstRecordByFilter(
+    "settings",
+    "settingName = 'versionHistory'",
+  );
 
+  if (!versionHistorySettingRecord) return e.next();
+  console.log(versionHistorySettingRecord.get("isEnabled"));
+  if (!versionHistorySettingRecord.get("isEnabled")) return e.next();
   const id = e.record.id;
 
   const fullPath =

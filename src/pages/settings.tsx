@@ -76,11 +76,9 @@ const SettingsPage = () => {
         <SettingItem
           title="Store Version History"
           description="Keep track of file changes and maintain version history"
-          disabledTooltip="File version history is not yet implemented"
         >
           <OptimisticSwitch
             checked={versionHistorySetting?.isEnabled ?? false}
-            disabled={true}
             onCheckedChange={(isEnabled) => {
               if (versionHistorySetting)
                 return updateSetting({ pb, data: { ...versionHistorySetting, isEnabled } });
