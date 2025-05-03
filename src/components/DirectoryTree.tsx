@@ -75,7 +75,10 @@ export const useBrowsePath = () => {
   const router = useRouter();
 
   const fullPath = router.asPath;
-  const initBrowsePath = fullPath.startsWith("/browse") ? fullPath.slice(7) : undefined;
+  const initBrowsePath = fullPath.startsWith("/browse")
+    ? decodeURIComponent(fullPath.slice(7))
+    : undefined;
+
   if (initBrowsePath === undefined) return { browsePath: undefined };
   if (initBrowsePath === "") return { browsePath: "/" };
 

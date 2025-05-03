@@ -104,7 +104,7 @@ onRecordAfterUpdateSuccess((e) => {
   );
 
   if (!versionHistorySettingRecord) return e.next();
-  console.log(versionHistorySettingRecord.get("isEnabled"));
+
   if (!versionHistorySettingRecord.get("isEnabled")) return e.next();
   const id = e.record.id;
 
