@@ -7,6 +7,7 @@ import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import type { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import type { TFileRecord } from "@/modules/files/dbFilesUtils";
+import { X } from "lucide-react";
 
 const SearchInput = () => {
   const rightSidebarStore = useRightSidebarStore();
@@ -66,12 +67,12 @@ const SearchInput = () => {
     <div className="relative mx-4 w-96">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <div>
+          <div className="relative">
             <Input
               ref={inputRef}
-              type="search"
+              type="text"
               placeholder="Search..."
-              className="w-full"
+              className="w-full pr-8"
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -80,6 +81,17 @@ const SearchInput = () => {
               onFocus={() => inputRef.current?.focus()}
               onKeyDown={handleKeyDown}
             />
+            {searchTerm.length > 0 && (
+              <button
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-sm p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                onClick={() => {
+                  setSearchTerm("");
+                  inputRef.current?.focus();
+                }}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </PopoverTrigger>
         <PopoverContent
