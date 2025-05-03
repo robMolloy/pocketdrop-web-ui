@@ -14,6 +14,7 @@ const SearchInput = () => {
   const { fullPaths: directoriesStore } = useDirectoryTreeStore();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,7 +24,14 @@ const SearchInput = () => {
     filesStore.data?.filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase())) ??
     [];
 
-  useEffect(() => setSelectedIndex(-1), [searchTerm]);
+  useEffect(() => setSelectedIndex(0), [searchTerm]);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const selectedElement = containerRef.current.children[selectedIndex];
+    if (selectedElement) selectedElement.scrollIntoView({ block: "nearest" });
+  }, [selectedIndex]);
 
   const handleSelectFile = (file: TFileRecord, directory: TDirectoryWithFullPath) => {
     router.push(`/browse${directory.fullPath}`);
@@ -38,7 +46,8 @@ const SearchInput = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!open || suggestedFiles.length === 0) return;
-    e.preventDefault();
+
+    if (["ArrowDown", "ArrowUp", "Enter", "Escape"].includes(e.key)) e.preventDefault();
 
     if (e.key === "Escape") setOpen(false);
     if (e.key === "ArrowDown")
@@ -81,7 +90,7 @@ const SearchInput = () => {
             inputRef.current?.focus();
           }}
         >
-          <div className="max-h-96 overflow-y-auto">
+          <div ref={containerRef} className="max-h-96 overflow-y-auto">
             {suggestedFiles.map((file, index) =>
               (() => {
                 const directory = directoriesStore?.find((x) => x.id === file.directoryRelationId);
