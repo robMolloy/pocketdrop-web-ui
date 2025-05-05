@@ -60,7 +60,7 @@ const SettingsPage = () => {
       <div>
         <SettingItem
           title="Use AI Chat"
-          description="Allow AI chat and help index your files - this will allow search"
+          description="Allow AI chat and index your files with suitable keywords to allow smart search"
         >
           <OptimisticSwitch
             checked={aiChatSetting?.isEnabled ?? false}

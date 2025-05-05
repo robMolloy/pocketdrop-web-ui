@@ -28,7 +28,7 @@ export function FileUploader(p: {
             if (fileWithSameName)
               return updateFile({ pb, data: { id: fileWithSameName.id, ...newFile } });
 
-            return createFile({ pb, data: newFile });
+            return createFile({ pb, data: { ...newFile, keywords: "" } });
           })();
           if (resp.success) p.onUploadComplete?.();
         }

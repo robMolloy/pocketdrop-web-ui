@@ -82,6 +82,7 @@ export function FileDetails(p: {
         <DetailsLine iconName={"hash"} label="Collection ID" value={p.file.collectionId} />
         <DetailsLine iconName={"folder"} label="Collection Name" value={p.file.collectionName} />
         <DetailsLine iconName={"fileText"} label="File" value={p.file.file} />
+        <DetailsLine iconName={"fileText"} label="Keywords" value={p.file.keywords} />
       </div>
     </>
   );

@@ -9,6 +9,7 @@ const fileRecordSchema = z.object({
   file: z.string(),
   size: z.number(),
   name: z.string(),
+  keywords: z.string(),
   isStarred: z.boolean(),
   created: z.string(),
   updated: z.string(),
@@ -92,10 +93,7 @@ export const createFile = async (p: {
 };
 export const updateFile = async (p: {
   pb: PocketBase;
-  data: Omit<
-    TFileRecord,
-    "collectionId" | "collectionName" | "file" | "size" | "created" | "updated"
-  > & { file: File | string };
+  data: Partial<Omit<TFileRecord, "id" | "file">> & { file?: File | string; id: string };
 }) => {
   try {
     const resp = await p.pb.collection("files").update(p.data.id, p.data);
