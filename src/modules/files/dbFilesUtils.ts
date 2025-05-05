@@ -16,6 +16,7 @@ const fileRecordSchema = z.object({
 });
 export type TFileRecord = z.infer<typeof fileRecordSchema>;
 export type TFile = Omit<TFileRecord, "file"> & { file: Blob };
+export type TFileOrFileRecord = TFile | TFileRecord;
 
 export const listFiles = async (p: { pb: PocketBase }) => {
   try {
@@ -80,9 +81,9 @@ export const smartSubscribeToFiles = async (p: {
 export const createFile = async (p: {
   pb: PocketBase;
   data: Omit<
-    TFileRecord,
+    TFile,
     "collectionId" | "collectionName" | "id" | "file" | "size" | "created" | "updated"
-  > & { file: File };
+  >;
 }) => {
   try {
     const resp = await p.pb.collection("files").create(p.data);
@@ -93,7 +94,7 @@ export const createFile = async (p: {
 };
 export const updateFile = async (p: {
   pb: PocketBase;
-  data: Partial<Omit<TFileRecord, "id" | "file">> & { file?: File | string; id: string };
+  data: { id: string } & Partial<Omit<TFileOrFileRecord, "id">>;
 }) => {
   try {
     const resp = await p.pb.collection("files").update(p.data.id, p.data);
