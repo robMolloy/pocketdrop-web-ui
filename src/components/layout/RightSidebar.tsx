@@ -29,11 +29,7 @@ export function RightSidebar({ isOpen, onClose }: RightSidebarProps) {
   const rightSidebarStore = useRightSidebarStore();
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent
-        side="right"
-        className="w-[300px] sm:w-[400px]"
-        aria-describedby="right-sidebar"
-      >
+      <SheetContent side="right" aria-describedby="right-sidebar" className="w-[400px]">
         {rightSidebarStore.data}
       </SheetContent>
     </Sheet>

@@ -8,11 +8,12 @@ import React from "react";
 import { CustomIcon } from "./CustomIcon";
 import { ToggleableStar } from "./ToggleableStar";
 import { Button } from "./ui/button";
+import { formatFileSize } from "@/modules/files/fileUtils";
 
 const DetailsLine = (p: {
   iconName: React.ComponentProps<typeof CustomIcon>["iconName"];
   label: string;
-  value: string;
+  value: React.ReactNode;
 }) => {
   return (
     <div className="flex items-center gap-2 text-sm">
@@ -20,7 +21,7 @@ const DetailsLine = (p: {
         <CustomIcon iconName={p.iconName} size="sm" />
       </span>
       <span className="whitespace-nowrap text-muted-foreground">{p.label}:</span>
-      <span className="truncate font-mono">{p.value}</span>
+      <span className="flex-1 truncate text-right font-mono">{p.value}</span>
     </div>
   );
 };
@@ -82,6 +83,7 @@ export function FileDetails(p: {
         <DetailsLine iconName={"hash"} label="Collection ID" value={p.file.collectionId} />
         <DetailsLine iconName={"folder"} label="Collection Name" value={p.file.collectionName} />
         <DetailsLine iconName={"fileText"} label="File" value={p.file.file} />
+        <DetailsLine iconName={"fileText"} label="File Size" value={formatFileSize(p.file.size)} />
         <DetailsLine iconName={"fileText"} label="Keywords" value={p.file.keywords} />
       </div>
     </>
