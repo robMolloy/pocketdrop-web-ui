@@ -52,14 +52,20 @@ export const subscribeToUser = async (p: {
   id: string;
   onChange: (e: TUser | null) => void;
 }) => {
-  const userResp = await getUser(p);
-  p.onChange(userResp.success ? userResp.data : null);
+  try {
+    const userResp = await getUser(p);
+    p.onChange(userResp.success ? userResp.data : null);
 
-  const unsub = p.pb.collection("users").subscribe(p.id, (e) => {
-    const parseResp = userSchema.safeParse(e.record);
-    p.onChange(parseResp.success ? parseResp.data : null);
-  });
-  return { success: true, data: unsub } as const;
+    const unsub = p.pb.collection("users").subscribe(p.id, (e) => {
+      const parseResp = userSchema.safeParse(e.record);
+      p.onChange(parseResp.success ? parseResp.data : null);
+    });
+
+    return { success: true, data: unsub } as const;
+  } catch (error) {
+    p.onChange(null);
+    return { success: false, error } as const;
+  }
 };
 
 export const smartSubscribeToUsers = async (p: {

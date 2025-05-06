@@ -20,7 +20,7 @@ export const useUnverifiedIsLoggedInStore = create<{
   setData: (data) => set(() => ({ data })),
 }));
 
-export const useAuthDataSync = (p: { pb: PocketBase }) => {
+export const useUnverifiedIsLoggedInSync = (p: { pb: PocketBase }) => {
   const isLoggedInStore = useUnverifiedIsLoggedInStore();
   useEffect(() => {
     if (!p.pb.authStore.isValid) return isLoggedInStore.setData({ status: "loggedOut" });

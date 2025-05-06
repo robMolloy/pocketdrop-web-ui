@@ -11,7 +11,7 @@ import { useSettingsStore } from "@/modules/settings/settingsStore";
 import { smartSubscribeToUsers, subscribeToUser } from "@/modules/users/dbUsersUtils";
 import { useUsersStore } from "@/modules/users/usersStore";
 import {
-  useAuthDataSync,
+  useUnverifiedIsLoggedInSync,
   useCurrentUserStore,
   useUnverifiedIsLoggedInStore,
 } from "@/stores/authDataStore";
@@ -26,13 +26,12 @@ export default function App({ Component, pageProps }: AppProps) {
   const unverifiedIsLoggedInStore = useUnverifiedIsLoggedInStore();
   const filesStore = useFilesStore();
   const directoriesStore = useDirectoriesStore();
-  // const directoryTreeStore = useDirectoryTreeStore();
   const usersStore = useUsersStore();
   const settingsStore = useSettingsStore();
   const currentUserStore = useCurrentUserStore();
 
   themeStore.useThemeStoreSideEffect();
-  useAuthDataSync({ pb: pb });
+  useUnverifiedIsLoggedInSync({ pb });
 
   useEffect(() => {
     // use anfn as return value is not cleanup
