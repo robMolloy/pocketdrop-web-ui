@@ -46,7 +46,7 @@
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.23",
-    "firebase-tools": "^13.22.0",
+    "firebase-tools": "^14.2.2",
     "fs-extra": "^11.3.0",
     "postcss": "^8",
     "prettier-plugin-tailwindcss": "^0.6.5",
