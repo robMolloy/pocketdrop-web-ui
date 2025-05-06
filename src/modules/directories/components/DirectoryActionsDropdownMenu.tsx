@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { useModalStore } from "@/stores/modalStore";
-import { RenameDirectoryForm } from "./RenameDirectoryForm";
+import { DeleteDirectoryForm, RenameDirectoryForm } from "./RenameDirectoryForm";
 import { CustomIcon } from "@/components/CustomIcon";
 
 export const DirectoryActionsDropdownMenu = (p: { directory: TDirectoryWithFullPath }) => {
@@ -45,6 +45,27 @@ export const DirectoryActionsDropdownMenu = (p: { directory: TDirectoryWithFullP
           }}
         >
           Rename
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={async (e) => {
+            e.stopPropagation();
+
+            modalStore.setData(
+              <ModalContent
+                title="Confirm Delete"
+                description={`Delete the directory ${p.directory.name} and all of its files and directories`}
+                content={
+                  <DeleteDirectoryForm
+                    directory={p.directory}
+                    onCancel={() => modalStore.close()}
+                    onSuccess={() => modalStore.close()}
+                  />
+                }
+              />,
+            );
+          }}
+        >
+          Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

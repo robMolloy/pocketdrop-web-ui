@@ -26,7 +26,7 @@ export const UserMessageText = (p: { children: string }) => {
 
 export const UserMessageImage = (p: { children: string }) => {
   return (
-    <div className="h-20 w-20 flex-shrink-0 items-start">
+    <div className="my-2 w-20 flex-shrink-0 items-start">
       <img
         src={`data:image/jpeg;base64,${p.children}`}
         alt="User uploaded image"

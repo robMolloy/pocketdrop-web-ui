@@ -1,8 +1,44 @@
 import { pb } from "@/config/pocketbaseConfig";
-import { updateDirectory } from "@/modules/directories/dbDirectoriesUtils";
+import { deleteDirectory, updateDirectory } from "@/modules/directories/dbDirectoriesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+
+export const DeleteDirectoryForm = (p: {
+  directory: TDirectoryWithFullPath;
+  onCancel: () => void;
+  onSuccess: () => void;
+}) => {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        This action cannot be undone, are you sure you want to delete "{p.directory.name}"? This
+        will also delete all files and directories within it.
+      </p>
+
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={p.onCancel} className="rounded-md px-3 py-1 text-sm">
+          Cancel
+        </Button>
+        <Button
+          variant="destructive"
+          onClick={async (e) => {
+            e.preventDefault();
+
+            const deleteDirResp = await deleteDirectory({ pb, id: p.directory.id });
+            if (!deleteDirResp.success)
+              return console.error(`deleteDirectory() failed`, deleteDirResp.error);
+
+            p.onSuccess();
+          }}
+          className="rounded-md px-3 py-1 text-sm"
+        >
+          Delete
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 export function RenameDirectoryForm(p: {
   directory: TDirectoryWithFullPath;
