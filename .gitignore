@@ -39,3 +39,5 @@ next-env.d.ts
 */pb_data
 */pb_data_backup/caches/*
 !*/pb_data_backup/caches/.gitkeep
+
+*/.firebase

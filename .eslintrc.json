@@ -9,6 +9,8 @@
     "eqeqeq": "error",
     "react-hooks/exhaustive-deps": 0,
     "react/no-unescaped-entities": 0,
-    "@next/next/no-img-element": 0
+    "@next/next/no-img-element": 0,
+    "@typescript-eslint/no-empty-object-type": 0,
+    "react/display-name": 0
   }
 }
