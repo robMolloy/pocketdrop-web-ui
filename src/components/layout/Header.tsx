@@ -9,7 +9,7 @@ export function Header() {
       <div className="flex h-14 flex-1 items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
           <CustomIcon iconName="cloud" size="lg" />
-          <span className="font-bold">PocketDrop2</span>
+          <span className="font-bold">PocketDrop</span>
         </Link>
         <div>
           <SearchInput />
