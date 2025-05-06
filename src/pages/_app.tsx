@@ -12,7 +12,7 @@ import { smartSubscribeToUsers, subscribeToUser } from "@/modules/users/dbUsersU
 import { useUsersStore } from "@/modules/users/usersStore";
 import {
   useAuthDataSync,
-  useNewCurrentUserStore,
+  useCurrentUserStore,
   useUnverifiedIsLoggedInStore,
 } from "@/stores/authDataStore";
 import { useThemeStore } from "@/stores/themeStore";
@@ -29,7 +29,7 @@ export default function App({ Component, pageProps }: AppProps) {
   // const directoryTreeStore = useDirectoryTreeStore();
   const usersStore = useUsersStore();
   const settingsStore = useSettingsStore();
-  const newCurrentUserStore = useNewCurrentUserStore();
+  const currentUserStore = useCurrentUserStore();
 
   themeStore.useThemeStoreSideEffect();
   useAuthDataSync({ pb: pb });
@@ -38,10 +38,10 @@ export default function App({ Component, pageProps }: AppProps) {
     // use anfn as return value is not cleanup
     (() => {
       if (unverifiedIsLoggedInStore.data.status === "loggedOut")
-        return newCurrentUserStore.setData({ status: "loggedOut" });
+        return currentUserStore.setData({ status: "loggedOut" });
 
       if (unverifiedIsLoggedInStore.data.status === "loading")
-        return newCurrentUserStore.setData({ status: "loading" });
+        return currentUserStore.setData({ status: "loading" });
 
       if (unverifiedIsLoggedInStore.data.status !== "loggedIn")
         return console.error("should never be hit");
@@ -50,15 +50,15 @@ export default function App({ Component, pageProps }: AppProps) {
         pb,
         id: unverifiedIsLoggedInStore.data.auth.record.id,
         onChange: (user) => {
-          if (user) newCurrentUserStore.setData({ status: "loggedIn", user });
-          else newCurrentUserStore.setData({ status: "loggedOut" });
+          if (user) currentUserStore.setData({ status: "loggedIn", user });
+          else currentUserStore.setData({ status: "loggedOut" });
         },
       });
     })();
   }, [unverifiedIsLoggedInStore.data]);
 
   useEffect(() => {
-    if (newCurrentUserStore.data.status === "loggedIn") {
+    if (currentUserStore.data.status === "loggedIn") {
       smartSubscribeToDirectories({ pb, onChange: (x) => directoriesStore.setData(x) });
       smartSubscribeToFiles({ pb, onChange: (x) => filesStore.setData(x) });
       smartSubscribeToUsers({ pb, onChange: (x) => usersStore.setData(x) });
@@ -69,20 +69,20 @@ export default function App({ Component, pageProps }: AppProps) {
       usersStore.clear();
       settingsStore.clear();
     }
-  }, [newCurrentUserStore.data]);
+  }, [currentUserStore.data]);
 
   return (
     <>
       <Layout
         showLeftSidebar={
-          newCurrentUserStore.data.status === "loggedIn" &&
-          ["approved", "admin"].includes(newCurrentUserStore.data.user.status)
+          currentUserStore.data.status === "loggedIn" &&
+          ["approved", "admin"].includes(currentUserStore.data.user.status)
         }
       >
         {(() => {
-          if (newCurrentUserStore.data.status === "loading") return <PageLoading />;
+          if (currentUserStore.data.status === "loading") return <PageLoading />;
 
-          if (newCurrentUserStore.data.status === "loggedOut")
+          if (currentUserStore.data.status === "loggedOut")
             return (
               <div className="flex justify-center">
                 <AuthForm />
@@ -90,15 +90,14 @@ export default function App({ Component, pageProps }: AppProps) {
             );
 
           // should not be required
-          if (newCurrentUserStore.data.status !== "loggedIn") {
+          if (currentUserStore.data.status !== "loggedIn") {
             console.error(`this line should never be hit`);
             return;
           }
 
-          if (newCurrentUserStore.data.user.status === "pending")
-            return <div>awaiting approval</div>;
+          if (currentUserStore.data.user.status === "pending") return <div>awaiting approval</div>;
 
-          if (newCurrentUserStore.data.user.status === "denied") return <div>blocked</div>;
+          if (currentUserStore.data.user.status === "denied") return <div>blocked</div>;
 
           return <Component {...pageProps} />;
         })()}

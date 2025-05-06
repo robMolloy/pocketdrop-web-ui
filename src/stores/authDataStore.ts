@@ -29,8 +29,6 @@ export const useAuthDataSync = (p: { pb: PocketBase }) => {
     isLoggedInStore.setData(
       resp.success ? { status: "loggedIn", auth: resp.data } : { status: "loggedOut" },
     );
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -47,7 +45,7 @@ export const useAuthDataSync = (p: { pb: PocketBase }) => {
 
 type TCurrentUserState = { status: "loading" | "loggedOut" } | { status: "loggedIn"; user: TUser };
 
-export const useNewCurrentUserStore = create<{
+export const useCurrentUserStore = create<{
   data: TCurrentUserState;
   setData: (x: TCurrentUserState) => void;
 }>()((set) => ({
