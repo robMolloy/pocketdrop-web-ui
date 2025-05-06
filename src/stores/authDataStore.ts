@@ -45,25 +45,11 @@ export const useAuthDataSync = (p: { pb: PocketBase }) => {
   }, []);
 };
 
-// export const useCurrentUserStore = () => {
-//   const unverifiedIsLoggedInStore = useUnverifiedIsLoggedInStore();
-//   return {
-//     data: (() => {
-//       if (unverifiedIsLoggedInStore.data.status === "loading") return undefined;
-//       if (unverifiedIsLoggedInStore.data.status === "loggedIn")
-//         return unverifiedIsLoggedInStore.data.auth.record;
-//       return null;
-//     })(),
-//   };
-// };
-
-type TNewCurrentUserState =
-  | { status: "loading" | "loggedOut" }
-  | { status: "loggedIn"; user: TUser };
+type TCurrentUserState = { status: "loading" | "loggedOut" } | { status: "loggedIn"; user: TUser };
 
 export const useNewCurrentUserStore = create<{
-  data: TNewCurrentUserState;
-  setData: (x: TNewCurrentUserState) => void;
+  data: TCurrentUserState;
+  setData: (x: TCurrentUserState) => void;
 }>()((set) => ({
   data: { status: "loading" },
   setData: (data) => set(() => ({ data })),

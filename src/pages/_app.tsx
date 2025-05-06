@@ -35,8 +35,18 @@ export default function App({ Component, pageProps }: AppProps) {
   useAuthDataSync({ pb: pb });
 
   useEffect(() => {
-    if (unverifiedIsLoggedInStore.data.status === "loggedIn") {
-      subscribeToUser({
+    // use anfn as return value is not cleanup
+    (() => {
+      if (unverifiedIsLoggedInStore.data.status === "loggedOut")
+        return newCurrentUserStore.setData({ status: "loggedOut" });
+
+      if (unverifiedIsLoggedInStore.data.status === "loading")
+        return newCurrentUserStore.setData({ status: "loading" });
+
+      if (unverifiedIsLoggedInStore.data.status !== "loggedIn")
+        return console.error("should never be hit");
+
+      return subscribeToUser({
         pb,
         id: unverifiedIsLoggedInStore.data.auth.record.id,
         onChange: (user) => {
@@ -44,7 +54,7 @@ export default function App({ Component, pageProps }: AppProps) {
           else newCurrentUserStore.setData({ status: "loggedOut" });
         },
       });
-    } else newCurrentUserStore.setData({ status: "loggedOut" });
+    })();
   }, [unverifiedIsLoggedInStore.data]);
 
   useEffect(() => {
@@ -63,9 +73,12 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
-      {/* <pre>{JSON.stringify(directoriesStore, undefined, 2)}</pre>
-      <pre>{JSON.stringify(directoryTreeStore, undefined, 2)}</pre> */}
-      <Layout showLeftSidebar={newCurrentUserStore.data.status === "loggedIn"}>
+      <Layout
+        showLeftSidebar={
+          newCurrentUserStore.data.status === "loggedIn" &&
+          ["approved", "admin"].includes(newCurrentUserStore.data.user.status)
+        }
+      >
         {(() => {
           if (newCurrentUserStore.data.status === "loading") return <PageLoading />;
 
@@ -75,17 +88,19 @@ export default function App({ Component, pageProps }: AppProps) {
                 <AuthForm />
               </div>
             );
-          if (
-            newCurrentUserStore.data.status === "loggedIn" &&
-            newCurrentUserStore.data.user.status === "pending"
-          )
+
+          // should not be required
+          if (newCurrentUserStore.data.status !== "loggedIn") {
+            console.error(`this line should never be hit`);
+            return;
+          }
+
+          if (newCurrentUserStore.data.user.status === "pending")
             return <div>awaiting approval</div>;
-          if (
-            newCurrentUserStore.data.status === "loggedIn" &&
-            newCurrentUserStore.data.user.status === "denied"
-          )
-            return <div>blocked</div>;
-          if (newCurrentUserStore.data.status === "loggedIn") return <Component {...pageProps} />;
+
+          if (newCurrentUserStore.data.user.status === "denied") return <div>blocked</div>;
+
+          return <Component {...pageProps} />;
         })()}
       </Layout>
     </>
