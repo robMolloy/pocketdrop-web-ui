@@ -19,7 +19,7 @@ import {
 import { pb } from "@/config/pocketbaseConfig";
 import { deleteUser, TUser, updateUserStatus } from "@/modules/users/dbUsersUtils";
 import { useUsersStore } from "@/modules/users/usersStore";
-import { useCurrentUserStore } from "@/stores/authDataStore";
+import { useNewCurrentUserStore } from "@/stores/authDataStore";
 import { useModalStore } from "@/stores/modalStore";
 import { CustomIcon } from "@/components/CustomIcon";
 import { MainLayout } from "@/components/layout/Layout";
@@ -62,7 +62,7 @@ const UserStateSelect = (p: {
 const UsersPage = () => {
   const usersStore = useUsersStore();
   const modalStore = useModalStore();
-  const userStore = useCurrentUserStore();
+  const userStore = useNewCurrentUserStore();
 
   return (
     <MainLayout>
@@ -79,7 +79,8 @@ const UsersPage = () => {
         </TableHeader>
         <TableBody>
           {usersStore.data.map((user) => {
-            const userOwnsRecord = user.id === userStore.data?.id;
+            const userOwnsRecord =
+              userStore.data.status === "loggedIn" && user.id === userStore.data.user.id;
             return (
               <TableRow key={user.id} className={userOwnsRecord ? "bg-muted" : ""}>
                 <TableCell>{user.name}</TableCell>

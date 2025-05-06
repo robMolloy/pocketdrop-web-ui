@@ -8,9 +8,13 @@ import { useDirectoriesStore } from "@/modules/files/directoriesStore";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { smartSubscribeToSettings } from "@/modules/settings/dbSettingsUtils";
 import { useSettingsStore } from "@/modules/settings/settingsStore";
-import { smartSubscribeToUsers } from "@/modules/users/dbUsersUtils";
+import { smartSubscribeToUsers, subscribeToUser } from "@/modules/users/dbUsersUtils";
 import { useUsersStore } from "@/modules/users/usersStore";
-import { useAuthDataSync, useIsLoggedInStore } from "@/stores/authDataStore";
+import {
+  useAuthDataSync,
+  useNewCurrentUserStore,
+  useUnverifiedIsLoggedInStore,
+} from "@/stores/authDataStore";
 import { useThemeStore } from "@/stores/themeStore";
 import "@/styles/globals.css";
 import "@/styles/markdown.css";
@@ -19,18 +23,32 @@ import { useEffect } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
   const themeStore = useThemeStore();
-  const isLoggedInStore = useIsLoggedInStore();
+  const unverifiedIsLoggedInStore = useUnverifiedIsLoggedInStore();
   const filesStore = useFilesStore();
   const directoriesStore = useDirectoriesStore();
   // const directoryTreeStore = useDirectoryTreeStore();
   const usersStore = useUsersStore();
   const settingsStore = useSettingsStore();
+  const newCurrentUserStore = useNewCurrentUserStore();
 
   themeStore.useThemeStoreSideEffect();
   useAuthDataSync({ pb: pb });
 
   useEffect(() => {
-    if (isLoggedInStore.data.status === "loggedIn") {
+    if (unverifiedIsLoggedInStore.data.status === "loggedIn") {
+      subscribeToUser({
+        pb,
+        id: unverifiedIsLoggedInStore.data.auth.record.id,
+        onChange: (user) => {
+          if (user) newCurrentUserStore.setData({ status: "loggedIn", user });
+          else newCurrentUserStore.setData({ status: "loggedOut" });
+        },
+      });
+    } else newCurrentUserStore.setData({ status: "loggedOut" });
+  }, [unverifiedIsLoggedInStore.data]);
+
+  useEffect(() => {
+    if (newCurrentUserStore.data.status === "loggedIn") {
       smartSubscribeToDirectories({ pb, onChange: (x) => directoriesStore.setData(x) });
       smartSubscribeToFiles({ pb, onChange: (x) => filesStore.setData(x) });
       smartSubscribeToUsers({ pb, onChange: (x) => usersStore.setData(x) });
@@ -41,20 +59,34 @@ export default function App({ Component, pageProps }: AppProps) {
       usersStore.clear();
       settingsStore.clear();
     }
-  }, [isLoggedInStore.data]);
+  }, [newCurrentUserStore.data]);
 
   return (
     <>
       {/* <pre>{JSON.stringify(directoriesStore, undefined, 2)}</pre>
       <pre>{JSON.stringify(directoryTreeStore, undefined, 2)}</pre> */}
-      <Layout showLeftSidebar={isLoggedInStore.data.status === "loggedIn"}>
-        {isLoggedInStore.data.status === "loggedIn" && <Component {...pageProps} />}
-        {isLoggedInStore.data.status === "loggedOut" && (
-          <div className="flex justify-center">
-            <AuthForm />
-          </div>
-        )}
-        {isLoggedInStore.data.status === "loading" && <PageLoading />}
+      <Layout showLeftSidebar={newCurrentUserStore.data.status === "loggedIn"}>
+        {(() => {
+          if (newCurrentUserStore.data.status === "loading") return <PageLoading />;
+
+          if (newCurrentUserStore.data.status === "loggedOut")
+            return (
+              <div className="flex justify-center">
+                <AuthForm />
+              </div>
+            );
+          if (
+            newCurrentUserStore.data.status === "loggedIn" &&
+            newCurrentUserStore.data.user.status === "pending"
+          )
+            return <div>awaiting approval</div>;
+          if (
+            newCurrentUserStore.data.status === "loggedIn" &&
+            newCurrentUserStore.data.user.status === "denied"
+          )
+            return <div>blocked</div>;
+          if (newCurrentUserStore.data.status === "loggedIn") return <Component {...pageProps} />;
+        })()}
       </Layout>
     </>
   );

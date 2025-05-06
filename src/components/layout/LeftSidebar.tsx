@@ -3,7 +3,7 @@ import { pb } from "@/config/pocketbaseConfig";
 import { logout } from "@/modules/auth/dbAuthUtils";
 import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { useUsersStore } from "@/modules/users/usersStore";
-import { useCurrentUserStore } from "@/stores/authDataStore";
+import { useNewCurrentUserStore } from "@/stores/authDataStore";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
@@ -46,7 +46,7 @@ const SidebarButton = (p: {
 export function LeftSidebar() {
   const router = useRouter();
   const directoryTreeStore = useDirectoryTreeStore();
-  const userStore = useCurrentUserStore();
+  const userStore = useNewCurrentUserStore();
   const usersStore = useUsersStore();
   const pendingUsersCount = usersStore.data.filter((user) => user.status === "pending").length;
   const settingsStore = useSettingsStore();
@@ -82,7 +82,7 @@ export function LeftSidebar() {
 
       <div className="border-t p-2">
         <div className="flex flex-col gap-1">
-          {userStore.data?.status === "admin" && (
+          {userStore.data.status === "loggedIn" && userStore.data.user.status === "admin" && (
             <SidebarButton
               href="/users"
               iconName="users"
@@ -92,13 +92,15 @@ export function LeftSidebar() {
               Users
             </SidebarButton>
           )}
-          <SidebarButton
-            href="/settings"
-            iconName="settings"
-            isHighlighted={router.pathname === "/settings"}
-          >
-            Settings
-          </SidebarButton>
+          {userStore.data.status === "loggedIn" && userStore.data.user.status === "admin" && (
+            <SidebarButton
+              href="/settings"
+              iconName="settings"
+              isHighlighted={router.pathname === "/settings"}
+            >
+              Settings
+            </SidebarButton>
+          )}
           <SidebarButton iconName="logOut" isHighlighted={false} onClick={() => logout({ pb })}>
             Log Out
           </SidebarButton>

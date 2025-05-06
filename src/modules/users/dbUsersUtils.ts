@@ -38,7 +38,7 @@ export const subscribeToUsers = async (p: {
   return { success: true } as const;
 };
 
-export const geUser = async (p: { pb: PocketBase; id: string }) => {
+export const getUser = async (p: { pb: PocketBase; id: string }) => {
   try {
     const userResp = await p.pb.collection("users").getOne(p.id);
     return userSchema.safeParse(userResp);
@@ -52,7 +52,7 @@ export const subscribeToUser = async (p: {
   id: string;
   onChange: (e: TUser | null) => void;
 }) => {
-  const userResp = await geUser(p);
+  const userResp = await getUser(p);
   p.onChange(userResp.success ? userResp.data : null);
 
   const unsub = p.pb.collection("users").subscribe(p.id, (e) => {
