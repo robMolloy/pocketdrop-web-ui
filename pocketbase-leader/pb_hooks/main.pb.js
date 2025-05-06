@@ -96,8 +96,8 @@ onRecordAfterCreateSuccess((e) => {
   e.next();
 }, "files");
 
-console.log("after successful file updated");
 onRecordAfterUpdateSuccess((e) => {
+  console.log("after successful file updated");
   let versionHistorySettingRecord = $app.findFirstRecordByFilter(
     "settings",
     "settingName = 'versionHistory'",

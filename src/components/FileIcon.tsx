@@ -5,6 +5,18 @@ export const getFileExtension = (file: TFileRecord | TFile) => {
   return file.name.split(".").pop()?.toLowerCase() ?? "";
 };
 
+const mediaTypeMap: { [key: string]: string } = {
+  png: "image/png",
+  jpeg: "image/jpeg",
+  jpg: "image/jpeg",
+  gif: "image/gif",
+  pdf: "application/pdf",
+};
+export const getMediaType = (file: TFileRecord | TFile) => {
+  const extension = getFileExtension(file);
+  return mediaTypeMap[extension];
+};
+
 export const imageExtensions = ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp", "tiff", "ico"];
 export const textExtensions = [
   "txt",

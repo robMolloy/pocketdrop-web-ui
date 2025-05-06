@@ -1,14 +1,23 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { pb } from "@/config/pocketbaseConfig";
-import { DisplayFileThumbnailOrIcon } from "@/modules/files/components/DisplayFilesTableView";
-import { TFileRecord, deleteFile, downloadFile, getFile } from "@/modules/files/dbFilesUtils";
-import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { formatDate } from "@/lib/dateUtils";
-import React from "react";
+import { callClaude, createUserMessage } from "@/modules/aiChat/anthropicApi";
+import { convertFileToChatMessageContentFromFile } from "@/modules/aiChat/utils";
+import { DisplayFileThumbnailOrIcon } from "@/modules/files/components/DisplayFilesTableView";
+import {
+  TFileRecord,
+  deleteFile,
+  downloadFile,
+  getFile,
+  getFileFromFileRecord,
+} from "@/modules/files/dbFilesUtils";
+import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
+import { formatFileSize } from "@/modules/files/fileUtils";
+import React, { useState } from "react";
 import { CustomIcon } from "./CustomIcon";
 import { ToggleableStar } from "./ToggleableStar";
 import { Button } from "./ui/button";
-import { formatFileSize } from "@/modules/files/fileUtils";
+import { getMediaType } from "./FileIcon";
 
 const DetailsLine = (p: {
   iconName: React.ComponentProps<typeof CustomIcon>["iconName"];
@@ -84,8 +93,62 @@ export function FileDetails(p: {
         <DetailsLine iconName={"folder"} label="Collection Name" value={p.file.collectionName} />
         <DetailsLine iconName={"fileText"} label="File" value={p.file.file} />
         <DetailsLine iconName={"fileText"} label="File Size" value={formatFileSize(p.file.size)} />
-        <DetailsLine iconName={"fileText"} label="Keywords" value={p.file.keywords} />
+        <DetailsLine
+          iconName={"fileText"}
+          label="Keywords"
+          value={<IndexFileWithKeywordsForm file={p.file} />}
+        />
       </div>
     </>
   );
 }
+
+const IndexFileWithKeywordsForm = (p: { file: TFileRecord }) => {
+  const [keywords, setKeywords] = useState<string[]>();
+  return (
+    <div className="max-h-[200px] overflow-y-auto">
+      <div>{p.file.keywords}</div>
+
+      {!keywords && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={async () => {
+            const file = await getFileFromFileRecord({ pb, data: p.file, isThumb: false });
+            if (!file.success) return console.error(`getFileFromFileRecord failed`);
+
+            const chatMessageContentResponse = await convertFileToChatMessageContentFromFile(
+              new File([file.data?.file], file.data?.name, { type: getMediaType(file.data) }),
+            );
+
+            if (!chatMessageContentResponse.success)
+              return console.error(`convertFileToChatMessageContentFromFile failed`);
+
+            const userMessage = createUserMessage([
+              {
+                type: "text",
+                text: "return at least 30 kerywords in the JSON format {keywords:[]}, no additional keys should be added and no other text should be returned. Describe the content of the image, also include keywords that describe metadata and other available data.",
+              },
+              chatMessageContentResponse.data,
+            ]);
+
+            const aiResponse = await callClaude({
+              messages: [{ role: userMessage.role, content: userMessage.content }],
+              onFirstStream: () => {},
+              onStream: () => {},
+            });
+
+            if (!aiResponse.success) return console.error(`callClaude failed`);
+
+            const json = JSON.parse(aiResponse.data);
+            const rtnKeywords = json.keywords as string[];
+            setKeywords(rtnKeywords);
+          }}
+        >
+          Index
+        </Button>
+      )}
+      <pre>{keywords && JSON.stringify(keywords, undefined, 2)}</pre>
+    </div>
+  );
+};

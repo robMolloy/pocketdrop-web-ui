@@ -1,5 +1,8 @@
 import { z } from "zod";
 import { chatMessageContentSchema } from "./anthropicApi";
+import { getFile, TFileRecord } from "../files/dbFilesUtils";
+import { getMediaType } from "@/components/FileIcon";
+import { pb } from "@/config/pocketbaseConfig";
 
 export const convertFileToBase64 = async (file: File) => {
   const resp = await new Promise<string>((resolve, reject) => {
@@ -12,7 +15,14 @@ export const convertFileToBase64 = async (file: File) => {
   return z.string().safeParse(resp.split(";base64,")[1]);
 };
 
-export const convertFileToFileDetails = async (file: File) => {
+export const createFileObjectFromFileRecord = async (file: TFileRecord) => {
+  const fileResp = await getFile({ pb, id: file.id, isThumb: false });
+  if (!fileResp.success) return fileResp;
+  const type = getMediaType(fileResp.data);
+  return new File([fileResp.data?.file], fileResp.data?.name, { type });
+};
+
+export const convertFileToChatMessageContentFromFile = async (file: File) => {
   const base64Resp = await convertFileToBase64(file);
 
   if (!base64Resp.success) return base64Resp;
@@ -25,7 +35,7 @@ export const convertFileToFileDetails = async (file: File) => {
 };
 
 export const convertFilesToFileDetails = async (files: File[]) => {
-  return (await Promise.all(files.map(convertFileToFileDetails)))
+  return (await Promise.all(files.map(convertFileToChatMessageContentFromFile)))
     .filter((x) => x.success)
     .map((x) => x.data);
 };
