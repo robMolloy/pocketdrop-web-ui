@@ -13,13 +13,19 @@ import { useEffect, useRef, useState } from "react";
 
 const ScrollContainer = (p: { children: React.ReactNode; className?: string }) => {
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const [isScrollingUpwards, setIsScrollingUpwards] = useState(false);
   const scrollContainer = useRef<HTMLDivElement>(null);
+  const prevScrollTop = useRef(0);
 
   const checkIfAtBottom = () => {
     if (!scrollContainer.current) return;
     const { scrollTop, scrollHeight, clientHeight } = scrollContainer.current;
     const isBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 40;
     setIsAtBottom(isBottom);
+
+    // Update scroll direction
+    setIsScrollingUpwards(scrollTop < prevScrollTop.current);
+    prevScrollTop.current = scrollTop;
   };
 
   const scrollToBottom = () => {
@@ -28,7 +34,7 @@ const ScrollContainer = (p: { children: React.ReactNode; className?: string }) =
   };
 
   useEffect(() => {
-    if (isAtBottom) scrollToBottom();
+    if (isAtBottom && !isScrollingUpwards) scrollToBottom();
   }, [p.children]);
 
   useEffect(() => {
