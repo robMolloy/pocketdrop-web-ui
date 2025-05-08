@@ -1,11 +1,13 @@
+import { MainLayout } from "@/components/layout/Layout";
 import { OptimisticSwitch } from "@/components/OptimisticSwitch";
+import { H1 } from "@/components/ui/defaultComponents";
+import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { pb } from "@/config/pocketbaseConfig";
 import { createSetting, updateSetting } from "@/modules/settings/dbSettingsUtils";
+import { debounce } from "lodash";
 import { useSettingsStore } from "../modules/settings/settingsStore";
-import { MainLayout } from "@/components/layout/Layout";
-import { H1 } from "@/components/ui/defaultComponents";
-import { Input } from "@/components/ui/input";
+import { useCallback, useState } from "react";
 
 export const SettingItem = (p: {
   title: string;
@@ -52,6 +54,15 @@ const SettingsPage = () => {
   const encryptFilesSetting = settingsStore.data?.find((x) => x.settingName === "encryptFiles");
   const aiChatSetting = settingsStore.data?.find((x) => x.settingName === "aiChat");
 
+  const [aiChatSettingValue, setAiChatSettingValue] = useState(aiChatSetting?.value ?? "");
+
+  const debouncedUpdate = useCallback(
+    debounce((value: string) => {
+      if (aiChatSetting) updateSetting({ pb, data: { ...aiChatSetting, value } });
+    }, 1000),
+    [aiChatSetting],
+  );
+
   return (
     <MainLayout>
       <H1>Settings</H1>
@@ -83,10 +94,10 @@ const SettingsPage = () => {
 
             <Input
               disabled={!aiChatSetting?.isEnabled}
-              value={aiChatSetting?.value ?? ""}
+              value={aiChatSettingValue}
               onChange={(e) => {
-                if (aiChatSetting)
-                  return updateSetting({ pb, data: { ...aiChatSetting, value: e.target.value } });
+                setAiChatSettingValue(e.target.value);
+                debouncedUpdate(e.target.value);
               }}
             />
           </div>
@@ -126,6 +137,7 @@ const SettingsPage = () => {
           />
         </SettingItem>
       </div>
+      <pre>{JSON.stringify(settingsStore.data, null, 2)}</pre>
     </MainLayout>
   );
 };
