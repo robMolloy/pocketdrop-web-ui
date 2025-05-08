@@ -7,6 +7,7 @@ const settingsRecordSchema = z.object({
   id: z.string(),
   settingName: z.string(),
   isEnabled: z.boolean(),
+  value: z.string(),
   created: z.string(),
   updated: z.string(),
 });
@@ -65,7 +66,10 @@ export const smartSubscribeToSettings = async (p: {
 
 export const createSetting = async (p: {
   pb: PocketBase;
-  data: Omit<TSettingsRecord, "collectionId" | "collectionName" | "id" | "created" | "updated">;
+  data: Omit<
+    TSettingsRecord,
+    "collectionId" | "collectionName" | "id" | "value" | "created" | "updated"
+  >;
 }) => {
   try {
     const resp = await p.pb.collection("settings").create(p.data);

@@ -5,6 +5,7 @@ import { createSetting, updateSetting } from "@/modules/settings/dbSettingsUtils
 import { useSettingsStore } from "../modules/settings/settingsStore";
 import { MainLayout } from "@/components/layout/Layout";
 import { H1 } from "@/components/ui/defaultComponents";
+import { Input } from "@/components/ui/input";
 
 export const SettingItem = (p: {
   title: string;
@@ -62,15 +63,33 @@ const SettingsPage = () => {
           title="Use AI Chat"
           description="Allow AI chat and index your files with suitable keywords to allow smart search"
         >
-          <OptimisticSwitch
-            checked={aiChatSetting?.isEnabled ?? false}
-            onCheckedChange={(isEnabled) => {
-              if (aiChatSetting)
-                return updateSetting({ pb, data: { ...aiChatSetting, isEnabled } });
+          <div className="flex flex-col items-end justify-end gap-2">
+            <OptimisticSwitch
+              checked={aiChatSetting?.isEnabled ?? false}
+              onCheckedChange={(isEnabled) => {
+                const newValueObj = isEnabled ? {} : { value: "" };
+                if (aiChatSetting)
+                  return updateSetting({
+                    pb,
+                    data: { ...aiChatSetting, isEnabled, ...newValueObj },
+                  });
 
-              return createSetting({ pb, data: { settingName: "aiChat", isEnabled } });
-            }}
-          />
+                return createSetting({
+                  pb,
+                  data: { settingName: "aiChat", isEnabled, ...newValueObj },
+                });
+              }}
+            />
+
+            <Input
+              disabled={!aiChatSetting?.isEnabled}
+              value={aiChatSetting?.value ?? ""}
+              onChange={(e) => {
+                if (aiChatSetting)
+                  return updateSetting({ pb, data: { ...aiChatSetting, value: e.target.value } });
+              }}
+            />
+          </div>
         </SettingItem>
         <HorizontalSpacer />
         <SettingItem
