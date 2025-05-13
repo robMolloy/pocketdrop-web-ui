@@ -47,6 +47,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
       return subscribeToUser({
         pb,
+
         id: unverifiedIsLoggedInStore.data.auth.record.id,
         onChange: (user) => {
           if (user) currentUserStore.setData({ status: "loggedIn", user });
@@ -83,7 +84,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
           if (currentUserStore.data.status === "loggedOut")
             return (
-              <div className="flex justify-center">
+              <div className="mt-16 flex justify-center">
                 <AuthForm />
               </div>
             );
