@@ -35,6 +35,7 @@ import {
   Grid,
   List,
   Brain,
+  Loader,
 } from "lucide-react";
 
 const iconMap = {
@@ -73,6 +74,7 @@ const iconMap = {
   grid: Grid,
   list: List,
   brain: Brain,
+  loader: Loader,
 };
 
 export const iconSizeClass = {
