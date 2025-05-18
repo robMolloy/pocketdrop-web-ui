@@ -1,5 +1,4 @@
 import { Layout } from "@/components/layout/Layout";
-import { LoadingScreen } from "@/screens/LoadingScreen";
 import { pb } from "@/config/pocketbaseConfig";
 import { AuthForm } from "@/modules/auth/AuthForm";
 import { smartSubscribeToDirectories } from "@/modules/directories/dbDirectoriesUtils";
@@ -10,6 +9,7 @@ import { smartSubscribeToSettings } from "@/modules/settings/dbSettingsUtils";
 import { useSettingsStore } from "@/modules/settings/settingsStore";
 import { smartSubscribeToUsers, subscribeToUser } from "@/modules/users/dbUsersUtils";
 import { useUsersStore } from "@/modules/users/usersStore";
+import { LoadingScreen } from "@/screens/LoadingScreen";
 import { useAiStoreSync } from "@/stores/aiStore";
 import {
   useCurrentUserStore,

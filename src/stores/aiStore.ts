@@ -36,10 +36,8 @@ export const useAiStoreSync = () => {
   }, [aiChatSetting]);
 };
 
-const useAiStore = () => {
+export const useAiStore = () => {
   const initAiStore = useInitAiStore();
 
   return { data: initAiStore.data };
 };
-
-export default useAiStore;

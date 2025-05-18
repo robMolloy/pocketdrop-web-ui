@@ -6,11 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { pb } from "@/config/pocketbaseConfig";
 import { createSetting, updateSetting } from "@/modules/settings/dbSettingsUtils";
+import { LoadingScreen } from "@/screens/LoadingScreen";
+import { useAiStore } from "@/stores/aiStore";
 import { debounce } from "lodash";
 import { useState } from "react";
 import { useSettingsStore } from "../modules/settings/settingsStore";
-import useAiStore from "@/stores/aiStore";
-import { LoadingScreen } from "@/screens/LoadingScreen";
 
 const debouncedUpdate = debounce(
   (p: Parameters<typeof updateSetting>[0]) => updateSetting(p),
@@ -151,7 +151,6 @@ const SettingsScreen = () => {
           />
         </SettingItem>
       </div>
-      <pre>{JSON.stringify(settingsStore.data, null, 2)}</pre>
     </>
   );
 };
@@ -161,7 +160,7 @@ const SettingsPage = () => {
 
   return (
     <MainLayout>
-      {settingsStore.data === undefined && <>loading...</>}
+      {settingsStore.data === undefined && <LoadingScreen />}
       {settingsStore.data !== undefined && <SettingsScreen />}
     </MainLayout>
   );
