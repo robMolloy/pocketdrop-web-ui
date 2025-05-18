@@ -66,7 +66,6 @@ const SettingsScreen = () => {
   const aiStore = useAiStore();
 
   const [aiChatSettingValue, setAiChatSettingValue] = useState(aiChatSetting?.value ?? "");
-  // const [updateStatus, setUpdateStatus] = useState<"idle" | "success" | "error">("idle");
 
   return (
     <>
@@ -103,7 +102,8 @@ const SettingsScreen = () => {
                 value={aiChatSettingValue}
                 onChange={async (e) => {
                   setAiChatSettingValue(e.target.value);
-                  if (!aiChatSetting) return;
+                  if (!aiChatSetting) return; // won't get hit - disabled switch will prevent this
+                  aiStore.setData(undefined);
 
                   await debouncedUpdate({
                     pb,
@@ -112,7 +112,12 @@ const SettingsScreen = () => {
                 }}
               />
               {aiStore.data && <CustomIcon iconName="check" className="text-success" size="sm" />}
-              {!aiStore.data && <CustomIcon iconName="x" className="text-destructive" size="sm" />}
+              {aiStore.data === null && (
+                <CustomIcon iconName="x" className="text-destructive" size="sm" />
+              )}
+              {aiStore.data === undefined && (
+                <CustomIcon iconName="loader" size="sm" className="animate-spin" />
+              )}
             </div>
           </div>
         </SettingItem>

@@ -11,8 +11,15 @@ import { DirectoryTree } from "../DirectoryTree";
 import { CustomIcon } from "../CustomIcon";
 import { useSettingsStore } from "@/modules/settings/settingsStore";
 
-const SidebarButtonWrapper = (p: { children: ReactNode; href?: string }) =>
-  p.href ? <Link href={p.href}>{p.children}</Link> : p.children;
+const SidebarButtonWrapper = (p: { children: ReactNode; href?: string; disabled?: boolean }) => {
+  return p.href ? (
+    <Link href={p.disabled ? "#" : p.href} className={p.disabled ? "pointer-events-none" : ""}>
+      {p.children}
+    </Link>
+  ) : (
+    p.children
+  );
+};
 
 const SidebarButton = (p: {
   href?: string;
@@ -21,18 +28,24 @@ const SidebarButton = (p: {
   isHighlighted: boolean;
   onClick?: () => void;
   badgeCount?: number;
+  disabled?: boolean;
 }) => {
   return (
-    <SidebarButtonWrapper href={p.href}>
+    <SidebarButtonWrapper href={p.href} disabled={p.disabled}>
       <Button
         variant={p.isHighlighted ? "secondary" : "ghost"}
-        className="relative w-full justify-start pl-6"
+        className={`relative w-full justify-start pl-6 ${p.disabled ? "pointer-events-none" : ""}`}
         onClick={p.onClick}
+        disabled={p.disabled}
       >
         <span className="mr-2">
-          <CustomIcon iconName={p.iconName} size="sm" />
+          <CustomIcon
+            iconName={p.iconName}
+            size="sm"
+            className={p.disabled ? "text-muted-foreground" : ""}
+          />
         </span>
-        {p.children}
+        <div className={p.disabled ? "text-muted-foreground" : ""}>{p.children}</div>
         {p.badgeCount !== undefined && p.badgeCount > 0 && (
           <span className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-destructive px-2 py-0.5 text-xs text-destructive-foreground">
             {p.badgeCount}
@@ -65,15 +78,14 @@ export function LeftSidebar() {
           >
             Starred
           </SidebarButton>
-          {settingsStore.aiChatSetting.get()?.isEnabled && (
-            <SidebarButton
-              href="/ai-chat"
-              iconName="brain"
-              isHighlighted={router.pathname === "/ai-chat"}
-            >
-              AI Chat
-            </SidebarButton>
-          )}
+          <SidebarButton
+            disabled={!settingsStore.aiChatSetting.get()?.isEnabled}
+            href="/ai-chat"
+            iconName="brain"
+            isHighlighted={router.pathname === "/ai-chat"}
+          >
+            AI Chat
+          </SidebarButton>
           {directoryTreeStore.tree !== undefined && (
             <DirectoryTree data={directoryTreeStore.tree} />
           )}

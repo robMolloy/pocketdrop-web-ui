@@ -4,7 +4,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { useEffect } from "react";
 import { create } from "zustand";
 
-type TInitAiState = Anthropic | null;
+type TInitAiState = Anthropic | null | undefined;
 const useInitAiStore = create<{
   data: TInitAiState;
   setData: (data: TInitAiState) => void;
@@ -19,7 +19,8 @@ export const useAiStoreSync = () => {
   const aiChatSetting = settingsStore.aiChatSetting.get();
   const initAiStore = useInitAiStore();
   useEffect(() => {
-    if (!aiChatSetting?.value) return;
+    if (!aiChatSetting?.value) return initAiStore.setData(null);
+    initAiStore.setData(undefined);
 
     const anthropic = new Anthropic({ apiKey: aiChatSetting.value, dangerouslyAllowBrowser: true });
 
@@ -39,5 +40,8 @@ export const useAiStoreSync = () => {
 export const useAiStore = () => {
   const initAiStore = useInitAiStore();
 
-  return { data: initAiStore.data };
+  return {
+    data: initAiStore.data,
+    setData: initAiStore.setData,
+  };
 };
