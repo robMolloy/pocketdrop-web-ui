@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { chatMessageContentSchema } from "./anthropicApi";
+import { chatMessageContentItemSchema } from "./anthropicApi";
 import { getFile, TFileRecord } from "../files/dbFilesUtils";
 import { getMediaType } from "@/components/FileIcon";
 import { pb } from "@/config/pocketbaseConfig";
@@ -31,7 +31,7 @@ export const convertFileToChatMessageContentFromFile = async (file: File) => {
   const type = media_type === "application/pdf" ? "document" : media_type.split("/")[0];
   const payload = { type, source: { type: "base64", media_type, data: base64Resp.data } };
 
-  return chatMessageContentSchema.safeParse(payload);
+  return chatMessageContentItemSchema.safeParse(payload);
 };
 
 export const convertFilesToFileDetails = async (files: File[]) => {

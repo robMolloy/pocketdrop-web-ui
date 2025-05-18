@@ -1,3 +1,4 @@
+import { CustomIcon } from "@/components/CustomIcon";
 import { MainLayout } from "@/components/layout/Layout";
 import { OptimisticSwitch } from "@/components/OptimisticSwitch";
 import { H1 } from "@/components/ui/defaultComponents";
@@ -6,8 +7,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { pb } from "@/config/pocketbaseConfig";
 import { createSetting, updateSetting } from "@/modules/settings/dbSettingsUtils";
 import { debounce } from "lodash";
+import { useState } from "react";
 import { useSettingsStore } from "../modules/settings/settingsStore";
-import { useCallback, useState } from "react";
+import useAiStore from "@/stores/aiStore";
+
+const debouncedUpdate = debounce(
+  (p: Parameters<typeof updateSetting>[0]) => updateSetting(p),
+  1000,
+);
+// const debouncedUpdate = debounce((data: TSettingsRecord) => updateSetting({ pb, data }), 1000);
 
 export const SettingItem = (p: {
   title: string;
@@ -54,14 +62,10 @@ const SettingsPage = () => {
   const encryptFilesSetting = settingsStore.data?.find((x) => x.settingName === "encryptFiles");
   const aiChatSetting = settingsStore.data?.find((x) => x.settingName === "aiChat");
 
-  const [aiChatSettingValue, setAiChatSettingValue] = useState(aiChatSetting?.value ?? "");
+  const aiStore = useAiStore();
 
-  const debouncedUpdate = useCallback(
-    debounce((value: string) => {
-      if (aiChatSetting) updateSetting({ pb, data: { ...aiChatSetting, value } });
-    }, 1000),
-    [aiChatSetting],
-  );
+  const [aiChatSettingValue, setAiChatSettingValue] = useState(aiChatSetting?.value ?? "");
+  // const [updateStatus, setUpdateStatus] = useState<"idle" | "success" | "error">("idle");
 
   return (
     <MainLayout>
@@ -92,14 +96,23 @@ const SettingsPage = () => {
               }}
             />
 
-            <Input
-              disabled={!aiChatSetting?.isEnabled}
-              value={aiChatSettingValue}
-              onChange={(e) => {
-                setAiChatSettingValue(e.target.value);
-                debouncedUpdate(e.target.value);
-              }}
-            />
+            <div className="flex items-center gap-2">
+              <Input
+                disabled={!aiChatSetting?.isEnabled}
+                value={aiChatSettingValue}
+                onChange={async (e) => {
+                  setAiChatSettingValue(e.target.value);
+                  if (!aiChatSetting) return;
+
+                  await debouncedUpdate({
+                    pb,
+                    data: { ...aiChatSetting, value: e.target.value },
+                  });
+                }}
+              />
+              {aiStore.data && <CustomIcon iconName="check" className="text-success" size="sm" />}
+              {!aiStore.data && <CustomIcon iconName="x" className="text-destructive" size="sm" />}
+            </div>
           </div>
         </SettingItem>
         <HorizontalSpacer />

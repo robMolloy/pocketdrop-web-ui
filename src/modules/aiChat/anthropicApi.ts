@@ -19,12 +19,12 @@ export const chatMessageContentDocSchema = z.object({
   }),
 });
 
-export const chatMessageContentSchema = z.union([
+export const chatMessageContentItemSchema = z.union([
   chatMessageContentTextSchema,
   chatMessageContentImageSchema,
   chatMessageContentDocSchema,
 ]);
-export type TChatMessageContent = z.infer<typeof chatMessageContentSchema>[];
+export type TChatMessageContent = z.infer<typeof chatMessageContentItemSchema>[];
 export type TChatMessage = { id: string; role: "user" | "assistant"; content: TChatMessageContent };
 
 const uuid = () => crypto.randomUUID();
@@ -50,6 +50,39 @@ export const callClaude = async (p: {
   let firstStream = true;
   try {
     const stream = await anthropic.messages.create({
+      model: "claude-3-5-haiku-20241022",
+      // model: "claude-3-7-sonnet-20250219",
+      max_tokens: 1000,
+      messages: p.messages,
+      stream: true,
+    });
+
+    let fullResponse = "";
+    for await (const message of stream) {
+      if (firstStream) {
+        p.onFirstStream();
+        firstStream = false;
+      }
+      if (message.type === "content_block_delta" && "text" in message.delta) {
+        fullResponse += message.delta.text;
+        p.onStream(fullResponse);
+      }
+    }
+
+    return { success: true, data: fullResponse } as const;
+  } catch (error) {
+    return { success: false, error: error } as const;
+  }
+};
+export const callClaudeWithAnthropic = async (p: {
+  anthropic: Anthropic;
+  messages: Omit<TChatMessage, "id">[];
+  onFirstStream: () => void;
+  onStream: (text: string) => void;
+}) => {
+  let firstStream = true;
+  try {
+    const stream = await p.anthropic.messages.create({
       model: "claude-3-5-haiku-20241022",
       // model: "claude-3-7-sonnet-20250219",
       max_tokens: 1000,

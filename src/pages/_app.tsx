@@ -10,10 +10,11 @@ import { smartSubscribeToSettings } from "@/modules/settings/dbSettingsUtils";
 import { useSettingsStore } from "@/modules/settings/settingsStore";
 import { smartSubscribeToUsers, subscribeToUser } from "@/modules/users/dbUsersUtils";
 import { useUsersStore } from "@/modules/users/usersStore";
+import { useAiStoreSync } from "@/stores/aiStore";
 import {
-  useUnverifiedIsLoggedInSync,
   useCurrentUserStore,
   useUnverifiedIsLoggedInStore,
+  useUnverifiedIsLoggedInSync,
 } from "@/stores/authDataStore";
 import { useThemeStore } from "@/stores/themeStore";
 import "@/styles/globals.css";
@@ -32,6 +33,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   themeStore.useThemeStoreSideEffect();
   useUnverifiedIsLoggedInSync({ pb });
+  useAiStoreSync();
 
   useEffect(() => {
     // use anfn as return value is not cleanup
