@@ -3,13 +3,13 @@ import { pb } from "@/config/pocketbaseConfig";
 import { logout } from "@/modules/auth/dbAuthUtils";
 import { useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { useUsersStore } from "@/modules/users/usersStore";
+import { useAiStore } from "@/stores/aiStore";
 import { useCurrentUserStore } from "@/stores/authDataStore";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
-import { DirectoryTree } from "../DirectoryTree";
 import { CustomIcon } from "../CustomIcon";
-import { useSettingsStore } from "@/modules/settings/settingsStore";
+import { DirectoryTree } from "../DirectoryTree";
 
 const SidebarButtonWrapper = (p: { children: ReactNode; href?: string; disabled?: boolean }) => {
   return p.href ? (
@@ -62,8 +62,8 @@ export function LeftSidebar() {
   const currentUserStore = useCurrentUserStore();
   const usersStore = useUsersStore();
   const pendingUsersCount = usersStore.data.filter((user) => user.status === "pending").length;
-  const settingsStore = useSettingsStore();
 
+  const aiStore = useAiStore();
   return (
     <div className={"flex h-full flex-col"}>
       <div className="flex-1 overflow-y-auto p-2">
@@ -79,7 +79,7 @@ export function LeftSidebar() {
             Starred
           </SidebarButton>
           <SidebarButton
-            disabled={!settingsStore.aiChatSetting.get()?.isEnabled}
+            disabled={!aiStore.data}
             href="/ai-chat"
             iconName="brain"
             isHighlighted={router.pathname === "/ai-chat"}
