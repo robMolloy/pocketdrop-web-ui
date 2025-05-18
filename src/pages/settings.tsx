@@ -10,6 +10,7 @@ import { debounce } from "lodash";
 import { useState } from "react";
 import { useSettingsStore } from "../modules/settings/settingsStore";
 import useAiStore from "@/stores/aiStore";
+import { LoadingScreen } from "@/screens/LoadingScreen";
 
 const debouncedUpdate = debounce(
   (p: Parameters<typeof updateSetting>[0]) => updateSetting(p),
@@ -55,7 +56,7 @@ const HorizontalSpacer = () => {
   return <div className="my-4 h-px bg-secondary" />;
 };
 
-const SettingsPage = () => {
+const SettingsScreen = () => {
   const settingsStore = useSettingsStore();
 
   const versionHistorySetting = settingsStore.data?.find((x) => x.settingName === "versionHistory");
@@ -68,7 +69,7 @@ const SettingsPage = () => {
   // const [updateStatus, setUpdateStatus] = useState<"idle" | "success" | "error">("idle");
 
   return (
-    <MainLayout>
+    <>
       <H1>Settings</H1>
 
       <br />
@@ -151,6 +152,17 @@ const SettingsPage = () => {
         </SettingItem>
       </div>
       <pre>{JSON.stringify(settingsStore.data, null, 2)}</pre>
+    </>
+  );
+};
+
+const SettingsPage = () => {
+  const settingsStore = useSettingsStore();
+
+  return (
+    <MainLayout>
+      {settingsStore.data === undefined && <>loading...</>}
+      {settingsStore.data !== undefined && <SettingsScreen />}
     </MainLayout>
   );
 };

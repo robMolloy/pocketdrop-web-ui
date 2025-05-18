@@ -1,5 +1,5 @@
 import { Layout } from "@/components/layout/Layout";
-import { PageLoading } from "@/components/PageLoading";
+import { LoadingScreen } from "@/screens/LoadingScreen";
 import { pb } from "@/config/pocketbaseConfig";
 import { AuthForm } from "@/modules/auth/AuthForm";
 import { smartSubscribeToDirectories } from "@/modules/directories/dbDirectoriesUtils";
@@ -82,7 +82,7 @@ export default function App({ Component, pageProps }: AppProps) {
         }
       >
         {(() => {
-          if (currentUserStore.data.status === "loading") return <PageLoading />;
+          if (currentUserStore.data.status === "loading") return <LoadingScreen />;
 
           if (currentUserStore.data.status === "loggedOut")
             return (
