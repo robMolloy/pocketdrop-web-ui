@@ -9,6 +9,7 @@ import {
   DisplayChatMessages,
   ErrorMessage,
 } from "@/modules/aiChat/components/Messages";
+import { useAiStore } from "@/stores/aiStore";
 import { useEffect, useRef, useState } from "react";
 
 const ScrollContainer = (p: { children: React.ReactNode; className?: string }) => {
@@ -66,6 +67,8 @@ const ScrollContainer = (p: { children: React.ReactNode; className?: string }) =
 };
 
 const AiChat = () => {
+  const aiStore = useAiStore();
+  const aiInstance = aiStore.data;
   const [mode, setMode] = useState<"ready" | "thinking" | "streaming" | "error">("ready");
   const [messages, setMessages] = useState<TChatMessage[]>([]);
   const [streamedResponse, setStreamedResponse] = useState("");
@@ -86,16 +89,21 @@ const AiChat = () => {
         </ScrollContainer>
 
         <div className="p-4 pt-1">
-          <AiChatForm
-            messages={messages}
-            onModeChange={setMode}
-            onUpdatedMessages={setMessages}
-            onStream={(text) => setStreamedResponse(text)}
-            onComplete={(messages) => {
-              setMessages(messages);
-              setStreamedResponse("");
-            }}
-          />
+          {aiInstance ? (
+            <AiChatForm
+              anthropic={aiInstance}
+              messages={messages}
+              onModeChange={setMode}
+              onUpdatedMessages={setMessages}
+              onStream={(text) => setStreamedResponse(text)}
+              onComplete={(messages) => {
+                setMessages(messages);
+                setStreamedResponse("");
+              }}
+            />
+          ) : (
+            <div>No AI instance</div>
+          )}
         </div>
       </div>
     </MainLayout>

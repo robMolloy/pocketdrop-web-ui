@@ -18,6 +18,7 @@ import { CustomIcon } from "./CustomIcon";
 import { ToggleableStar } from "./ToggleableStar";
 import { Button } from "./ui/button";
 import { getMediaType } from "./FileIcon";
+import { useAiStore } from "@/stores/aiStore";
 
 const DetailsLine = (p: {
   iconName: React.ComponentProps<typeof CustomIcon>["iconName"];
@@ -105,6 +106,11 @@ export function FileDetails(p: {
 
 const IndexFileWithKeywordsForm = (p: { file: TFileRecord }) => {
   const [keywords, setKeywords] = useState<string[]>();
+  const aiStore = useAiStore();
+
+  const aiInstance = aiStore.data;
+  if (!aiInstance) return <div>No AI key found</div>;
+
   return (
     <div className="max-h-[200px] overflow-y-auto">
       <div>{p.file.keywords}</div>
@@ -133,6 +139,7 @@ const IndexFileWithKeywordsForm = (p: { file: TFileRecord }) => {
             ]);
 
             const aiResponse = await callClaude({
+              anthropic: aiInstance,
               messages: [{ role: userMessage.role, content: userMessage.content }],
               onFirstStream: () => {},
               onStream: () => {},

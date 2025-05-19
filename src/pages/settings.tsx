@@ -82,17 +82,10 @@ const SettingsScreen = () => {
             <OptimisticSwitch
               checked={aiChatSetting?.isEnabled ?? false}
               onCheckedChange={(isEnabled) => {
-                const newValueObj = isEnabled ? {} : { value: "" };
                 if (aiChatSetting)
-                  return updateSetting({
-                    pb,
-                    data: { ...aiChatSetting, isEnabled, ...newValueObj },
-                  });
+                  return updateSetting({ pb, data: { ...aiChatSetting, isEnabled } });
 
-                return createSetting({
-                  pb,
-                  data: { settingName: "aiChat", isEnabled, ...newValueObj },
-                });
+                return createSetting({ pb, data: { settingName: "aiChat", isEnabled } });
               }}
             />
 
@@ -105,10 +98,7 @@ const SettingsScreen = () => {
                   if (!aiChatSetting) return; // won't get hit - disabled switch will prevent this
                   aiStore.setData(undefined);
 
-                  await debouncedUpdate({
-                    pb,
-                    data: { ...aiChatSetting, value: e.target.value },
-                  });
+                  await debouncedUpdate({ pb, data: { ...aiChatSetting, value: e.target.value } });
                 }}
               />
               {aiStore.data && <CustomIcon iconName="check" className="text-success" size="sm" />}

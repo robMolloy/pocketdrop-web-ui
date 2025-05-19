@@ -1,4 +1,4 @@
-import { callClaudeWithAnthropic } from "@/modules/aiChat/anthropicApi";
+import { callClaude } from "@/modules/aiChat/anthropicApi";
 import { useSettingsStore } from "@/modules/settings/settingsStore";
 import Anthropic from "@anthropic-ai/sdk";
 import { useEffect } from "react";
@@ -25,7 +25,7 @@ export const useAiStoreSync = () => {
     const anthropic = new Anthropic({ apiKey: aiChatSetting.value, dangerouslyAllowBrowser: true });
 
     (async () => {
-      const resp = await callClaudeWithAnthropic({
+      const resp = await callClaude({
         anthropic,
         messages: [{ role: "user", content: [{ type: "text", text: "Hello, world!" }] }],
         onFirstStream: () => {},

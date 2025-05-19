@@ -7,8 +7,10 @@ import {
 } from "../anthropicApi";
 import { convertFilesToFileDetails } from "../utils";
 import { AiInputTextAndImages } from "./AiInputTextAndImages";
+import Anthropic from "@anthropic-ai/sdk";
 
 export const AiChatForm = (p: {
+  anthropic: Anthropic;
   messages: TChatMessage[];
   onUpdatedMessages: (messages: TChatMessage[]) => void;
   onModeChange: (mode: "ready" | "thinking" | "streaming" | "error") => void;
@@ -38,6 +40,7 @@ export const AiChatForm = (p: {
     setCurrentImages([]);
 
     const resp = await callClaude({
+      anthropic: p.anthropic,
       messages: updatedMessages.map((x) => ({ role: x.role, content: x.content })),
       onFirstStream: () => setMode("streaming"),
       onStream: (text) => p.onStream(text),
