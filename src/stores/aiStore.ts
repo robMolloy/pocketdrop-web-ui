@@ -19,7 +19,8 @@ export const useAiStoreSync = () => {
   const aiChatSetting = settingsStore.aiChatSetting.get();
   const initAiStore = useInitAiStore();
   useEffect(() => {
-    if (!aiChatSetting?.value) return initAiStore.setData(null);
+    if (!aiChatSetting?.isEnabled || !aiChatSetting?.value) return initAiStore.setData(null);
+
     initAiStore.setData(undefined);
 
     const anthropic = new Anthropic({ apiKey: aiChatSetting.value, dangerouslyAllowBrowser: true });
