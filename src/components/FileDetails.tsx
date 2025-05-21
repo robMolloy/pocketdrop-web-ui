@@ -1,24 +1,27 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { pb } from "@/config/pocketbaseConfig";
 import { formatDate } from "@/lib/dateUtils";
-import { callClaude, createUserMessage } from "@/modules/aiChat/anthropicApi";
-import { convertFileToChatMessageContentFromFile } from "@/modules/aiChat/utils";
+import { callClaude, createUserMessage, mediaTypeSchema } from "@/modules/aiChat/anthropicApi";
+import { convertFileToBase64 } from "@/modules/aiChat/utils";
 import { DisplayFileThumbnailOrIcon } from "@/modules/files/components/DisplayFilesTableView";
 import {
+  TFileDataRecord,
   TFileRecord,
   deleteFile,
   downloadFile,
   getFile,
-  getFileFromFileRecord,
+  getFileDataRecordFromFileRecord,
 } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { formatFileSize } from "@/modules/files/fileUtils";
+import { useAiStore } from "@/stores/aiStore";
+import { Anthropic } from "@anthropic-ai/sdk";
 import React, { useState } from "react";
+import { z } from "zod";
 import { CustomIcon } from "./CustomIcon";
+import { getMediaType } from "./FileIcon";
 import { ToggleableStar } from "./ToggleableStar";
 import { Button } from "./ui/button";
-import { getMediaType } from "./FileIcon";
-import { useAiStore } from "@/stores/aiStore";
 
 const DetailsLine = (p: {
   iconName: React.ComponentProps<typeof CustomIcon>["iconName"];
@@ -120,36 +123,31 @@ const IndexFileWithKeywordsForm = (p: { file: TFileRecord }) => {
           size="sm"
           variant="outline"
           onClick={async () => {
-            const file = await getFileFromFileRecord({ pb, data: p.file, isThumb: false });
-            if (!file.success) return console.error(`getFileFromFileRecord failed`);
+            const fileDataRecord = await getFileDataRecordFromFileRecord({
+              pb,
+              data: p.file,
+              isThumb: false,
+            });
+            if (!fileDataRecord.success) return console.error(`getFileFromFileRecord failed`);
 
-            const chatMessageContentResponse = await convertFileToChatMessageContentFromFile(
-              new File([file.data?.file], file.data?.name, { type: getMediaType(file.data) }),
-            );
+            const createFileFromFileDataRecord = (p: { fileDataRecord: TFileDataRecord }) => {
+              return new File([p.fileDataRecord.file], p.fileDataRecord.name, {
+                type: getMediaType(p.fileDataRecord),
+              });
+            };
 
-            if (!chatMessageContentResponse.success)
-              return console.error(`convertFileToChatMessageContentFromFile failed`);
+            const file = createFileFromFileDataRecord({ fileDataRecord: fileDataRecord.data });
 
-            const userMessage = createUserMessage([
-              {
-                type: "text",
-                text: "return at least 30 kerywords in the JSON format {keywords:[]}, no additional keys should be added and no other text should be returned. Describe the content of the image, also include keywords that describe metadata and other available data.",
-              },
-              chatMessageContentResponse.data,
-            ]);
-
-            const aiResponse = await callClaude({
+            const indexImageFileDataRecordWithAnthropicResponse = await indexFileWithAnthropic({
               anthropic: aiInstance,
-              messages: [{ role: userMessage.role, content: userMessage.content }],
-              onFirstStream: () => {},
+              file,
               onStream: () => {},
             });
 
-            if (!aiResponse.success) return console.error(`callClaude failed`);
+            if (!indexImageFileDataRecordWithAnthropicResponse.success)
+              return console.error(`indexImageFileDataRecordWithAnthropic failed`);
 
-            const json = JSON.parse(aiResponse.data);
-            const rtnKeywords = json.keywords as string[];
-            setKeywords(rtnKeywords);
+            setKeywords(indexImageFileDataRecordWithAnthropicResponse.data);
           }}
         >
           Index
@@ -158,4 +156,57 @@ const IndexFileWithKeywordsForm = (p: { file: TFileRecord }) => {
       <pre>{keywords && JSON.stringify(keywords, undefined, 2)}</pre>
     </div>
   );
+};
+
+const indexFileWithAnthropic = async (p: {
+  anthropic: Anthropic;
+  file: File;
+  onStream: (message: string) => void;
+}) => {
+  const base64FileResponse = await convertFileToBase64(p.file);
+  if (!base64FileResponse.success) return base64FileResponse;
+
+  const mediaTypeResponse = mediaTypeSchema.safeParse(p.file.type);
+  if (!mediaTypeResponse.success) return mediaTypeResponse;
+
+  const userMessage = createUserMessage([
+    {
+      type: "text",
+      text: "return at least 30 keywords in the JSON format {keywords:[]}, no additional keys should be added and no other text should be returned. Describe the content of the image, also include keywords that describe metadata and other available data.",
+    },
+    {
+      type: "image",
+      source: {
+        type: "base64",
+        media_type: mediaTypeResponse.data,
+        data: base64FileResponse.data,
+      },
+    },
+  ]);
+
+  const aiResponse = await callClaude({
+    anthropic: p.anthropic,
+    messages: [{ role: userMessage.role, content: userMessage.content }],
+    onFirstStream: () => {},
+    onStream: () => {},
+  });
+
+  if (!aiResponse.success) return aiResponse;
+
+  const jsonResponse = safeJsonParse(aiResponse.data);
+  if (!jsonResponse.success) return jsonResponse;
+
+  const schema = z.object({ keywords: z.array(z.string()) });
+  const parsed = schema.safeParse(jsonResponse.data);
+  if (!parsed.success) return parsed;
+
+  return { success: true, data: parsed.data.keywords } as const;
+};
+
+const safeJsonParse = (json: string) => {
+  try {
+    return { success: true, data: JSON.parse(json) };
+  } catch (error) {
+    return { success: false, error };
+  }
 };

@@ -1,7 +1,7 @@
-import { TFile, TFileRecord } from "@/modules/files/dbFilesUtils";
+import { TFileDataRecord, TFileRecord } from "@/modules/files/dbFilesUtils";
 import { CustomIcon } from "./CustomIcon";
 
-export const getFileExtension = (file: TFileRecord | TFile) => {
+export const getFileExtension = (file: TFileRecord | TFileDataRecord) => {
   return file.name.split(".").pop()?.toLowerCase() ?? "";
 };
 
@@ -12,7 +12,7 @@ const mediaTypeMap: { [key: string]: string } = {
   gif: "image/gif",
   pdf: "application/pdf",
 };
-export const getMediaType = (file: TFileRecord | TFile) => {
+export const getMediaType = (file: TFileRecord | TFileDataRecord) => {
   const extension = getFileExtension(file);
   return mediaTypeMap[extension];
 };

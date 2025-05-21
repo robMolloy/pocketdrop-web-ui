@@ -14,7 +14,7 @@ import {
 import { pb } from "@/config/pocketbaseConfig";
 import { DirectoryActionsDropdownMenu } from "@/modules/directories/components/DirectoryActionsDropdownMenu";
 import { FileActionsDropdownMenu } from "@/modules/files/components/FileActionsDropdownMenu";
-import { getFileFromFileRecord, TFileRecord } from "@/modules/files/dbFilesUtils";
+import { getFileDataRecordFromFileRecord, TFileRecord } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { useRightSidebarStore } from "@/stores/rightSidebarStore";
 import { formatDate } from "@/lib/dateUtils";
@@ -34,7 +34,7 @@ export const DisplayFileThumbnailOrIcon = (p: {
     if (!imageExtensions.includes(extension)) return;
 
     (async () => {
-      const resp = await getFileFromFileRecord({ pb, isThumb: true, data: p.file });
+      const resp = await getFileDataRecordFromFileRecord({ pb, isThumb: true, data: p.file });
 
       if (resp.success) {
         const url = URL.createObjectURL(resp.data.file);

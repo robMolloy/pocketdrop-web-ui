@@ -15,8 +15,8 @@ const fileRecordSchema = z.object({
   updated: z.string(),
 });
 export type TFileRecord = z.infer<typeof fileRecordSchema>;
-export type TFile = Omit<TFileRecord, "file"> & { file: Blob };
-export type TFileOrFileRecord = TFile | TFileRecord;
+export type TFileDataRecord = Omit<TFileRecord, "file"> & { file: Blob };
+export type TFileDataOrFileRecord = TFileDataRecord | TFileRecord;
 
 export const listFiles = async (p: { pb: PocketBase }) => {
   try {
@@ -81,7 +81,7 @@ export const smartSubscribeToFiles = async (p: {
 export const createFile = async (p: {
   pb: PocketBase;
   data: Omit<
-    TFile,
+    TFileDataRecord,
     "collectionId" | "collectionName" | "id" | "file" | "size" | "created" | "updated"
   >;
 }) => {
@@ -94,7 +94,7 @@ export const createFile = async (p: {
 };
 export const updateFile = async (p: {
   pb: PocketBase;
-  data: { id: string } & Partial<Omit<TFileOrFileRecord, "id">>;
+  data: { id: string } & Partial<Omit<TFileDataOrFileRecord, "id">>;
 }) => {
   try {
     const resp = await p.pb.collection("files").update(p.data.id, p.data);
@@ -114,7 +114,7 @@ export const getFileRecord = async (p: { pb: PocketBase; id: string }) => {
   }
 };
 
-export const getFileFromFileRecord = async (p: {
+export const getFileDataRecordFromFileRecord = async (p: {
   pb: PocketBase;
   data: TFileRecord;
   isThumb: boolean;
@@ -143,7 +143,7 @@ export const getFile = async (p: { pb: PocketBase; id: string; isThumb: boolean 
 
     if (!fileRecord.success) return fileRecord;
 
-    return getFileFromFileRecord({
+    return getFileDataRecordFromFileRecord({
       pb: p.pb,
       data: fileRecord.data,
       isThumb: p.isThumb,
@@ -162,7 +162,7 @@ export const deleteFile = async (p: { pb: PocketBase; id: string }) => {
   }
 };
 
-export const downloadFile = async (p: { data: TFile }) => {
+export const downloadFile = async (p: { data: TFileDataRecord }) => {
   const downloadUrl = window.URL.createObjectURL(p.data.file);
   const a = document.createElement("a");
   a.href = downloadUrl;
@@ -173,20 +173,3 @@ export const downloadFile = async (p: { data: TFile }) => {
   window.URL.revokeObjectURL(downloadUrl);
   a.remove();
 };
-
-// export const upsertFile = async (p: { pb: PocketBase; data: TFile }) => {
-//   try {
-//     const getResp = await p.pb.collection("files").getOne(p.data.id);
-//     // const upsertResp = getResp.success ? updateFile(p) : createFile(p);
-//     const upsertResp = (() => {
-//       if (getResp.success) return updateFile(p);
-
-//       const {};
-//       getResp.success ? updateFile(p) : createFile(p);
-//     })();
-
-//     return { success: true, data: upsertResp } as const;
-//   } catch (error) {
-//     return { success: false, error } as const;
-//   }
-// };

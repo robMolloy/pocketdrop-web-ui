@@ -2,11 +2,12 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 
 export const chatMessageContentTextSchema = z.object({ type: z.literal("text"), text: z.string() });
+export const mediaTypeSchema = z.enum(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 export const chatMessageContentImageSchema = z.object({
   type: z.literal("image"),
   source: z.object({
     type: z.literal("base64"),
-    media_type: z.enum(["image/png", "image/jpeg", "image/webp", "image/gif"]),
+    media_type: mediaTypeSchema,
     data: z.string(),
   }),
 });
