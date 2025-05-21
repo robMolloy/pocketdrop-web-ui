@@ -130,8 +130,8 @@ const SettingsScreen = () => {
         <HorizontalSpacer />
 
         <SettingItem
-          title="Encrypt Files"
-          description="Enable client-side encryption for stored files"
+          title="Client-Side File Encryption"
+          description="Enable client-side encryption when storing files - whether on or off, always use https to ensure files are encrypted when being sent to the server"
           disabledTooltip="File encryption is not yet implemented"
         >
           <OptimisticSwitch
