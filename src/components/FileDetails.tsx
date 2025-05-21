@@ -138,11 +138,12 @@ const IndexFileWithKeywordsForm = (p: { file: TFileRecord }) => {
 
             const file = createFileFromFileDataRecord({ fileDataRecord: fileDataRecord.data });
 
-            const indexImageFileDataRecordWithAnthropicResponse = await indexFileWithAnthropic({
-              anthropic: aiInstance,
-              file,
-              onStream: () => {},
-            });
+            const indexImageFileDataRecordWithAnthropicResponse =
+              await getKeywordsFromFileWithAnthropic({
+                anthropic: aiInstance,
+                file,
+                onStream: () => {},
+              });
 
             if (!indexImageFileDataRecordWithAnthropicResponse.success)
               return console.error(`indexImageFileDataRecordWithAnthropic failed`);
@@ -158,7 +159,7 @@ const IndexFileWithKeywordsForm = (p: { file: TFileRecord }) => {
   );
 };
 
-const indexFileWithAnthropic = async (p: {
+const getKeywordsFromFileWithAnthropic = async (p: {
   anthropic: Anthropic;
   file: File;
   onStream: (message: string) => void;
