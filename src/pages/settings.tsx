@@ -60,7 +60,9 @@ const SettingsScreen = () => {
   const settingsStore = useSettingsStore();
 
   const versionHistorySetting = settingsStore.data?.find((x) => x.settingName === "versionHistory");
-  const encryptFilesSetting = settingsStore.data?.find((x) => x.settingName === "encryptFiles");
+  const clientSideEncryptionSetting = settingsStore.data?.find(
+    (x) => x.settingName === "clientSideEncryption",
+  );
   const aiChatSetting = settingsStore.data?.find((x) => x.settingName === "aiChat");
 
   const aiStore = useAiStore();
@@ -135,13 +137,16 @@ const SettingsScreen = () => {
           disabledTooltip="File encryption is not yet implemented"
         >
           <OptimisticSwitch
-            checked={encryptFilesSetting?.isEnabled ?? false}
+            checked={clientSideEncryptionSetting?.isEnabled ?? false}
             disabled={true}
             onCheckedChange={(isEnabled) => {
-              if (encryptFilesSetting)
-                return updateSetting({ pb, data: { ...encryptFilesSetting, isEnabled } });
+              if (clientSideEncryptionSetting)
+                return updateSetting({ pb, data: { ...clientSideEncryptionSetting, isEnabled } });
 
-              return createSetting({ pb, data: { settingName: "versionHistory", isEnabled } });
+              return createSetting({
+                pb,
+                data: { settingName: "clientSideEncryption", isEnabled },
+              });
             }}
           />
         </SettingItem>
