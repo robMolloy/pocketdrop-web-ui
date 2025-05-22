@@ -1,7 +1,12 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { pb } from "@/config/pocketbaseConfig";
 import { formatDate } from "@/lib/dateUtils";
-import { callClaude, createUserMessage, mediaTypeSchema } from "@/modules/aiChat/anthropicApi";
+import {
+  callClaude,
+  createUserMessage,
+  mediaTypeSchema,
+  TMediaType,
+} from "@/modules/aiChat/anthropicApi";
 import { convertFileToBase64 } from "@/modules/aiChat/utils";
 import { DisplayFileThumbnailOrIcon } from "@/modules/files/components/DisplayFilesTableView";
 import {
@@ -11,6 +16,7 @@ import {
   downloadFile,
   getFile,
   getFileDataRecordFromFileRecord,
+  updateFile,
 } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath } from "@/modules/files/directoriesStore";
 import { formatFileSize } from "@/modules/files/fileUtils";
@@ -34,7 +40,9 @@ const DetailsLine = (p: {
         <CustomIcon iconName={p.iconName} size="sm" />
       </span>
       <span className="whitespace-nowrap text-muted-foreground">{p.label}:</span>
-      <span className="flex-1 truncate text-right font-mono">{p.value}</span>
+      <span className="flex flex-1 justify-end truncate font-mono">
+        <div>{p.value}</div>
+      </span>
     </div>
   );
 };
@@ -44,6 +52,7 @@ export function FileDetails(p: {
   parentDirectory: TDirectoryWithFullPath;
   onDelete: () => void;
 }) {
+  const aiStore = useAiStore();
   return (
     <>
       <Card>
@@ -100,63 +109,102 @@ export function FileDetails(p: {
         <DetailsLine
           iconName={"fileText"}
           label="Keywords"
-          value={<IndexFileWithKeywordsForm file={p.file} />}
+          value={(() => {
+            if (p.file.keywords)
+              return (
+                <div>
+                  <pre>{JSON.stringify(p.file.keywords, undefined, 2)}</pre>
+                </div>
+              );
+            if (!aiStore.data) return <div>No AI key found</div>;
+            return (
+              <IndexFileWithKeywordsForm
+                file={p.file}
+                anthropic={aiStore.data}
+                onSuccess={(x) =>
+                  updateFile({ pb, data: { id: p.file.id, keywords: x.join(",") } })
+                }
+              />
+            );
+          })()}
         />
       </div>
     </>
   );
 }
 
-const IndexFileWithKeywordsForm = (p: { file: TFileRecord }) => {
+const IndexFileWithKeywordsForm = (p: {
+  anthropic: Anthropic;
+  file: TFileRecord;
+  onSuccess: (keywords: string[]) => void;
+}) => {
   const [keywords, setKeywords] = useState<string[]>();
-  const aiStore = useAiStore();
+  const [mode, setMode] = useState<"ready" | "loading" | "error" | "success">("ready");
 
-  const aiInstance = aiStore.data;
-  if (!aiInstance) return <div>No AI key found</div>;
-
-  return (
-    <div className="max-h-[200px] overflow-y-auto">
-      <div>{p.file.keywords}</div>
-
-      {!keywords && (
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={async () => {
+  if (mode === "ready")
+    return (
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={async () => {
+          setMode("loading");
+          const resp = await (async () => {
             const fileDataRecord = await getFileDataRecordFromFileRecord({
               pb,
               data: p.file,
               isThumb: false,
             });
-            if (!fileDataRecord.success) return console.error(`getFileFromFileRecord failed`);
-
-            const createFileFromFileDataRecord = (p: { fileDataRecord: TFileDataRecord }) => {
-              return new File([p.fileDataRecord.file], p.fileDataRecord.name, {
-                type: getMediaType(p.fileDataRecord),
-              });
-            };
+            if (!fileDataRecord.success)
+              return {
+                success: false,
+                error: "Failed to get file from file data record",
+              } as const;
 
             const file = createFileFromFileDataRecord({ fileDataRecord: fileDataRecord.data });
 
             const indexImageFileDataRecordWithAnthropicResponse =
               await getKeywordsFromFileWithAnthropic({
-                anthropic: aiInstance,
+                anthropic: p.anthropic,
                 file,
                 onStream: () => {},
               });
 
             if (!indexImageFileDataRecordWithAnthropicResponse.success)
-              return console.error(`indexImageFileDataRecordWithAnthropic failed`);
+              return {
+                success: false,
+                error: "Failed to index image file data record with Anthropic",
+              } as const;
 
-            setKeywords(indexImageFileDataRecordWithAnthropicResponse.data);
-          }}
-        >
-          Index
-        </Button>
-      )}
-      <pre>{keywords && JSON.stringify(keywords, undefined, 2)}</pre>
-    </div>
-  );
+            return {
+              success: true,
+              data: indexImageFileDataRecordWithAnthropicResponse.data,
+            } as const;
+          })();
+
+          if (!resp.success) return setMode("error");
+
+          setKeywords(resp.data);
+          setMode("success");
+          p.onSuccess(resp.data);
+        }}
+      >
+        Index
+      </Button>
+    );
+  if (mode === "loading")
+    return (
+      <div className="flex justify-end">
+        <CustomIcon iconName="loader" className="animate-spin" size={"xs"} />
+      </div>
+    );
+
+  if (mode === "success")
+    return (
+      <div className="max-h-[200px] overflow-y-auto">
+        <pre>{JSON.stringify(keywords, undefined, 2)}</pre>
+      </div>
+    );
+  return <div>Error</div>;
 };
 
 const getKeywordsFromFileWithAnthropic = async (p: {
@@ -175,14 +223,10 @@ const getKeywordsFromFileWithAnthropic = async (p: {
       type: "text",
       text: "return at least 30 keywords in the JSON format {keywords:[]}, no additional keys should be added and no other text should be returned. Describe the content of the image, also include keywords that describe metadata and other available data.",
     },
-    {
-      type: "image",
-      source: {
-        type: "base64",
-        media_type: mediaTypeResponse.data,
-        data: base64FileResponse.data,
-      },
-    },
+    createUserMessageContentItemFromMedia({
+      mediaType: mediaTypeResponse.data,
+      base64: base64FileResponse.data,
+    }),
   ]);
 
   const aiResponse = await callClaude({
@@ -206,8 +250,34 @@ const getKeywordsFromFileWithAnthropic = async (p: {
 
 const safeJsonParse = (json: string) => {
   try {
-    return { success: true, data: JSON.parse(json) };
+    return { success: true, data: JSON.parse(json) } as const;
   } catch (error) {
-    return { success: false, error };
+    return { success: false, error } as const;
   }
+};
+
+const createUserMessageContentItemFromMedia = (p: { mediaType: TMediaType; base64: string }) => {
+  return p.mediaType === "application/pdf"
+    ? ({
+        type: "document",
+        source: {
+          type: "base64",
+          media_type: p.mediaType,
+          data: p.base64,
+        },
+      } as const)
+    : ({
+        type: "image",
+        source: {
+          type: "base64",
+          media_type: p.mediaType,
+          data: p.base64,
+        },
+      } as const);
+};
+
+const createFileFromFileDataRecord = (p: { fileDataRecord: TFileDataRecord }) => {
+  return new File([p.fileDataRecord.file], p.fileDataRecord.name, {
+    type: getMediaType(p.fileDataRecord),
+  });
 };
