@@ -119,15 +119,10 @@ onRecordAfterUpdateSuccess((e) => {
     $app.dataDir() + "/storage/" + e.record.baseFilesPath() + "/" + e.record.get("file");
 
   const getFileFromPath = (path) => {
-    let fsys, file;
     try {
-      fsys = $app.newFilesystem();
-      file = $filesystem.fileFromPath(path);
-      fsys?.close();
-
+      const file = $filesystem.fileFromPath(path);
       return file ? { success: true, data: file } : { success: false };
     } catch (error) {
-      fsys?.close();
       return { success: false };
     }
   };
