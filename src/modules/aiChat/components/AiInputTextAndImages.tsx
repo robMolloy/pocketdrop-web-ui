@@ -3,22 +3,43 @@ import { Button } from "@/components/ui/button";
 import { useRef, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 
-const DisplayFileImagePreview = (p: { url: string; fileName: string }) => {
+const DisplayFileImagePreview = (p: { file: File }) => {
+  const [url, setUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const objectUrl = URL.createObjectURL(p.file);
+    setUrl(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [p.file]);
+
+  if (!url) return null;
+
   return (
     <img
-      src={p.url}
-      alt={`Preview ${p.fileName}`}
+      src={url}
+      alt={`Preview ${p.file.name}`}
       className="h-full w-full rounded-md object-cover"
     />
   );
 };
 
-const DisplayFilePdfPreview = (p: { url: string; fileName: string }) => {
+const DisplayFilePdfPreview = (p: { file: File }) => {
+  const [url, setUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const objectUrl = URL.createObjectURL(p.file);
+    setUrl(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [p.file]);
+
+  if (!url) return null;
+
   return (
-    <object data={p.url} type="application/pdf" className="h-full w-full rounded-md">
+    <object data={url} type="application/pdf" className="h-full w-full rounded-md">
       <div className="flex h-full w-full flex-col items-center justify-center rounded-md border border-input bg-muted p-2">
         <CustomIcon iconName="file" size="lg" />
-        <span className="mt-1 truncate text-xs">{p.fileName}</span>
+        <span className="mt-1 truncate text-xs">{p.file.name}</span>
       </div>
     </object>
   );
@@ -35,10 +56,10 @@ const DisplayFileOtherPreview = (p: { fileName: string }) => {
 
 const DisplayFilePreview = (p: { file: File }) => {
   if (p.file.type.startsWith("image/")) {
-    return <DisplayFileImagePreview url={URL.createObjectURL(p.file)} fileName={p.file.name} />;
+    return <DisplayFileImagePreview file={p.file} />;
   }
   if (p.file.type === "application/pdf") {
-    return <DisplayFilePdfPreview url={URL.createObjectURL(p.file)} fileName={p.file.name} />;
+    return <DisplayFilePdfPreview file={p.file} />;
   }
   return <DisplayFileOtherPreview fileName={p.file.name} />;
 };
@@ -51,26 +72,6 @@ export const AiInputTextAndMedia = (p: {
   onInputImages: (images: File[]) => void;
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [fileUrls, setFileUrls] = useState<{ [key: string]: string }>({});
-
-  // Create object URLs when files are added
-  useEffect(() => {
-    const newUrls: { [key: string]: string } = {};
-    p.images.forEach((file) => {
-      if (!fileUrls[file.name]) {
-        newUrls[file.name] = URL.createObjectURL(file);
-      }
-    });
-
-    if (Object.keys(newUrls).length > 0) {
-      setFileUrls((prev) => ({ ...prev, ...newUrls }));
-    }
-
-    // Cleanup function to revoke object URLs when files are removed
-    return () => {
-      Object.values(newUrls).forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [p.images]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
