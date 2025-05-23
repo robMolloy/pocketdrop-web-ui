@@ -1,43 +1,49 @@
 import { CustomIcon } from "@/components/CustomIcon";
 import { Button } from "@/components/ui/button";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 
-const DisplayFileImagePreview = (p: { file: File }) => {
+const DisplayFileImagePreview = (p: { url: string; fileName: string }) => {
   return (
     <img
-      src={URL.createObjectURL(p.file)}
-      alt={`Preview ${p.file.name}`}
+      src={p.url}
+      alt={`Preview ${p.fileName}`}
       className="h-full w-full rounded-md object-cover"
     />
   );
 };
 
-const DisplayFilePdfPreview = (p: { file: File }) => {
+const DisplayFilePdfPreview = (p: { url: string; fileName: string }) => {
   return (
-    <object
-      data={URL.createObjectURL(p.file)}
-      type="application/pdf"
-      className="h-full w-full rounded-md"
-    >
+    <object data={p.url} type="application/pdf" className="h-full w-full rounded-md">
       <div className="flex h-full w-full flex-col items-center justify-center rounded-md border border-input bg-muted p-2">
         <CustomIcon iconName="file" size="lg" />
-        <span className="mt-1 truncate text-xs">{p.file.name}</span>
+        <span className="mt-1 truncate text-xs">{p.fileName}</span>
       </div>
     </object>
   );
 };
 
-const DisplayFileOtherPreview = (p: { file: File }) => {
+const DisplayFileOtherPreview = (p: { fileName: string }) => {
   return (
     <div className="flex h-full w-full flex-col items-center justify-center rounded-md border border-input bg-muted p-2">
       <CustomIcon iconName="file" size="lg" />
-      <span className="mt-1 truncate text-xs">{p.file.name}</span>
+      <span className="mt-1 truncate text-xs">{p.fileName}</span>
     </div>
   );
 };
 
-export const AiInputTextAndImages = (p: {
+const DisplayFilePreview = (p: { file: File }) => {
+  if (p.file.type.startsWith("image/")) {
+    return <DisplayFileImagePreview url={URL.createObjectURL(p.file)} fileName={p.file.name} />;
+  }
+  if (p.file.type === "application/pdf") {
+    return <DisplayFilePdfPreview url={URL.createObjectURL(p.file)} fileName={p.file.name} />;
+  }
+  return <DisplayFileOtherPreview fileName={p.file.name} />;
+};
+
+export const AiInputTextAndMedia = (p: {
   disabled: boolean;
   text: string;
   onInputText: (text: string) => void;
@@ -45,6 +51,26 @@ export const AiInputTextAndImages = (p: {
   onInputImages: (images: File[]) => void;
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [fileUrls, setFileUrls] = useState<{ [key: string]: string }>({});
+
+  // Create object URLs when files are added
+  useEffect(() => {
+    const newUrls: { [key: string]: string } = {};
+    p.images.forEach((file) => {
+      if (!fileUrls[file.name]) {
+        newUrls[file.name] = URL.createObjectURL(file);
+      }
+    });
+
+    if (Object.keys(newUrls).length > 0) {
+      setFileUrls((prev) => ({ ...prev, ...newUrls }));
+    }
+
+    // Cleanup function to revoke object URLs when files are removed
+    return () => {
+      Object.values(newUrls).forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [p.images]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
@@ -90,11 +116,7 @@ export const AiInputTextAndImages = (p: {
         <div className="flex gap-4 overflow-x-auto">
           {p.images.map((file, index) => (
             <div key={index} className="relative h-20 w-20 flex-shrink-0">
-              {(() => {
-                if (file.type.startsWith("image/")) return <DisplayFileImagePreview file={file} />;
-                if (file.type === "application/pdf") return <DisplayFilePdfPreview file={file} />;
-                return <DisplayFileOtherPreview file={file} />;
-              })()}
+              <DisplayFilePreview file={file} />
 
               <button
                 type="button"

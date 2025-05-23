@@ -6,7 +6,7 @@ import {
   TChatMessage,
 } from "../anthropicApi";
 import { convertFilesToFileDetails } from "../utils";
-import { AiInputTextAndImages } from "./AiInputTextAndImages";
+import { AiInputTextAndMedia } from "./AiInputTextAndImages";
 import Anthropic from "@anthropic-ai/sdk";
 
 export const AiChatForm = (p: {
@@ -57,7 +57,7 @@ export const AiChatForm = (p: {
 
   return (
     <form onSubmit={handleSubmit}>
-      <AiInputTextAndImages
+      <AiInputTextAndMedia
         disabled={currentInput === "" || mode === "thinking" || mode === "streaming"}
         text={currentInput}
         onInputText={setCurrentInput}
