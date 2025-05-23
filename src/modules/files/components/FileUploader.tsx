@@ -6,7 +6,7 @@ import { useDropzone } from "react-dropzone";
 import { createFile, TFileRecord, updateFile } from "../dbFilesUtils";
 
 export function FileUploader(p: {
-  onUploadComplete?: () => void;
+  onUploadComplete?: (x: TFileRecord) => void;
   parentDirectoryId: string;
   siblingFiles: TFileRecord[];
 }) {
@@ -15,6 +15,7 @@ export function FileUploader(p: {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       setIsUploading(true);
+
       try {
         for (const file of acceptedFiles) {
           const fileWithSameName = p.siblingFiles.find((x) => x.name === file.name);
@@ -30,7 +31,8 @@ export function FileUploader(p: {
 
             return createFile({ pb, data: { ...newFile, keywords: "" } });
           })();
-          if (resp.success) p.onUploadComplete?.();
+
+          if (resp.success) p.onUploadComplete?.(resp.data);
         }
       } catch (e) {
         const error = e as { message: string };

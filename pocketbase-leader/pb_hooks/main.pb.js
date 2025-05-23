@@ -98,12 +98,19 @@ onRecordAfterCreateSuccess((e) => {
 
 onRecordAfterUpdateSuccess((e) => {
   console.log("after successful file updated");
-  let versionHistorySettingRecord = $app.findFirstRecordByFilter(
-    "settings",
-    "settingName = 'versionHistory'",
-  );
 
-  if (!versionHistorySettingRecord) return e.next();
+  let versionHistorySettingRecordResp = (() => {
+    try {
+      let data = $app.findFirstRecordByFilter("settings", "settingName = 'versionHistory'");
+      return { success: true, data };
+    } catch (error) {
+      return { success: false };
+    }
+  })();
+
+  if (!versionHistorySettingRecordResp.success) return e.next();
+
+  let versionHistorySettingRecord = versionHistorySettingRecordResp.data;
 
   if (!versionHistorySettingRecord.get("isEnabled")) return e.next();
   const id = e.record.id;
@@ -116,21 +123,23 @@ onRecordAfterUpdateSuccess((e) => {
     try {
       fsys = $app.newFilesystem();
       file = $filesystem.fileFromPath(path);
+      fsys?.close();
+
+      return file ? { success: true, data: file } : { success: false };
     } catch (error) {
-      console.log(/*LL*/ 151, error);
+      fsys?.close();
+      return { success: false };
     }
-    fsys?.close();
-    return file;
   };
 
-  const file = getFileFromPath(fullPath);
+  const fileResp = getFileFromPath(fullPath);
 
-  if (!file) return e.next();
+  if (!fileResp.success) return e.next();
 
   const collection = $app.findCollectionByNameOrId("filesVersionHistory");
   const record = new Record(collection);
 
-  record.set("file", file);
+  record.set("file", fileResp.data);
 
   record.set("fileRelationId", id);
   record.set("directoryRelationId", e.record.get("directoryRelationId"));

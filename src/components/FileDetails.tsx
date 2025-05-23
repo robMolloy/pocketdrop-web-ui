@@ -35,7 +35,7 @@ const DetailsLine = (p: {
   value: React.ReactNode;
 }) => {
   return (
-    <div className="flex items-center gap-2 text-sm">
+    <div className="flex gap-2 text-sm">
       <span>
         <CustomIcon iconName={p.iconName} size="sm" />
       </span>
@@ -110,12 +110,8 @@ export function FileDetails(p: {
           iconName={"fileText"}
           label="Keywords"
           value={(() => {
-            if (p.file.keywords)
-              return (
-                <div>
-                  <pre>{JSON.stringify(p.file.keywords, undefined, 2)}</pre>
-                </div>
-              );
+            if (p.file.keywords) return <DisplayKeywords keywordsString={p.file.keywords} />;
+
             if (!aiStore.data) return <div>No AI key found</div>;
             return (
               <IndexFileWithKeywordsForm
@@ -192,18 +188,9 @@ const IndexFileWithKeywordsForm = (p: {
       </Button>
     );
   if (mode === "loading")
-    return (
-      <div className="flex justify-end">
-        <CustomIcon iconName="loader" className="animate-spin" size={"xs"} />
-      </div>
-    );
+    return <CustomIcon iconName="loader" className="animate-spin" size={"xs"} />;
 
-  if (mode === "success")
-    return (
-      <div className="max-h-[200px] overflow-y-auto">
-        <pre>{JSON.stringify(keywords, undefined, 2)}</pre>
-      </div>
-    );
+  if (mode === "success" && keywords) return <DisplayKeywords keywords={keywords} />;
   return <div>Error</div>;
 };
 
@@ -280,4 +267,49 @@ const createFileFromFileDataRecord = (p: { fileDataRecord: TFileDataRecord }) =>
   return new File([p.fileDataRecord.file], p.fileDataRecord.name, {
     type: getMediaType(p.fileDataRecord),
   });
+};
+
+const DisplayKeywords = (p: { keywords: string[] } | { keywordsString: string }) => {
+  const keywords = "keywords" in p ? p.keywords : p.keywordsString.split(",");
+
+  return (
+    <div className="max-h-[200px] overflow-y-auto">
+      <pre>{JSON.stringify(keywords, undefined, 2)}</pre>
+    </div>
+  );
+};
+
+export const getKeywordsFromFileRecordWithAnthropic = async (p: {
+  file: TFileRecord;
+  anthropic: Anthropic;
+}) => {
+  const fileDataRecord = await getFileDataRecordFromFileRecord({
+    pb,
+    data: p.file,
+    isThumb: false,
+  });
+  if (!fileDataRecord.success)
+    return {
+      success: false,
+      error: "Failed to get file from file data record",
+    } as const;
+
+  const file = createFileFromFileDataRecord({ fileDataRecord: fileDataRecord.data });
+
+  const indexImageFileDataRecordWithAnthropicResponse = await getKeywordsFromFileWithAnthropic({
+    anthropic: p.anthropic,
+    file,
+    onStream: () => {},
+  });
+
+  if (!indexImageFileDataRecordWithAnthropicResponse.success)
+    return {
+      success: false,
+      error: "Failed to index image file data record with Anthropic",
+    } as const;
+
+  return {
+    success: true,
+    data: indexImageFileDataRecordWithAnthropicResponse.data,
+  } as const;
 };

@@ -82,23 +82,23 @@ export const createFile = async (p: {
   pb: PocketBase;
   data: Omit<
     TFileDataRecord,
-    "collectionId" | "collectionName" | "id" | "file" | "size" | "created" | "updated"
+    "collectionId" | "collectionName" | "id" | "size" | "created" | "updated"
   >;
 }) => {
   try {
     const resp = await p.pb.collection("files").create(p.data);
-    return { success: true, data: resp } as const;
+    return fileRecordSchema.safeParse(resp);
   } catch (error) {
     return { success: false, error } as const;
   }
 };
-export const updateFile = async (p: {
-  pb: PocketBase;
-  data: { id: string } & Partial<Omit<TFileDataOrFileRecord, "id">>;
-}) => {
+
+type TUpdatify<T extends { id: string }> = Pick<T, "id"> & Partial<Omit<T, "id">>;
+
+export const updateFile = async (p: { pb: PocketBase; data: TUpdatify<TFileDataOrFileRecord> }) => {
   try {
     const resp = await p.pb.collection("files").update(p.data.id, p.data);
-    return { success: true, data: resp } as const;
+    return fileRecordSchema.safeParse(resp);
   } catch (error) {
     return { success: false, error } as const;
   }

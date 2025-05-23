@@ -1,14 +1,19 @@
 import { CreateDirectoryInModalButton } from "@/components/CreateDirectoryForm";
 import { CustomIcon } from "@/components/CustomIcon";
+import { getKeywordsFromFileRecordWithAnthropic } from "@/components/FileDetails";
 import { MainLayout } from "@/components/layout/Layout";
+import { Button } from "@/components/ui/button";
 import { H1 } from "@/components/ui/defaultComponents";
+import { pb } from "@/config/pocketbaseConfig";
 import { DisplayDirectoriesAndFilesIconView } from "@/modules/directories/components/DisplayDirectoriesAndFilesIconView";
 import { DisplayDirectoriesAndFilesTableView } from "@/modules/files/components/DisplayFilesTableView";
 import { FileUploader } from "@/modules/files/components/FileUploader";
+import { updateFile } from "@/modules/files/dbFilesUtils";
 import { TDirectoryWithFullPath, useDirectoryTreeStore } from "@/modules/files/directoriesStore";
 import { useFilesStore } from "@/modules/files/filesStore";
 import { ViewTypeToggleButton } from "@/modules/viewType/components/ViewTypeToggleButton";
 import { useViewTypeStore } from "@/modules/viewType/viewTypeStore";
+import { useAiStore } from "@/stores/aiStore";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -58,6 +63,8 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
   const directoryTreeStore = useDirectoryTreeStore();
   const viewTypeStore = useViewTypeStore();
 
+  const aiStore = useAiStore();
+
   const dirsInCurrentDirectory = directoryTreeStore.fullPaths
     ? directoryTreeStore.fullPaths.filter((x) => x.directoryRelationId === p.directory.id)
     : [];
@@ -89,9 +96,39 @@ export const BrowseScreen = (p: { browsePath: string; directory: TDirectoryWithF
         <FileUploader
           parentDirectoryId={p.directory.id}
           siblingFiles={filesInCurrentDirectory}
-          onUploadComplete={() => {}}
+          onUploadComplete={async (fileRecord) => {
+            console.log(`BrowseScreen.tsx:${/*LL*/ 99}`, {});
+            if (!aiStore.data) return;
+            console.log(`BrowseScreen.tsx:${/*LL*/ 101}`, {});
+            const keywordsResp = await getKeywordsFromFileRecordWithAnthropic({
+              anthropic: aiStore.data,
+              file: fileRecord,
+            });
+            console.log(`BrowseScreen.tsx:${/*LL*/ 106}`, {});
+
+            if (!keywordsResp.success) return;
+            console.log(`BrowseScreen.tsx:${/*LL*/ 109}`, {});
+
+            const updateFileResp = await updateFile({
+              pb,
+              data: { ...fileRecord, keywords: keywordsResp.data.join(",") },
+            });
+            console.log(`FileUploader.tsx:${/*LL*/ 115}`, { updateFileResp });
+          }}
         />
       </div>
+
+      <Button
+        onClick={async () => {
+          const resp = await updateFile({
+            pb,
+            data: { id: "4acb6flq7h76kt9", keywords: "test" },
+          });
+          console.log(`BrowseScreen.tsx:${/*LL*/ 127}`, { resp });
+        }}
+      >
+        click me
+      </Button>
 
       <br />
 
