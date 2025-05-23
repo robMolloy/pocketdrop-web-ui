@@ -129,7 +129,7 @@ export const AiInputTextAndMedia = (p: {
           ))}
         </div>
       )}
-      <div className="flex items-start">
+      <div className="mt-2 flex items-start">
         <div className="relative flex-1" {...getRootProps()}>
           <input {...getInputProps()} />
           <textarea
