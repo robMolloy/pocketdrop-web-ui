@@ -1,61 +1,8 @@
 import { CustomIcon } from "@/components/CustomIcon";
 import { Button } from "@/components/ui/button";
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import { useDropzone } from "react-dropzone";
-
-const useFileUrl = (file: File) => {
-  const [url, setUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const objectUrl = URL.createObjectURL(file);
-    setUrl(objectUrl);
-
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [file]);
-
-  return url;
-};
-
-const DisplayFileImagePreview = (p: { file: File }) => {
-  const url = useFileUrl(p.file);
-
-  if (!url) return null;
-
-  return (
-    <img
-      src={url}
-      alt={`Preview ${p.file.name}`}
-      className="h-full w-full rounded-md object-cover"
-    />
-  );
-};
-
-const DisplayFilePdfPreview = (p: { file: File }) => {
-  const url = useFileUrl(p.file);
-
-  if (!url) return null;
-
-  return <object data={url} type="application/pdf" className="h-full w-full rounded-md"></object>;
-};
-
-const DisplayFileOtherPreview = (p: { fileName: string }) => {
-  return (
-    <div className="flex h-full w-full flex-col items-center justify-center rounded-md border border-input bg-muted p-2">
-      <CustomIcon iconName="file" size="lg" />
-      <span className="mt-1 truncate text-xs">{p.fileName}</span>
-    </div>
-  );
-};
-
-const DisplayFilePreview = (p: { file: File }) => {
-  if (p.file.type.startsWith("image/")) {
-    return <DisplayFileImagePreview file={p.file} />;
-  }
-  if (p.file.type === "application/pdf") {
-    return <DisplayFilePdfPreview file={p.file} />;
-  }
-  return <DisplayFileOtherPreview fileName={p.file.name} />;
-};
+import { DisplayFilePreview } from "./FilePreviews";
 
 export const AiInputTextAndMedia = (p: {
   disabled: boolean;
