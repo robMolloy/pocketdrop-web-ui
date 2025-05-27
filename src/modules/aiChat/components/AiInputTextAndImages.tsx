@@ -3,15 +3,21 @@ import { Button } from "@/components/ui/button";
 import { useRef, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 
-const DisplayFileImagePreview = (p: { file: File }) => {
+const useFileUrl = (file: File) => {
   const [url, setUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    const objectUrl = URL.createObjectURL(p.file);
+    const objectUrl = URL.createObjectURL(file);
     setUrl(objectUrl);
 
     return () => URL.revokeObjectURL(objectUrl);
-  }, [p.file]);
+  }, [file]);
+
+  return url;
+};
+
+const DisplayFileImagePreview = (p: { file: File }) => {
+  const url = useFileUrl(p.file);
 
   if (!url) return null;
 
@@ -25,24 +31,11 @@ const DisplayFileImagePreview = (p: { file: File }) => {
 };
 
 const DisplayFilePdfPreview = (p: { file: File }) => {
-  const [url, setUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const objectUrl = URL.createObjectURL(p.file);
-    setUrl(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [p.file]);
+  const url = useFileUrl(p.file);
 
   if (!url) return null;
 
-  return (
-    <object data={url} type="application/pdf" className="h-full w-full rounded-md">
-      <div className="flex h-full w-full flex-col items-center justify-center rounded-md border border-input bg-muted p-2">
-        <CustomIcon iconName="file" size="lg" />
-        <span className="mt-1 truncate text-xs">{p.file.name}</span>
-      </div>
-    </object>
-  );
+  return <object data={url} type="application/pdf" className="h-full w-full rounded-md"></object>;
 };
 
 const DisplayFileOtherPreview = (p: { fileName: string }) => {
@@ -114,7 +107,7 @@ export const AiInputTextAndMedia = (p: {
   return (
     <div>
       {p.images.length > 0 && (
-        <div className="flex gap-4 overflow-x-auto">
+        <div className="flex gap-4 overflow-x-auto overflow-y-visible pt-2">
           {p.images.map((file, index) => (
             <div key={index} className="relative h-20 w-20 flex-shrink-0">
               <DisplayFilePreview file={file} />
